@@ -31,9 +31,9 @@
  * \{
  */
 
-#define MM_MAJOR_VERSION 2 /**< \brief Major version number */
-#define MM_MINOR_VERSION 5 /**< \brief Minor version number */
-#define MM_REVISION      1 /**< \brief Revision number */
+#define MM_MAJOR_VERSION 2  /**< \brief Major version number */
+#define MM_MINOR_VERSION 5  /**< \brief Minor version number */
+#define MM_REVISION      99 /**< \brief Revision number */
 
 /**\}*/
 
