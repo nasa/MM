@@ -1,20 +1,27 @@
-/*************************************************************************
-** File: mm_load.c 
-**
-**   Copyright � 2007-2014 United States Government as represented by the
-**   Administrator of the National Aeronautics and Space Administration.
-**   All Other Rights Reserved.
-**
-**   This software was created at NASA's Goddard Space Flight Center.
-**   This software is governed by the NASA Open Source Agreement and may be
-**   used, distributed and modified only pursuant to the terms of that
-**   agreement.
-**
-** Purpose:
-**   Provides functions for the execution of the CFS Memory Manager
-**   load and fill ground commands
-**
-*************************************************************************/
+/************************************************************************
+ * NASA Docket No. GSC-18,923-1, and identified as “Core Flight
+ * System (cFS) Memory Manager Application version 2.5.0”
+ *
+ * Copyright (c) 2021 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
+/**
+ * @file
+ *   Provides functions for the execution of the CFS Memory Manager
+ *   load and fill ground commands
+ */
 
 /*************************************************************************
 ** Includes
@@ -28,7 +35,6 @@
 #include "mm_mem16.h"
 #include "mm_mem8.h"
 #include "mm_mission_cfg.h"
-#include "cfs_utils.h"
 #include <string.h>
 
 /*************************************************************************
@@ -54,7 +60,7 @@ bool MM_PokeCmd(const CFE_SB_Buffer_t *BufPtr)
         CmdPtr = ((MM_PokeCmd_t *)BufPtr);
 
         /* Resolve the symbolic address in command message */
-        Valid = CFS_ResolveSymAddr(&(CmdPtr->DestSymAddress), &DestAddress);
+        Valid = MM_ResolveSymAddr(&(CmdPtr->DestSymAddress), &DestAddress);
 
         if (Valid == true)
         {
@@ -80,7 +86,7 @@ bool MM_PokeCmd(const CFE_SB_Buffer_t *BufPtr)
 
             } /* end MM_VerifyPeekPokeParams if */
 
-        } /* end CFS_ResolveSymAddr */
+        } /* end MM_ResolveSymAddr */
         else
         {
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
@@ -301,7 +307,7 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
         CmdPtr = ((MM_LoadMemWIDCmd_t *)BufPtr);
 
         /* Resolve the symbolic address in command message */
-        if (CFS_ResolveSymAddr(&(CmdPtr->DestSymAddress), &DestAddress) == true)
+        if (MM_ResolveSymAddr(&(CmdPtr->DestSymAddress), &DestAddress) == true)
         {
             /*
             ** Run some necessary checks on command parameters
@@ -340,7 +346,7 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
 
             } /* end MM_VerifyLoadWIDParams */
 
-        } /* end CFS_ResolveSymAddr if */
+        } /* end MM_ResolveSymAddr if */
         else
         {
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
@@ -381,176 +387,163 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
         */
         CmdPtr->FileName[OS_MAX_PATH_LEN - 1] = '\0';
 
-        /* Verify filename doesn't have any illegal characters */
-        Valid = CFS_IsValidFilename(CmdPtr->FileName, strlen(CmdPtr->FileName));
-        if (Valid == true)
+        /* Open load file for reading */
+        OS_Status = OS_OpenCreate(&FileHandle, CmdPtr->FileName, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+        if (OS_Status == OS_SUCCESS)
         {
-            /* Open load file for reading */
-            OS_Status = OS_OpenCreate(&FileHandle, CmdPtr->FileName, OS_FILE_FLAG_NONE, OS_READ_ONLY);
-            if (OS_Status == OS_SUCCESS)
+            /* Read in the file headers */
+            Valid = MM_ReadFileHeaders(CmdPtr->FileName, FileHandle, &CFEFileHeader, &MMFileHeader);
+            if (Valid == true)
             {
-                /* Read in the file headers */
-                Valid = MM_ReadFileHeaders(CmdPtr->FileName, FileHandle, &CFEFileHeader, &MMFileHeader);
+                /* Verify the file size is correct */
+                Valid = MM_VerifyLoadFileSize(CmdPtr->FileName, &MMFileHeader);
                 if (Valid == true)
                 {
-                    /* Verify the file size is correct */
-                    Valid = MM_VerifyLoadFileSize(CmdPtr->FileName, &MMFileHeader);
-                    if (Valid == true)
+                    /* Verify data integrity check value */
+                    OS_Status = MM_ComputeCRCFromFile(FileHandle, &ComputedCRC, MM_LOAD_FILE_CRC_TYPE);
+                    if (OS_Status == OS_SUCCESS)
                     {
-                        /* Verify data integrity check value */
-                        OS_Status = CFS_ComputeCRCFromFile(FileHandle, &ComputedCRC, MM_LOAD_FILE_CRC_TYPE);
-                        if (OS_Status == OS_SUCCESS)
+                        /*
+                        ** Reset the file pointer to the start of the load data, need to do this
+                        ** because MM_ComputeCRCFromFile reads to the end of file
+                        */
+                        OS_Status = OS_lseek(FileHandle, (sizeof(CFE_FS_Header_t) + sizeof(MM_LoadDumpFileHeader_t)),
+                                             OS_SEEK_SET);
+                        if (OS_Status != (sizeof(CFE_FS_Header_t) + sizeof(MM_LoadDumpFileHeader_t)))
                         {
-                            /*
-                            ** Reset the file pointer to the start of the load data, need to do this
-                            ** because CFS_ComputeCRCFromFile reads to the end of file
-                            */
-                            OS_Status = OS_lseek(
-                                FileHandle, (sizeof(CFE_FS_Header_t) + sizeof(MM_LoadDumpFileHeader_t)), OS_SEEK_SET);
-                            if (OS_Status != (sizeof(CFE_FS_Header_t) + sizeof(MM_LoadDumpFileHeader_t)))
-                            {
-                                Valid = false;
-                            }
-                            /* Check the computed CRC against the file header CRC */
-                            if ((ComputedCRC == MMFileHeader.Crc) && (Valid == true))
-                            {
-                                /* Resolve symbolic address in file header */
-                                Valid = CFS_ResolveSymAddr(&(MMFileHeader.SymAddress), &DestAddress);
+                            Valid = false;
+                        }
+                        /* Check the computed CRC against the file header CRC */
+                        if ((ComputedCRC == MMFileHeader.Crc) && (Valid == true))
+                        {
+                            /* Resolve symbolic address in file header */
+                            Valid = MM_ResolveSymAddr(&(MMFileHeader.SymAddress), &DestAddress);
 
+                            if (Valid == true)
+                            {
+                                /* Run necessary checks on command parameters */
+                                Valid = MM_VerifyLoadDumpParams(DestAddress, MMFileHeader.MemType,
+                                                                MMFileHeader.NumOfBytes, MM_VERIFY_LOAD);
                                 if (Valid == true)
                                 {
-                                    /* Run necessary checks on command parameters */
-                                    Valid = MM_VerifyLoadDumpParams(DestAddress, MMFileHeader.MemType,
-                                                                    MMFileHeader.NumOfBytes, MM_VERIFY_LOAD);
-                                    if (Valid == true)
+                                    /* Call the load routine for the specified memory type */
+                                    switch (MMFileHeader.MemType)
                                     {
-                                        /* Call the load routine for the specified memory type */
-                                        switch (MMFileHeader.MemType)
-                                        {
-                                            case MM_RAM:
-                                            case MM_EEPROM:
-                                                Valid = MM_LoadMemFromFile(FileHandle, CmdPtr->FileName, &MMFileHeader,
-                                                                           DestAddress);
-                                                break;
+                                        case MM_RAM:
+                                        case MM_EEPROM:
+                                            Valid = MM_LoadMemFromFile(FileHandle, CmdPtr->FileName, &MMFileHeader,
+                                                                       DestAddress);
+                                            break;
 
 #ifdef MM_OPT_CODE_MEM32_MEMTYPE
-                                            case MM_MEM32:
-                                                Valid = MM_LoadMem32FromFile(FileHandle, CmdPtr->FileName,
-                                                                             &MMFileHeader, DestAddress);
-                                                break;
+                                        case MM_MEM32:
+                                            Valid = MM_LoadMem32FromFile(FileHandle, CmdPtr->FileName, &MMFileHeader,
+                                                                         DestAddress);
+                                            break;
 #endif /* MM_OPT_CODE_MEM32_MEMTYPE */
 
 #ifdef MM_OPT_CODE_MEM16_MEMTYPE
-                                            case MM_MEM16:
-                                                Valid = MM_LoadMem16FromFile(FileHandle, CmdPtr->FileName,
-                                                                             &MMFileHeader, DestAddress);
-                                                break;
+                                        case MM_MEM16:
+                                            Valid = MM_LoadMem16FromFile(FileHandle, CmdPtr->FileName, &MMFileHeader,
+                                                                         DestAddress);
+                                            break;
 #endif /* MM_OPT_CODE_MEM16_MEMTYPE */
 
 #ifdef MM_OPT_CODE_MEM8_MEMTYPE
-                                            case MM_MEM8:
-                                                Valid = MM_LoadMem8FromFile(FileHandle, CmdPtr->FileName, &MMFileHeader,
-                                                                            DestAddress);
-                                                break;
+                                        case MM_MEM8:
+                                            Valid = MM_LoadMem8FromFile(FileHandle, CmdPtr->FileName, &MMFileHeader,
+                                                                        DestAddress);
+                                            break;
 #endif /* MM_OPT_CODE_MEM8_MEMTYPE */
 
-                                            /*
-                                            ** We don't need a default case, a bad MemType will get caught
-                                            ** in the MM_VerifyFileLoadParams function and we won't get here
-                                            */
-                                            default:
-                                                Valid = false;
-                                                break;
-                                        }
-
-                                        if (Valid == true)
-                                        {
-                                            CFE_EVS_SendEvent(MM_LD_MEM_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                                              "Load Memory From File Command: Loaded %d bytes to "
-                                                              "address 0x%08X from file '%s'",
-                                                              (int)MM_AppData.HkPacket.BytesProcessed,
-                                                              (unsigned int)DestAddress, CmdPtr->FileName);
-                                        }
-
-                                    } /* end MM_VerifyFileLoadParams if */
-                                    else
-                                    {
                                         /*
-                                        ** We don't need to increment the error counter here, it was done by the
-                                        ** MM_VerifyFileLoadParams routine when the error was first discovered.
-                                        ** We send this event as a supplemental message with the filename attached.
+                                        ** We don't need a default case, a bad MemType will get caught
+                                        ** in the MM_VerifyFileLoadParams function and we won't get here
                                         */
-                                        CFE_EVS_SendEvent(MM_FILE_LOAD_PARAMS_ERR_EID, CFE_EVS_EventType_ERROR,
-                                                          "Load file failed parameters check: File = '%s'",
-                                                          CmdPtr->FileName);
+                                        default:
+                                            Valid = false;
+                                            break;
                                     }
 
-                                } /* end CFS_ResolveSymAddr if */
+                                    if (Valid == true)
+                                    {
+                                        CFE_EVS_SendEvent(MM_LD_MEM_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
+                                                          "Load Memory From File Command: Loaded %d bytes to "
+                                                          "address 0x%08X from file '%s'",
+                                                          (int)MM_AppData.HkPacket.BytesProcessed,
+                                                          (unsigned int)DestAddress, CmdPtr->FileName);
+                                    }
+
+                                } /* end MM_VerifyFileLoadParams if */
                                 else
                                 {
-                                    CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                                                      "Symbolic address can't be resolved: Name = '%s'",
-                                                      MMFileHeader.SymAddress.SymName);
+                                    /*
+                                    ** We don't need to increment the error counter here, it was done by the
+                                    ** MM_VerifyFileLoadParams routine when the error was first discovered.
+                                    ** We send this event as a supplemental message with the filename attached.
+                                    */
+                                    CFE_EVS_SendEvent(MM_FILE_LOAD_PARAMS_ERR_EID, CFE_EVS_EventType_ERROR,
+                                                      "Load file failed parameters check: File = '%s'",
+                                                      CmdPtr->FileName);
                                 }
 
-                            } /* end ComputedCRC == MMFileHeader.Crc if */
+                            } /* end MM_ResolveSymAddr if */
                             else
                             {
-                                Valid = false;
-                                CFE_EVS_SendEvent(
-                                    MM_LOAD_FILE_CRC_ERR_EID, CFE_EVS_EventType_ERROR,
-                                    "Load file CRC failure: Expected = 0x%X Calculated = 0x%X File = '%s'",
-                                    (unsigned int)MMFileHeader.Crc, (unsigned int)ComputedCRC, CmdPtr->FileName);
+                                CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
+                                                  "Symbolic address can't be resolved: Name = '%s'",
+                                                  MMFileHeader.SymAddress.SymName);
                             }
 
-                        } /* end CFS_ComputeCRCFromFile if */
+                        } /* end ComputedCRC == MMFileHeader.Crc if */
                         else
                         {
                             Valid = false;
-                            CFE_EVS_SendEvent(MM_CFS_COMPUTECRCFROMFILE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                              "CFS_ComputeCRCFromFile error received: RC = 0x%08X File = '%s'",
-                                              (unsigned int)OS_Status, CmdPtr->FileName);
+                            CFE_EVS_SendEvent(MM_LOAD_FILE_CRC_ERR_EID, CFE_EVS_EventType_ERROR,
+                                              "Load file CRC failure: Expected = 0x%X Calculated = 0x%X File = '%s'",
+                                              (unsigned int)MMFileHeader.Crc, (unsigned int)ComputedCRC,
+                                              CmdPtr->FileName);
                         }
 
-                    } /* end MM_VerifyLoadFileSize */
+                    } /* end MM_ComputeCRCFromFile if */
+                    else
+                    {
+                        Valid = false;
+                        CFE_EVS_SendEvent(MM_COMPUTECRCFROMFILE_ERR_EID, CFE_EVS_EventType_ERROR,
+                                          "MM_ComputeCRCFromFile error received: RC = 0x%08X File = '%s'",
+                                          (unsigned int)OS_Status, CmdPtr->FileName);
+                    }
 
-                    /*
-                    ** Don't need an 'else' here. MM_VerifyLoadFileSize will increment
-                    ** the error counter and generate an event message if needed.
-                    */
-
-                } /* end MM_ReadFileHeaders if */
+                } /* end MM_VerifyLoadFileSize */
 
                 /*
-                ** Don't need an 'else' here. MM_ReadFileHeaders will increment
+                ** Don't need an 'else' here. MM_VerifyLoadFileSize will increment
                 ** the error counter and generate an event message if needed.
                 */
 
-                /* Close the load file for all cases after the open call succeeds */
-                OS_Status = OS_close(FileHandle);
-                if (OS_Status != OS_SUCCESS)
-                {
-                    Valid = false;
-                    CFE_EVS_SendEvent(MM_OS_CLOSE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "OS_close error received: RC = 0x%08X File = '%s'", (unsigned int)OS_Status,
-                                      CmdPtr->FileName);
-                }
+            } /* end MM_ReadFileHeaders if */
 
-            } /* end OS_OpenCreate if */
-            else
+            /*
+            ** Don't need an 'else' here. MM_ReadFileHeaders will increment
+            ** the error counter and generate an event message if needed.
+            */
+
+            /* Close the load file for all cases after the open call succeeds */
+            OS_Status = OS_close(FileHandle);
+            if (OS_Status != OS_SUCCESS)
             {
                 Valid = false;
-                CFE_EVS_SendEvent(MM_OS_OPEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "OS_OpenCreate error received: RC = %d File = '%s'", (int)OS_Status,
+                CFE_EVS_SendEvent(MM_OS_CLOSE_ERR_EID, CFE_EVS_EventType_ERROR,
+                                  "OS_close error received: RC = 0x%08X File = '%s'", (unsigned int)OS_Status,
                                   CmdPtr->FileName);
             }
 
-        } /* end IsValidFilename if */
+        } /* end OS_OpenCreate if */
         else
         {
             Valid = false;
-            CFE_EVS_SendEvent(MM_CMD_FNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Command specified filename invalid: Name = '%s'", CmdPtr->FileName);
+            CFE_EVS_SendEvent(MM_OS_OPEN_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "OS_OpenCreate error received: RC = %d File = '%s'", (int)OS_Status, CmdPtr->FileName);
         }
 
     } /* end MM_VerifyCmdLength if */
@@ -564,7 +557,7 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
 /* Loads memory from a file                                        */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-bool MM_LoadMemFromFile(uint32 FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader,
+bool MM_LoadMemFromFile(osal_id_t FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader,
                         cpuaddr DestAddress)
 {
     bool   Valid          = false;
@@ -660,11 +653,7 @@ bool MM_VerifyLoadFileSize(const char *FileName, const MM_LoadDumpFileHeader_t *
         ** Check the reported size of the file against what it should be based
         ** upon the number of load bytes specified in the file header
         */
-#ifdef OS_FILESTAT_SIZE
-        ActualSize = OS_FILESTAT_SIZE(FileStats);
-#else
-        ActualSize = FileStats.st_size;
-#endif
+        ActualSize   = OS_FILESTAT_SIZE(FileStats);
         ExpectedSize = FileHeader->NumOfBytes + sizeof(CFE_FS_Header_t) + sizeof(MM_LoadDumpFileHeader_t);
         if (ActualSize != ExpectedSize)
         {
@@ -690,7 +679,7 @@ bool MM_VerifyLoadFileSize(const char *FileName, const MM_LoadDumpFileHeader_t *
 /* Read the cFE primary and and MM secondary file headers          */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-bool MM_ReadFileHeaders(const char *FileName, int32 FileHandle, CFE_FS_Header_t *CFEHeader,
+bool MM_ReadFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Header_t *CFEHeader,
                         MM_LoadDumpFileHeader_t *MMHeader)
 {
     bool  Valid = true;
@@ -747,7 +736,7 @@ bool MM_FillMemCmd(const CFE_SB_Buffer_t *BufPtr)
     if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
     {
         /* Resolve symbolic address */
-        if (CFS_ResolveSymAddr(&(CmdPtr->DestSymAddress), &DestAddress) == true)
+        if (MM_ResolveSymAddr(&(CmdPtr->DestSymAddress), &DestAddress) == true)
         {
             /* Run necessary checks on command parameters */
             if (MM_VerifyLoadDumpParams(DestAddress, CmdPtr->MemType, CmdPtr->NumOfBytes, MM_VERIFY_FILL) == true)

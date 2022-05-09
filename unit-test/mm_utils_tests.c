@@ -1,19 +1,26 @@
 /************************************************************************
-** File: mm_utils_tests.c 
-**
-**   Copyright © 2007-2014 United States Government as represented by the
-**   Administrator of the National Aeronautics and Space Administration.
-**   All Other Rights Reserved.
-**
-**   This software was created at NASA's Goddard Space Flight Center.
-**   This software is governed by the NASA Open Source Agreement and may be
-**   used, distributed and modified only pursuant to the terms of that
-**   agreement.
-**
-** Purpose:
-**   Unit tests for mm_utils.c
-**
-*************************************************************************/
+ * NASA Docket No. GSC-18,923-1, and identified as “Core Flight
+ * System (cFS) Memory Manager Application version 2.5.0”
+ *
+ * Copyright (c) 2021 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
+/**
+ * @file
+ *   Unit tests for mm_utils.c
+ */
 
 /************************************************************************
 ** Includes
@@ -35,10 +42,9 @@
 #include "utassert.h"
 #include "utstubs.h"
 
-#include <sys/fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <cfe.h>
+#include "cfe.h"
 #include "cfe_msgids.h"
 
 /* mm_utils_tests globals */
@@ -85,12 +91,11 @@ void MM_VerifyCmdLength_Test_Nominal(void)
 {
     bool              Result;
     uint16            ExpectedLength = sizeof(MM_PeekCmd_t);
-    MM_PeekCmd_t      CmdPacket;
     CFE_SB_MsgId_t    TestMsgId;
     CFE_MSG_FcnCode_t FcnCode;
     size_t            MsgSize;
 
-    TestMsgId = MM_CMD_MID;
+    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
     FcnCode   = MM_PEEK_CC;
     MsgSize   = sizeof(MM_PeekCmd_t);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
@@ -98,7 +103,7 @@ void MM_VerifyCmdLength_Test_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
     /* Execute the function being tested */
-    Result = MM_VerifyCmdLength((CFE_MSG_Message_t *)(&CmdPacket), ExpectedLength);
+    Result = MM_VerifyCmdLength(&UT_CmdBuf.PeekCmd.CmdHeader.Msg, ExpectedLength);
 
     /* Verify results */
     UtAssert_True(Result == true, "Result == true");
@@ -118,37 +123,31 @@ void MM_VerifyCmdLength_Test_HKRequestLengthError(void)
 {
     bool              Result;
     uint16            ExpectedLength = 99;
-    MM_PeekCmd_t      CmdPacket;
-    CFE_SB_MsgId_t    TestMsgId;
-    CFE_MSG_FcnCode_t FcnCode;
-    size_t            MsgSize;
+    CFE_SB_MsgId_t    TestMsgId      = CFE_SB_ValueToMsgId(MM_SEND_HK_MID);
+    CFE_MSG_FcnCode_t FcnCode        = 0;
+    size_t            MsgSize        = 1;
     int32             strCmpResult;
     char              ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Invalid HK request msg length: ID = 0x%%08X, CC = %%d, Len = %%d, Expected = %%d");
+             "Invalid HK request msg length: ID = 0x%%08lX, CC = %%d, Len = %%d, Expected = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    TestMsgId = MM_SEND_HK_MID;
-    FcnCode   = 0;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
     /* Execute the function being tested */
-    Result = MM_VerifyCmdLength((CFE_MSG_Message_t *)&CmdPacket, ExpectedLength);
+    Result = MM_VerifyCmdLength(&UT_CmdBuf.PeekCmd.CmdHeader.Msg, ExpectedLength);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_HKREQ_LEN_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_HKREQ_LEN_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -165,37 +164,31 @@ void MM_VerifyCmdLength_Test_LengthError(void)
 {
     bool              Result;
     uint16            ExpectedLength = 99;
-    MM_PeekCmd_t      CmdPacket;
-    CFE_SB_MsgId_t    TestMsgId;
-    CFE_MSG_FcnCode_t FcnCode;
-    size_t            MsgSize;
+    CFE_SB_MsgId_t    TestMsgId      = MM_UT_MID_1;
+    CFE_MSG_FcnCode_t FcnCode        = 0;
+    size_t            MsgSize        = 1;
     int32             strCmpResult;
     char              ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Invalid msg length: ID = 0x%%08X, CC = %%d, Len = %%d, Expected = %%d");
+             "Invalid msg length: ID = 0x%%08lX, CC = %%d, Len = %%d, Expected = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    TestMsgId = 99;
-    FcnCode   = 0;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
     /* Execute the function being tested */
-    Result = MM_VerifyCmdLength((CFE_MSG_Message_t *)&CmdPacket, ExpectedLength);
+    Result = MM_VerifyCmdLength(&UT_CmdBuf.PeekCmd.CmdHeader.Msg, ExpectedLength);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_LEN_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_LEN_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -257,8 +250,6 @@ void MM_VerifyPeekPokeParams_Test_WordWidthMEM16(void)
     uint8  MemType    = MM_MEM16;
     uint8  SizeInBits = 16;
 
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), true);
-
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
 
@@ -282,8 +273,6 @@ void MM_VerifyPeekPokeParams_Test_DWordWidthMEM32(void)
     uint32 Address    = 0;
     uint8  MemType    = MM_MEM32;
     uint8  SizeInBits = 32;
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), true);
 
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
@@ -314,21 +303,18 @@ void MM_VerifyPeekPokeParams_Test_WordWidthAlignmentError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 16 bit aligned: Addr = 0x%%08X Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_ALIGN16_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_ALIGN16_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -353,21 +339,18 @@ void MM_VerifyPeekPokeParams_Test_DWordWidthAlignmentError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 32 bit aligned: Addr = 0x%%08X Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_ALIGN32_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_ALIGN32_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -392,23 +375,18 @@ void MM_VerifyPeekPokeParams_Test_InvalidDataSize(void)
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Data size in bits invalid: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDeferredRetcode(UT_KEY(CFS_Verify16Aligned), 1, true);
-
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BITS_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BITS_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -481,9 +459,6 @@ void MM_VerifyPeekPokeParams_Test_RAMValidateRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = MEM_RAM");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -493,12 +468,12 @@ void MM_VerifyPeekPokeParams_Test_RAMValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -523,9 +498,6 @@ void MM_VerifyPeekPokeParams_Test_EEPROMValidateRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = MEM_EEPROM");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -535,12 +507,12 @@ void MM_VerifyPeekPokeParams_Test_EEPROMValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -565,9 +537,6 @@ void MM_VerifyPeekPokeParams_Test_MEM32ValidateRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = MEM32");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -577,12 +546,12 @@ void MM_VerifyPeekPokeParams_Test_MEM32ValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -607,9 +576,6 @@ void MM_VerifyPeekPokeParams_Test_MEM16ValidateRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = MEM16");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -619,12 +585,12 @@ void MM_VerifyPeekPokeParams_Test_MEM16ValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -649,9 +615,6 @@ void MM_VerifyPeekPokeParams_Test_MEM8ValidateRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = MEM8");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -661,12 +624,12 @@ void MM_VerifyPeekPokeParams_Test_MEM8ValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -690,21 +653,18 @@ void MM_VerifyPeekPokeParams_Test_MEM32InvalidDataSize(void)
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Data size in bits invalid: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BITS_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BITS_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -728,21 +688,18 @@ void MM_VerifyPeekPokeParams_Test_MEM16InvalidDataSize(void)
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Data size in bits invalid: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BITS_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BITS_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -766,21 +723,18 @@ void MM_VerifyPeekPokeParams_Test_MEM8InvalidDataSize(void)
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Data size in bits invalid: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BITS_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BITS_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -804,21 +758,18 @@ void MM_VerifyPeekPokeParams_Test_InvalidMemType(void)
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Invalid memory type specified: MemType = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_MEMTYPE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_MEMTYPE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -848,9 +799,6 @@ void MM_VerifyLoadDumpParams_Test_LoadRAMValidateRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -860,12 +808,12 @@ void MM_VerifyLoadDumpParams_Test_LoadRAMValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -889,21 +837,18 @@ void MM_VerifyLoadDumpParams_Test_LoadRAMDataSizeErrorTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -927,21 +872,18 @@ void MM_VerifyLoadDumpParams_Test_LoadRAMDataSizeErrorTooLarge(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -965,9 +907,6 @@ void MM_VerifyLoadDumpParams_Test_LoadEEPROMValidateRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -977,12 +916,12 @@ void MM_VerifyLoadDumpParams_Test_LoadEEPROMValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1006,21 +945,18 @@ void MM_VerifyLoadDumpParams_Test_LoadEEPROMDataSizeErrorTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1044,21 +980,18 @@ void MM_VerifyLoadDumpParams_Test_LoadEEPROMDataSizeErrorTooLarge(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1075,18 +1008,14 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32ValidateRangeError(void)
     bool   Result;
     uint32 Address     = 0;
     uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 1;
+    uint32 SizeInBytes = 4;
     int32  strCmpResult;
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), true);
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
     /* Execute the function being tested */
@@ -1095,12 +1024,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32ValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1124,23 +1053,18 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), true);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1157,17 +1081,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooLarge(void)
     bool   Result;
     uint32 Address     = 0;
     uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM32 + 1;
+    uint32 SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM32 + 4;
     int32  strCmpResult;
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
-
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), true);
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
@@ -1175,12 +1094,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooLarge(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1204,23 +1123,18 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32AlignmentError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 32 bit aligned: Addr = 0x%%08X Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), false);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_ALIGN32_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_ALIGN32_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1237,18 +1151,14 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16ValidateRangeError(void)
     bool   Result;
     uint32 Address     = 0;
     uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 1;
+    uint32 SizeInBytes = 2;
     int32  strCmpResult;
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), true);
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
     /* Execute the function being tested */
@@ -1257,12 +1167,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16ValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1286,23 +1196,18 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), true);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1319,17 +1224,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooLarge(void)
     bool   Result;
     uint32 Address     = 0;
     uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM16 + 1;
+    uint32 SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM16 + 2;
     int32  strCmpResult;
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
-
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), true);
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
@@ -1337,12 +1237,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooLarge(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1366,23 +1266,18 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16AlignmentError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 16 bit aligned: Addr = 0x%%08X Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), false);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_ALIGN16_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_ALIGN16_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1406,9 +1301,6 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM8ValidateRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -1418,12 +1310,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM8ValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1447,21 +1339,18 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM8DataSizeErrorTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1485,21 +1374,18 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM8DataSizeErrorTooLarge(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1522,21 +1408,18 @@ void MM_VerifyLoadDumpParams_Test_LoadInvalidMemTypeError(void)
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Invalid memory type specified: MemType = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_MEMTYPE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_MEMTYPE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1627,7 +1510,6 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32(void)
     uint8  MemType     = MM_MEM32;
     uint32 SizeInBytes = 4;
 
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), true);
     UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_MemValidateRange), CFE_PSP_SUCCESS);
 
     /* Execute the function being tested */
@@ -1655,7 +1537,6 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16(void)
     uint32 SizeInBytes = 2;
 
     UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_MemValidateRange), CFE_PSP_SUCCESS);
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), true);
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
@@ -1712,9 +1593,6 @@ void MM_VerifyLoadDumpParams_Test_DumpRAMRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -1724,12 +1602,12 @@ void MM_VerifyLoadDumpParams_Test_DumpRAMRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1754,21 +1632,18 @@ void MM_VerifyLoadDumpParams_Test_DumpRAMInvalidSizeTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1793,21 +1668,18 @@ void MM_VerifyLoadDumpParams_Test_DumpRAMInvalidSizeTooLarge(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1832,9 +1704,6 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROMRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -1844,12 +1713,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROMRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1874,21 +1743,18 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROMInvalidSizeTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1913,21 +1779,18 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROMInvalidSizeTooLarge(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1952,11 +1815,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32RangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), true);
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
     /* Execute the function being tested */
@@ -1965,12 +1824,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32RangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1995,23 +1854,18 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), true);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2029,17 +1883,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooLarge(void)
     bool   Result;
     uint32 Address     = 0;
     uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = MM_MAX_DUMP_FILE_DATA_MEM32 + 1;
+    uint32 SizeInBytes = MM_MAX_DUMP_FILE_DATA_MEM32 + 4;
     int32  strCmpResult;
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
-
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), true);
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
@@ -2047,12 +1896,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooLarge(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2077,23 +1926,18 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32AlignmentError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 32 bit aligned: Addr = 0x%%08X Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), false);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_ALIGN32_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_ALIGN32_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2118,11 +1962,6 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16RangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), true);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -2132,12 +1971,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16RangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2162,23 +2001,18 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), true);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2196,17 +2030,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooLarge(void)
     bool   Result;
     uint32 Address     = 0;
     uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = MM_MAX_DUMP_FILE_DATA_MEM16 + 1;
+    uint32 SizeInBytes = MM_MAX_DUMP_FILE_DATA_MEM16 + 2;
     int32  strCmpResult;
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
-
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), true);
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
@@ -2214,12 +2043,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooLarge(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2244,23 +2073,18 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16AlignmentError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 16 bit aligned: Addr = 0x%%08X Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), false);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_ALIGN16_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_ALIGN16_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2285,9 +2109,6 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8RangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -2297,12 +2118,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8RangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2327,21 +2148,18 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8InvalidSizeTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2366,21 +2184,18 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8InvalidSizeTooLarge(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2404,9 +2219,6 @@ void MM_VerifyLoadDumpParams_Test_DumpInvalidMemoryType(void)
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Invalid memory type specified: MemType = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -2416,12 +2228,12 @@ void MM_VerifyLoadDumpParams_Test_DumpInvalidMemoryType(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_MEMTYPE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_MEMTYPE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2491,8 +2303,6 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM32(void)
     uint8  MemType     = MM_MEM32;
     uint32 SizeInBytes = 4;
 
-    UT_SetDeferredRetcode(UT_KEY(CFS_Verify32Aligned), 1, true);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
 
@@ -2516,8 +2326,6 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM16(void)
     uint32 Address     = 0;
     uint8  MemType     = MM_MEM16;
     uint32 SizeInBytes = 2;
-
-    UT_SetDeferredRetcode(UT_KEY(CFS_Verify16Aligned), 1, true);
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
@@ -2572,21 +2380,18 @@ void MM_VerifyLoadDumpParams_Test_DumpEventInvalidDataSizeTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2611,21 +2416,18 @@ void MM_VerifyLoadDumpParams_Test_DumpEventInvalidDataSizeTooLarge(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2650,9 +2452,6 @@ void MM_VerifyLoadDumpParams_Test_DumpEventRAMRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -2662,12 +2461,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventRAMRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2692,9 +2491,6 @@ void MM_VerifyLoadDumpParams_Test_DumpEventEEPROMRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -2704,12 +2500,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventEEPROMRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2734,11 +2530,6 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM32RangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), true);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -2748,12 +2539,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM32RangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2778,21 +2569,18 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM32AlignmentError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 32 bit aligned: Addr = 0x%%08X Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_ALIGN32_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_ALIGN32_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2817,11 +2605,6 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM16RangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), true);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -2831,12 +2614,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM16RangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2861,21 +2644,18 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM16AlignmentError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 16 bit aligned: Addr = 0x%%08X Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_ALIGN16_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_ALIGN16_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2900,9 +2680,6 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM8RangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -2912,12 +2689,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM8RangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2941,9 +2718,6 @@ void MM_VerifyLoadDumpParams_Test_DumpEventInvalidMemType(void)
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Invalid memory type specified: MemType = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -2953,12 +2727,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventInvalidMemType(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_MEMTYPE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_MEMTYPE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -2985,9 +2759,6 @@ void MM_VerifyLoadDumpParams_Test_FillRAMValidateRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -2997,12 +2768,12 @@ void MM_VerifyLoadDumpParams_Test_FillRAMValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3026,21 +2797,18 @@ void MM_VerifyLoadDumpParams_Test_FillRAMDataSizeErrorTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3064,21 +2832,18 @@ void MM_VerifyLoadDumpParams_Test_FillRAMDataSizeErrorTooLarge(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3102,9 +2867,6 @@ void MM_VerifyLoadDumpParams_Test_FillEEPROMValidateRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -3114,12 +2876,12 @@ void MM_VerifyLoadDumpParams_Test_FillEEPROMValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3143,21 +2905,18 @@ void MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3181,21 +2940,18 @@ void MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooLarge(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3210,19 +2966,14 @@ void MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooLarge(void)
 void MM_VerifyLoadDumpParams_Test_FillMEM32ValidateRangeError(void)
 {
     bool   Result;
-    uint32 Address     = 1;
+    uint32 Address     = 0;
     uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 1;
+    uint32 SizeInBytes = 4;
     int32  strCmpResult;
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
-
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), true);
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -3233,12 +2984,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32ValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3253,7 +3004,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32ValidateRangeError(void)
 void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooSmall(void)
 {
     bool   Result;
-    uint32 Address     = 1;
+    uint32 Address     = 0;
     uint8  MemType     = MM_MEM32;
     uint32 SizeInBytes = 0;
     int32  strCmpResult;
@@ -3262,23 +3013,18 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), true);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3293,19 +3039,14 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooSmall(void)
 void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooLarge(void)
 {
     bool   Result;
-    uint32 Address     = 1;
+    uint32 Address     = 0;
     uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = MM_MAX_FILL_DATA_MEM32 + 1;
+    uint32 SizeInBytes = MM_MAX_FILL_DATA_MEM32 + 4;
     int32  strCmpResult;
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
-
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), true);
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
@@ -3313,12 +3054,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooLarge(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3342,23 +3083,18 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32AlignmentError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 32 bit aligned: Addr = 0x%%08X Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify32Aligned), false);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_ALIGN32_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_ALIGN32_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3373,19 +3109,14 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32AlignmentError(void)
 void MM_VerifyLoadDumpParams_Test_FillMEM16ValidateRangeError(void)
 {
     bool   Result;
-    uint32 Address     = 1;
+    uint32 Address     = 0;
     uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 1;
+    uint32 SizeInBytes = 2;
     int32  strCmpResult;
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
-
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), true);
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -3396,12 +3127,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16ValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3416,7 +3147,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16ValidateRangeError(void)
 void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooSmall(void)
 {
     bool   Result;
-    uint32 Address     = 1;
+    uint32 Address     = 0;
     uint8  MemType     = MM_MEM16;
     uint32 SizeInBytes = 0;
     int32  strCmpResult;
@@ -3425,23 +3156,18 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), true);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3456,19 +3182,14 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooSmall(void)
 void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooLarge(void)
 {
     bool   Result;
-    uint32 Address     = 1;
+    uint32 Address     = 0;
     uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = MM_MAX_FILL_DATA_MEM16 + 1;
+    uint32 SizeInBytes = MM_MAX_FILL_DATA_MEM16 + 2;
     int32  strCmpResult;
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
-
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), true);
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
@@ -3476,12 +3197,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooLarge(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3505,23 +3226,18 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16AlignmentError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 16 bit aligned: Addr = 0x%%08X Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
-    UT_SetDefaultReturnValue(UT_KEY(CFS_Verify16Aligned), false);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_ALIGN16_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_ALIGN16_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3545,9 +3261,6 @@ void MM_VerifyLoadDumpParams_Test_FillMEM8ValidateRangeError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -3557,12 +3270,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM8ValidateRangeError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3586,21 +3299,18 @@ void MM_VerifyLoadDumpParams_Test_FillMEM8DataSizeErrorTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3624,21 +3334,18 @@ void MM_VerifyLoadDumpParams_Test_FillMEM8DataSizeErrorTooLarge(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3661,21 +3368,18 @@ void MM_VerifyLoadDumpParams_Test_FillInvalidMemTypeError(void)
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Invalid memory type specified: MemType = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_MEMTYPE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_MEMTYPE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3721,9 +3425,6 @@ void MM_VerifyLoadDumpParams_Test_WIDMemValidateError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
 
@@ -3734,12 +3435,12 @@ void MM_VerifyLoadDumpParams_Test_WIDMemValidateError(void)
     UtAssert_True(Result == false, "Result == false");
 
     /* Verify results */
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_MEMVALIDATE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_MEMVALIDATE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3762,9 +3463,6 @@ void MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooSmall(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MM_RAM, SizeInBytes, MM_VERIFY_WID);
 
@@ -3772,12 +3470,12 @@ void MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooSmall(void)
     UtAssert_True(Result == false, "Result == false");
 
     /* Verify results */
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3801,9 +3499,6 @@ void MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooLarge(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MM_RAM, SizeInBytes, MM_VERIFY_WID);
 
@@ -3811,12 +3506,12 @@ void MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooLarge(void)
     UtAssert_True(Result == false, "Result == false");
 
     /* Verify results */
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_DATA_SIZE_BYTES_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_DATA_SIZE_BYTES_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -3827,6 +3522,153 @@ void MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooLarge(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
 
 } /* end MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooLarge */
+
+void MM_Verify32Aligned_Test(void)
+{
+    bool    Result;
+    cpuaddr Addr;
+    uint32  Size;
+
+    Addr = 0; /* address is aligned */
+    Size = 4; /* size is aligned */
+
+    /* Execute the function being tested */
+    Result = MM_Verify32Aligned(Addr, Size);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    Addr = 0; /* address is aligned */
+    Size = 1; /* size is not aligned */
+
+    /* Execute the function being tested */
+    Result = MM_Verify32Aligned(Addr, Size);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    Addr = 1; /* address is not aligned */
+    Size = 0; /* size is aligned */
+
+    /* Execute the function being tested */
+    Result = MM_Verify32Aligned(Addr, Size);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+} /* end MM_Verify32Aligned_Test */
+
+void MM_Verify16Aligned_Test(void)
+{
+    bool    Result;
+    cpuaddr Addr;
+    uint32  Size;
+
+    Addr = 0; /* address is aligned */
+    Size = 4; /* size is aligned */
+
+    /* Execute the function being tested */
+    Result = MM_Verify16Aligned(Addr, Size);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    Addr = 0; /* address is aligned */
+    Size = 1; /* size is not aligned */
+
+    /* Execute the function being tested */
+    Result = MM_Verify16Aligned(Addr, Size);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    Addr = 1; /* address is not aligned */
+    Size = 0; /* size is aligned */
+
+    /* Execute the function being tested */
+    Result = MM_Verify16Aligned(Addr, Size);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+} /* end MM_Verify16Aligned_Test */
+
+void MM_ResolveSymAddr_Test(void)
+{
+    MM_SymAddr_t SymAddr;
+    cpuaddr      ResolvedAddr;
+    bool         Result;
+
+    memset(&SymAddr, 0, sizeof(MM_SymAddr_t));
+
+    SymAddr.Offset = 99;
+
+    /* Execute the function being tested */
+    Result = MM_ResolveSymAddr(&SymAddr, &ResolvedAddr);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+    UtAssert_True(ResolvedAddr == SymAddr.Offset, "ResolvedAddr == SymAddr.Offset");
+
+    ResolvedAddr = 0;
+    strncpy(SymAddr.SymName, "symname", OS_MAX_PATH_LEN);
+
+    UT_SetDataBuffer(UT_KEY(OS_SymbolLookup), &ResolvedAddr, sizeof(ResolvedAddr), false);
+    UT_SetDefaultReturnValue(UT_KEY(OS_SymbolLookup), OS_SUCCESS);
+
+    /* Execute the function being tested */
+    Result = MM_ResolveSymAddr(&SymAddr, &ResolvedAddr);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+    UtAssert_True(ResolvedAddr == SymAddr.Offset, "ResolvedAddr == SymAddr.Offset");
+
+    UT_SetDefaultReturnValue(UT_KEY(OS_SymbolLookup), -1);
+
+    /* Execute the function being tested */
+    Result = MM_ResolveSymAddr(&SymAddr, &ResolvedAddr);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+}
+
+void MM_ComputeCRCFromFile_Test(void)
+{
+    osal_id_t FileHandle;
+    uint32    CrcPtr;
+    uint32    TypeCRC;
+    int32     Result;
+
+    FileHandle = MM_UT_OBJID_1;
+    CrcPtr     = 0;
+    TypeCRC    = 0;
+
+    UT_SetDataBuffer(UT_KEY(OS_read), &FileHandle, sizeof(FileHandle), false);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 1, 0);
+
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_CalculateCRC), 1);
+
+    /* Execute the function being tested */
+    Result = MM_ComputeCRCFromFile(FileHandle, &CrcPtr, TypeCRC);
+
+    /* Verify results */
+    UtAssert_True(Result == OS_SUCCESS, "Result == OS_SUCCESS");
+    UtAssert_True(CrcPtr == 1, "CrcPtr == 1");
+
+    CrcPtr = 0;
+
+    UT_SetDataBuffer(UT_KEY(OS_read), &FileHandle, sizeof(FileHandle), false);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 1, -1);
+
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_CalculateCRC), 1);
+
+    /* Execute the function being tested */
+    Result = MM_ComputeCRCFromFile(FileHandle, &CrcPtr, TypeCRC);
+
+    /* Verify results */
+    UtAssert_True(Result == -1, "Result == -1");
+}
 
 /*
  * Register the test cases to execute with the unit test tool
@@ -4045,6 +3887,13 @@ void UtTest_Setup(void)
                "MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooSmall");
     UtTest_Add(MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooLarge, MM_Test_Setup, MM_Test_TearDown,
                "MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooLarge");
+
+    UtTest_Add(MM_Verify32Aligned_Test, MM_Test_Setup, MM_Test_TearDown, "MM_Verify32Aligned_Test");
+    UtTest_Add(MM_Verify16Aligned_Test, MM_Test_Setup, MM_Test_TearDown, "MM_Verify16Aligned_Test");
+
+    UtTest_Add(MM_ResolveSymAddr_Test, MM_Test_Setup, MM_Test_TearDown, "MM_ResolveSymAddr_Test");
+
+    UtTest_Add(MM_ComputeCRCFromFile_Test, MM_Test_Setup, MM_Test_TearDown, "MM_ComputeCRCFromFile_Test");
 
 } /* end UtTest_Setup */
 

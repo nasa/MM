@@ -1,19 +1,26 @@
-/*************************************************************************
-** File: mm_dump.c 
-**
-**   Copyright � 2007-2014 United States Government as represented by the
-**   Administrator of the National Aeronautics and Space Administration.
-**   All Other Rights Reserved.
-**
-**   This software was created at NASA's Goddard Space Flight Center.
-**   This software is governed by the NASA Open Source Agreement and may be
-**   used, distributed and modified only pursuant to the terms of that
-**   agreement.
-**
-** Purpose:
-**   Functions used for processing CFS Memory Manager memory dump commands
-**
-*************************************************************************/
+/************************************************************************
+ * NASA Docket No. GSC-18,923-1, and identified as “Core Flight
+ * System (cFS) Memory Manager Application version 2.5.0”
+ *
+ * Copyright (c) 2021 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
+/**
+ * @file
+ *   Functions used for processing CFS Memory Manager memory dump commands
+ */
 
 /*************************************************************************
 ** Includes
@@ -26,7 +33,6 @@
 #include "mm_mem8.h"
 #include "mm_utils.h"
 #include "mm_mission_cfg.h"
-#include "cfs_utils.h"
 #include <string.h>
 
 /*************************************************************************
@@ -53,7 +59,7 @@ bool MM_PeekCmd(const CFE_SB_Buffer_t *BufPtr)
         CmdPtr = ((MM_PeekCmd_t *)BufPtr);
 
         /* Resolve the symbolic address in command message */
-        Valid = CFS_ResolveSymAddr(&(CmdPtr->SrcSymAddress), &SrcAddress);
+        Valid = MM_ResolveSymAddr(&(CmdPtr->SrcSymAddress), &SrcAddress);
 
         if (Valid == true)
         {
@@ -70,7 +76,7 @@ bool MM_PeekCmd(const CFE_SB_Buffer_t *BufPtr)
                 Result = MM_PeekMem(CmdPtr, SrcAddress);
             }
 
-        } /* end CFS_ResolveSymAddr if */
+        } /* end MM_ResolveSymAddr if */
         else
         {
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
@@ -202,174 +208,159 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
         */
         CmdPtr->FileName[OS_MAX_PATH_LEN - 1] = '\0';
 
-        /* Verify filename doesn't have any illegal characters */
-        Valid = CFS_IsValidFilename(CmdPtr->FileName, strlen(CmdPtr->FileName));
+        /* Resolve the symbolic address in command message */
+        Valid = MM_ResolveSymAddr(&(CmdPtr->SrcSymAddress), &SrcAddress);
+
         if (Valid == true)
         {
-            /* Resolve the symbolic address in command message */
-            Valid = CFS_ResolveSymAddr(&(CmdPtr->SrcSymAddress), &SrcAddress);
+            /* Run necessary checks on command parameters */
+            Valid = MM_VerifyLoadDumpParams(SrcAddress, CmdPtr->MemType, CmdPtr->NumOfBytes, MM_VERIFY_DUMP);
 
             if (Valid == true)
             {
-                /* Run necessary checks on command parameters */
-                Valid = MM_VerifyLoadDumpParams(SrcAddress, CmdPtr->MemType, CmdPtr->NumOfBytes, MM_VERIFY_DUMP);
+                /*
+                ** Initialize the cFE primary file header structure
+                */
+                memset(&CFEFileHeader, 0, sizeof(CFE_FS_Header_t));
+                CFEFileHeader.SubType = MM_CFE_HDR_SUBTYPE;
+                strncpy(&CFEFileHeader.Description[0], MM_CFE_HDR_DESCRIPTION, CFE_FS_HDR_DESC_MAX_LEN);
 
-                if (Valid == true)
+                /*
+                ** Initialize the MM secondary file header structure
+                */
+                memset(&MMFileHeader, 0, sizeof(MM_LoadDumpFileHeader_t));
+                MMFileHeader.SymAddress.SymName[0] = MM_CLEAR_SYMNAME;
+
+                /*
+                ** Copy command data to file secondary header
+                */
+                MMFileHeader.SymAddress.Offset = SrcAddress;
+                MMFileHeader.MemType           = CmdPtr->MemType;
+                MMFileHeader.NumOfBytes        = CmdPtr->NumOfBytes;
+
+                /*
+                ** Create and open dump file
+                */
+                OS_Status = OS_OpenCreate(&FileHandle, CmdPtr->FileName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE,
+                                          OS_READ_WRITE);
+                if (OS_Status == OS_SUCCESS)
                 {
-                    /*
-                    ** Initialize the cFE primary file header structure
-                    */
-                    memset(&CFEFileHeader, 0, sizeof(CFE_FS_Header_t));
-                    CFEFileHeader.SubType = MM_CFE_HDR_SUBTYPE;
-                    strncpy(&CFEFileHeader.Description[0], MM_CFE_HDR_DESCRIPTION, CFE_FS_HDR_DESC_MAX_LEN);
-
-                    /*
-                    ** Initialize the MM secondary file header structure
-                    */
-                    memset(&MMFileHeader, 0, sizeof(MM_LoadDumpFileHeader_t));
-                    MMFileHeader.SymAddress.SymName[0] = MM_CLEAR_SYMNAME;
-
-                    /*
-                    ** Copy command data to file secondary header
-                    */
-                    MMFileHeader.SymAddress.Offset = SrcAddress;
-                    MMFileHeader.MemType           = CmdPtr->MemType;
-                    MMFileHeader.NumOfBytes        = CmdPtr->NumOfBytes;
-
-                    /*
-                    ** Create and open dump file
-                    */
-                    OS_Status = OS_OpenCreate(&FileHandle, CmdPtr->FileName,
-                                              OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_READ_WRITE);
-                    if (OS_Status == OS_SUCCESS)
+                    /* Write the file headers */
+                    Valid = MM_WriteFileHeaders(CmdPtr->FileName, FileHandle, &CFEFileHeader, &MMFileHeader);
+                    if (Valid == true)
                     {
-                        /* Write the file headers */
-                        Valid = MM_WriteFileHeaders(CmdPtr->FileName, FileHandle, &CFEFileHeader, &MMFileHeader);
-                        if (Valid == true)
+                        switch (MMFileHeader.MemType)
                         {
-                            switch (MMFileHeader.MemType)
-                            {
-                                case MM_RAM:
-                                case MM_EEPROM:
-                                    Valid = MM_DumpMemToFile(FileHandle, CmdPtr->FileName, &MMFileHeader);
-                                    break;
+                            case MM_RAM:
+                            case MM_EEPROM:
+                                Valid = MM_DumpMemToFile(FileHandle, CmdPtr->FileName, &MMFileHeader);
+                                break;
 
 #ifdef MM_OPT_CODE_MEM32_MEMTYPE
-                                case MM_MEM32:
-                                    Valid = MM_DumpMem32ToFile(FileHandle, CmdPtr->FileName, &MMFileHeader);
-                                    break;
+                            case MM_MEM32:
+                                Valid = MM_DumpMem32ToFile(FileHandle, CmdPtr->FileName, &MMFileHeader);
+                                break;
 #endif /* MM_OPT_CODE_MEM32_MEMTYPE */
 
 #ifdef MM_OPT_CODE_MEM16_MEMTYPE
-                                case MM_MEM16:
-                                    Valid = MM_DumpMem16ToFile(FileHandle, CmdPtr->FileName, &MMFileHeader);
-                                    break;
+                            case MM_MEM16:
+                                Valid = MM_DumpMem16ToFile(FileHandle, CmdPtr->FileName, &MMFileHeader);
+                                break;
 #endif /* MM_OPT_CODE_MEM16_MEMTYPE */
 
 #ifdef MM_OPT_CODE_MEM8_MEMTYPE
-                                case MM_MEM8:
-                                    Valid = MM_DumpMem8ToFile(FileHandle, CmdPtr->FileName, &MMFileHeader);
-                                    break;
+                            case MM_MEM8:
+                                Valid = MM_DumpMem8ToFile(FileHandle, CmdPtr->FileName, &MMFileHeader);
+                                break;
 #endif /* MM_OPT_CODE_MEM8_MEMTYPE */
-                                default:
-                                    /* This branch will never be executed. MMFileHeader.MemType will always
-                                     * be valid value for this switch statement it is verified via
-                                     * MM_VerifyFileLoadDumpParams */
-                                    Valid = false;
-                                    break;
-                            }
-
-                            if (Valid == true)
-                            {
-                                /*
-                                ** Compute CRC of dumped data
-                                */
-                                OS_Status =
-                                    OS_lseek(FileHandle, (sizeof(CFE_FS_Header_t) + sizeof(MM_LoadDumpFileHeader_t)),
-                                             OS_SEEK_SET);
-                                if (OS_Status != (sizeof(CFE_FS_Header_t) + sizeof(MM_LoadDumpFileHeader_t)))
-                                {
-                                    Valid = false;
-                                }
-                                else
-                                {
-                                    OS_Status =
-                                        CFS_ComputeCRCFromFile(FileHandle, &MMFileHeader.Crc, MM_DUMP_FILE_CRC_TYPE);
-                                    if (OS_Status == OS_SUCCESS)
-                                    {
-                                        /*
-                                        ** Rewrite the file headers. The subfunctions will take care of moving
-                                        ** the file pointer to the beginning of the file so we don't need to do it
-                                        ** here.
-                                        */
-                                        Valid = MM_WriteFileHeaders(CmdPtr->FileName, FileHandle, &CFEFileHeader,
-                                                                    &MMFileHeader);
-
-                                    } /* end CFS_ComputeCRCFromFile if */
-                                    else
-                                    {
-                                        Valid = false;
-                                        CFE_EVS_SendEvent(
-                                            MM_CFS_COMPUTECRCFROMFILE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                            "CFS_ComputeCRCFromFile error received: RC = 0x%08X File = '%s'",
-                                            (unsigned int)OS_Status, CmdPtr->FileName);
-                                    }
-                                }
-
-                            } /* end Valid == true if */
-
-                            if (Valid == true)
-                            {
-                                CFE_EVS_SendEvent(
-                                    MM_DMP_MEM_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                    "Dump Memory To File Command: Dumped %d bytes from address 0x%08X to file '%s'",
-                                    (int)MM_AppData.HkPacket.BytesProcessed, (unsigned int)SrcAddress,
-                                    CmdPtr->FileName);
-                                /*
-                                ** Update last action statistics
-                                */
-                                MM_AppData.HkPacket.LastAction = MM_DUMP_TO_FILE;
-                                strncpy(MM_AppData.HkPacket.FileName, CmdPtr->FileName, OS_MAX_PATH_LEN);
-                                MM_AppData.HkPacket.MemType        = CmdPtr->MemType;
-                                MM_AppData.HkPacket.Address        = SrcAddress;
-                                MM_AppData.HkPacket.BytesProcessed = CmdPtr->NumOfBytes;
-                            }
-
-                        } /* end MM_WriteFileHeaders if */
-
-                        /* Close dump file */
-                        if ((OS_Status = OS_close(FileHandle)) != OS_SUCCESS)
-                        {
-                            Valid = false;
-                            CFE_EVS_SendEvent(MM_OS_CLOSE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                              "OS_close error received: RC = 0x%08X File = '%s'",
-                                              (unsigned int)OS_Status, CmdPtr->FileName);
+                            default:
+                                /* This branch will never be executed. MMFileHeader.MemType will always
+                                 * be valid value for this switch statement it is verified via
+                                 * MM_VerifyFileLoadDumpParams */
+                                Valid = false;
+                                break;
                         }
 
-                    } /* end OS_OpenCreate if */
-                    else
+                        if (Valid == true)
+                        {
+                            /*
+                            ** Compute CRC of dumped data
+                            */
+                            OS_Status = OS_lseek(
+                                FileHandle, (sizeof(CFE_FS_Header_t) + sizeof(MM_LoadDumpFileHeader_t)), OS_SEEK_SET);
+                            if (OS_Status != (sizeof(CFE_FS_Header_t) + sizeof(MM_LoadDumpFileHeader_t)))
+                            {
+                                Valid = false;
+                            }
+                            else
+                            {
+                                OS_Status = MM_ComputeCRCFromFile(FileHandle, &MMFileHeader.Crc, MM_DUMP_FILE_CRC_TYPE);
+                                if (OS_Status == OS_SUCCESS)
+                                {
+                                    /*
+                                    ** Rewrite the file headers. The subfunctions will take care of moving
+                                    ** the file pointer to the beginning of the file so we don't need to do it
+                                    ** here.
+                                    */
+                                    Valid = MM_WriteFileHeaders(CmdPtr->FileName, FileHandle, &CFEFileHeader,
+                                                                &MMFileHeader);
+
+                                } /* end MM_ComputeCRCFromFile if */
+                                else
+                                {
+                                    Valid = false;
+                                    CFE_EVS_SendEvent(MM_COMPUTECRCFROMFILE_ERR_EID, CFE_EVS_EventType_ERROR,
+                                                      "MM_ComputeCRCFromFile error received: RC = 0x%08X File = '%s'",
+                                                      (unsigned int)OS_Status, CmdPtr->FileName);
+                                }
+                            }
+
+                        } /* end Valid == true if */
+
+                        if (Valid == true)
+                        {
+                            CFE_EVS_SendEvent(
+                                MM_DMP_MEM_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
+                                "Dump Memory To File Command: Dumped %d bytes from address 0x%08X to file '%s'",
+                                (int)MM_AppData.HkPacket.BytesProcessed, (unsigned int)SrcAddress, CmdPtr->FileName);
+                            /*
+                            ** Update last action statistics
+                            */
+                            MM_AppData.HkPacket.LastAction = MM_DUMP_TO_FILE;
+                            strncpy(MM_AppData.HkPacket.FileName, CmdPtr->FileName, OS_MAX_PATH_LEN);
+                            MM_AppData.HkPacket.MemType        = CmdPtr->MemType;
+                            MM_AppData.HkPacket.Address        = SrcAddress;
+                            MM_AppData.HkPacket.BytesProcessed = CmdPtr->NumOfBytes;
+                        }
+
+                    } /* end MM_WriteFileHeaders if */
+
+                    /* Close dump file */
+                    if ((OS_Status = OS_close(FileHandle)) != OS_SUCCESS)
                     {
                         Valid = false;
-                        CFE_EVS_SendEvent(MM_OS_CREAT_ERR_EID, CFE_EVS_EventType_ERROR,
-                                          "OS_OpenCreate error received: RC = %d File = '%s'", (int)OS_Status,
+                        CFE_EVS_SendEvent(MM_OS_CLOSE_ERR_EID, CFE_EVS_EventType_ERROR,
+                                          "OS_close error received: RC = 0x%08X File = '%s'", (unsigned int)OS_Status,
                                           CmdPtr->FileName);
                     }
 
-                } /* end MM_VerifyFileLoadDumpParams if */
+                } /* end OS_OpenCreate if */
+                else
+                {
+                    Valid = false;
+                    CFE_EVS_SendEvent(MM_OS_CREAT_ERR_EID, CFE_EVS_EventType_ERROR,
+                                      "OS_OpenCreate error received: RC = %d File = '%s'", (int)OS_Status,
+                                      CmdPtr->FileName);
+                }
 
-            } /* end CFS_ResolveSymAddr if */
-            else
-            {
-                Valid = false;
-                CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Symbolic address can't be resolved: Name = '%s'", CmdPtr->SrcSymAddress.SymName);
-            }
-        } /* end IsValidFilename if */
+            } /* end MM_VerifyFileLoadDumpParams if */
+
+        } /* end MM_ResolveSymAddr if */
         else
         {
             Valid = false;
-            CFE_EVS_SendEvent(MM_CMD_FNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Command specified filename invalid: Name = '%s'", CmdPtr->FileName);
+            CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "Symbolic address can't be resolved: Name = '%s'", CmdPtr->SrcSymAddress.SymName);
         }
 
     } /* end MM_VerifyCmdLength if */
@@ -383,7 +374,7 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
 /* Dump the requested number of bytes from memory to a file        */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-bool MM_DumpMemToFile(uint32 FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader)
+bool MM_DumpMemToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader)
 {
     bool   ValidDump = false;
     int32  OS_Status;
@@ -444,7 +435,7 @@ bool MM_DumpMemToFile(uint32 FileHandle, const char *FileName, const MM_LoadDump
 /* Write the cFE primary and and MM secondary file headers         */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-bool MM_WriteFileHeaders(const char *FileName, int32 FileHandle, CFE_FS_Header_t *CFEHeader,
+bool MM_WriteFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Header_t *CFEHeader,
                          const MM_LoadDumpFileHeader_t *MMHeader)
 {
     bool  Valid = true;
@@ -514,7 +505,7 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
         CmdPtr = ((MM_DumpInEventCmd_t *)BufPtr);
 
         /* Resolve the symbolic source address in the command message */
-        Valid = CFS_ResolveSymAddr(&(CmdPtr->SrcSymAddress), &SrcAddress);
+        Valid = MM_ResolveSymAddr(&(CmdPtr->SrcSymAddress), &SrcAddress);
 
         if (Valid == true)
         {
@@ -564,7 +555,7 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
                     MM_AppData.HkPacket.BytesProcessed = CmdPtr->NumOfBytes;
                 } /* end MM_FillDumpInEventBuffer if */
             }     /* end MM_VerifyFileLoadDumpParams if */
-        }         /* end CFS_ResolveSymAddr if */
+        }         /* end MM_ResolveSymAddr if */
         else
         {
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,

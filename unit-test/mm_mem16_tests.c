@@ -1,19 +1,26 @@
 /************************************************************************
-** File: mm_mem16_tests.c 
-**
-**   Copyright © 2007-2014 United States Government as represented by the
-**   Administrator of the National Aeronautics and Space Administration.
-**   All Other Rights Reserved.
-**
-**   This software was created at NASA's Goddard Space Flight Center.
-**   This software is governed by the NASA Open Source Agreement and may be
-**   used, distributed and modified only pursuant to the terms of that
-**   agreement.
-**
-** Purpose:
-**   Unit tests for mm_mem16.c
-**
-*************************************************************************/
+ * NASA Docket No. GSC-18,923-1, and identified as “Core Flight
+ * System (cFS) Memory Manager Application version 2.5.0”
+ *
+ * Copyright (c) 2021 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
+/**
+ * @file
+ *   Unit tests for mm_mem16.c
+ */
 
 /************************************************************************
 ** Includes
@@ -32,11 +39,11 @@
 *************************************************************************/
 #include "utassert.h"
 #include "utstubs.h"
+#include "uttest.h"
 
-#include <sys/fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <cfe.h>
+#include "cfe.h"
 #include "cfe_msgids.h"
 
 /* mm_mem16_tests globals */
@@ -50,7 +57,7 @@ void MM_LoadMem16FromFile_Test_Nominal(void)
 {
     bool                    Result;
     uint32                  DestAddress = 1;
-    uint32                  FileHandle  = 1;
+    osal_id_t               FileHandle  = MM_UT_OBJID_1;
     MM_LoadDumpFileHeader_t FileHeader;
 
     FileHeader.NumOfBytes = 2;
@@ -87,7 +94,7 @@ void MM_LoadMem16FromFile_Test_CPUHogging(void)
 {
     bool                    Result;
     uint32                  DestAddress = 1;
-    uint32                  FileHandle  = 1;
+    osal_id_t               FileHandle  = MM_UT_OBJID_1;
     MM_LoadDumpFileHeader_t FileHeader;
 
     FileHeader.NumOfBytes = 2 * MM_MAX_LOAD_DATA_SEG;
@@ -124,16 +131,13 @@ void MM_LoadMem16FromFile_Test_ReadError(void)
 {
     bool                    Result;
     uint32                  DestAddress = 1;
-    uint32                  FileHandle  = 1;
+    osal_id_t               FileHandle  = MM_UT_OBJID_1;
     MM_LoadDumpFileHeader_t FileHeader;
     int32                   strCmpResult;
     char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "OS_read error received: RC = 0x%%08X Expected = %%d File = '%%s'");
-
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
 
     FileHeader.NumOfBytes = 2;
 
@@ -146,12 +150,12 @@ void MM_LoadMem16FromFile_Test_ReadError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_READ_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_READ_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -169,16 +173,15 @@ void MM_LoadMem16FromFile_Test_WriteError(void)
     bool Result;
     /* CFE_PSP_MemWrite16 stub returns success with non-zero address */
     uint32                  DestAddress = 0;
-    uint32                  FileHandle  = 1;
+    osal_id_t               FileHandle  = MM_UT_OBJID_1;
     MM_LoadDumpFileHeader_t FileHeader;
     int32                   strCmpResult;
     char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
+    memset(&FileHeader, 0, sizeof(FileHeader));
+
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "PSP write memory error: RC=0x%%08X, Address=%%p, MemType=MEM16");
-
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
 
     FileHeader.NumOfBytes = 2;
 
@@ -194,12 +197,12 @@ void MM_LoadMem16FromFile_Test_WriteError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_PSP_WRITE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_PSP_WRITE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -215,7 +218,7 @@ void MM_LoadMem16FromFile_Test_WriteError(void)
 void MM_DumpMem16ToFile_Test_Nominal(void)
 {
     bool                    Result;
-    uint32                  FileHandle = 1;
+    osal_id_t               FileHandle = MM_UT_OBJID_1;
     MM_LoadDumpFileHeader_t FileHeader;
 
     FileHeader.NumOfBytes = MM_MAX_DUMP_DATA_SEG;
@@ -251,7 +254,7 @@ void MM_DumpMem16ToFile_Test_Nominal(void)
 void MM_DumpMem16ToFile_Test_CPUHogging(void)
 {
     bool                    Result;
-    uint32                  FileHandle = 1;
+    osal_id_t               FileHandle = MM_UT_OBJID_1;
     MM_LoadDumpFileHeader_t FileHeader;
 
     FileHeader.NumOfBytes = 2 * MM_MAX_LOAD_DATA_SEG;
@@ -287,16 +290,13 @@ void MM_DumpMem16ToFile_Test_CPUHogging(void)
 void MM_DumpMem16ToFile_Test_ReadError(void)
 {
     bool                    Result;
-    uint32                  FileHandle = 1;
+    osal_id_t               FileHandle = MM_UT_OBJID_1;
     MM_LoadDumpFileHeader_t FileHeader;
     int32                   strCmpResult;
     char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "PSP read memory error: RC=0x%%08X, Src=%%p, Tgt=%%p, Type=MEM16");
-
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
 
     FileHeader.NumOfBytes = 2;
 
@@ -311,12 +311,12 @@ void MM_DumpMem16ToFile_Test_ReadError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_PSP_READ_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_PSP_READ_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -332,16 +332,15 @@ void MM_DumpMem16ToFile_Test_ReadError(void)
 void MM_DumpMem16ToFile_Test_WriteError(void)
 {
     bool                    Result;
-    uint32                  FileHandle = 1;
+    osal_id_t               FileHandle = MM_UT_OBJID_1;
     MM_LoadDumpFileHeader_t FileHeader;
     int32                   strCmpResult;
     char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
+    memset(&FileHeader, 0, sizeof(FileHeader));
+
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "OS_write error received: RC = 0x%%08X Expected = %%d File = '%%s'");
-
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
 
     FileHeader.NumOfBytes = 2;
 
@@ -354,12 +353,12 @@ void MM_DumpMem16ToFile_Test_WriteError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_WRITE_EXP_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_OS_WRITE_EXP_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -449,9 +448,6 @@ void MM_FillMem16_Test_WriteError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "PSP write memory error: RC=0x%%08X, Address=%%p, MemType=MEM16");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     CmdPacket.NumOfBytes  = 2;
     CmdPacket.FillPattern = 3;
 
@@ -463,12 +459,12 @@ void MM_FillMem16_Test_WriteError(void)
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_PSP_WRITE_ERR_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_PSP_WRITE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -494,21 +490,18 @@ void MM_FillMem16_Test_Align(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "MM_FillMem16 NumOfBytes not multiple of 2. Reducing from %%d to %%d.");
 
-    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
-    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
-
     /* Execute the function being tested */
     Result = MM_FillMem16(DestAddress, &CmdPacket);
 
     /* Verify results */
     UtAssert_True(Result == true, "Result == true");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_FILL_MEM16_ALIGN_WARN_INF_EID);
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_FILL_MEM16_ALIGN_WARN_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
 
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 

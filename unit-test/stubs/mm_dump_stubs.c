@@ -1,19 +1,26 @@
 /************************************************************************
-** File: mm_dump_stubs.c 
-**
-**   Copyright © 2007-2014 United States Government as represented by the
-**   Administrator of the National Aeronautics and Space Administration.
-**   All Other Rights Reserved.
-**
-**   This software was created at NASA's Goddard Space Flight Center.
-**   This software is governed by the NASA Open Source Agreement and may be
-**   used, distributed and modified only pursuant to the terms of that
-**   agreement.
-**
-** Purpose:
-**   Unit test stubs for mm_dump.c
-**
-*************************************************************************/
+ * NASA Docket No. GSC-18,923-1, and identified as “Core Flight
+ * System (cFS) Memory Manager Application version 2.5.0”
+ *
+ * Copyright (c) 2021 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
+/**
+ * @file
+ *   Unit test stubs for mm_dump.c
+ */
 
 /************************************************************************
 ** Includes
@@ -26,7 +33,6 @@
 #include "mm_mem8.h"
 #include "mm_utils.h"
 #include "mm_mission_cfg.h"
-#include "cfs_utils.h"
 
 /************************************************************************
 ** UT Includes
@@ -42,7 +48,7 @@ bool MM_PeekMem(const MM_PeekCmd_t *CmdPtr, cpuaddr SrcAddress)
     return UT_DEFAULT_IMPL(MM_PeekMem);
 }
 
-bool MM_DumpMemToFile(uint32 FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader)
+bool MM_DumpMemToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_DumpMemToFile), FileHandle);
     UT_Stub_RegisterContext(UT_KEY(MM_DumpMemToFile), FileName);
@@ -50,7 +56,7 @@ bool MM_DumpMemToFile(uint32 FileHandle, const char *FileName, const MM_LoadDump
     return UT_DEFAULT_IMPL(MM_DumpMemToFile);
 }
 
-bool MM_WriteFileHeaders(const char *FileName, int32 FileHandle, CFE_FS_Header_t *CFEHeader,
+bool MM_WriteFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Header_t *CFEHeader,
                          const MM_LoadDumpFileHeader_t *MMHeader)
 {
     UT_Stub_RegisterContext(UT_KEY(MM_WriteFileHeaders), FileName);
@@ -79,8 +85,6 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
 {
     UT_Stub_RegisterContext(UT_KEY(MM_DumpMemToFileCmd), BufPtr);
     return UT_DEFAULT_IMPL(MM_DumpMemToFileCmd);
-    CFE_EVS_SendEvent(MM_CMD_FNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                      "Command specified filename invalid: Name = 'file'");
 }
 
 bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)

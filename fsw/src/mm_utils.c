@@ -1,19 +1,26 @@
-/*************************************************************************
-** File: mm_utils.c 
-**
-**   Copyright � 2007-2014 United States Government as represented by the
-**   Administrator of the National Aeronautics and Space Administration.
-**   All Other Rights Reserved.
-**
-**   This software was created at NASA's Goddard Space Flight Center.
-**   This software is governed by the NASA Open Source Agreement and may be
-**   used, distributed and modified only pursuant to the terms of that
-**   agreement.
-**
-** Purpose:
-**   Utility functions used for processing CFS memory manager commands
-**
-*************************************************************************/
+/************************************************************************
+ * NASA Docket No. GSC-18,923-1, and identified as “Core Flight
+ * System (cFS) Memory Manager Application version 2.5.0”
+ *
+ * Copyright (c) 2021 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
+/**
+ * @file
+ *   Utility functions used for processing CFS memory manager commands
+ */
 
 /*************************************************************************
 ** Includes
@@ -23,9 +30,14 @@
 #include "mm_perfids.h"
 #include "mm_msgids.h"
 #include "mm_events.h"
-#include "cfs_utils.h"
 #include "mm_dump.h"
 #include <string.h>
+
+/*************************************************************************
+** Macro Definitions
+*************************************************************************/
+
+#define FILE_CRC_BUFFER_SIZE 200 /**< \brief Number of bytes per read when computing file CRC */
 
 /*************************************************************************
 ** External Data
@@ -100,21 +112,23 @@ bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
         CFE_MSG_GetMsgId(MsgPtr, &MessageID);
         CFE_MSG_GetFcnCode(MsgPtr, &CommandCode);
 
-        if (MessageID == MM_SEND_HK_MID)
+        if (CFE_SB_MsgIdToValue(MessageID) == MM_SEND_HK_MID)
         {
             /*
             ** For a bad HK request, just send the event. We only increment
             ** the error counter for ground commands and not internal messages.
             */
             CFE_EVS_SendEvent(MM_HKREQ_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Invalid HK request msg length: ID = 0x%08X, CC = %d, Len = %d, Expected = %d", MessageID,
-                              CommandCode, (int)ActualLength, (int)ExpectedLength);
+                              "Invalid HK request msg length: ID = 0x%08lX, CC = %d, Len = %d, Expected = %d",
+                              (unsigned long)CFE_SB_MsgIdToValue(MessageID), CommandCode, (int)ActualLength,
+                              (int)ExpectedLength);
         }
         else
         {
             CFE_EVS_SendEvent(MM_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Invalid msg length: ID = 0x%08X, CC = %d, Len = %d, Expected = %d", MessageID,
-                              CommandCode, (int)ActualLength, (int)ExpectedLength);
+                              "Invalid msg length: ID = 0x%08lX, CC = %d, Len = %d, Expected = %d",
+                              (unsigned long)CFE_SB_MsgIdToValue(MessageID), CommandCode, (int)ActualLength,
+                              (int)ExpectedLength);
         }
 
         result = false;
@@ -143,7 +157,7 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
 
         case MM_WORD_BIT_WIDTH:
             SizeInBytes = 2;
-            if (CFS_Verify16Aligned(Address, SizeInBytes) != true)
+            if (MM_Verify16Aligned(Address, SizeInBytes) != true)
             {
                 Valid = false;
                 CFE_EVS_SendEvent(MM_ALIGN16_ERR_EID, CFE_EVS_EventType_ERROR,
@@ -154,7 +168,7 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
 
         case MM_DWORD_BIT_WIDTH:
             SizeInBytes = 4;
-            if (CFS_Verify32Aligned(Address, SizeInBytes) != true)
+            if (MM_Verify32Aligned(Address, SizeInBytes) != true)
             {
                 Valid = false;
                 CFE_EVS_SendEvent(MM_ALIGN32_ERR_EID, CFE_EVS_EventType_ERROR,
@@ -378,7 +392,7 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes,
                 }
                 PSP_MemType = CFE_PSP_MEM_RAM;
                 snprintf(MemTypeStr, MM_MAX_MEM_TYPE_STR_LEN, "%s", "MEM32");
-                if (CFS_Verify32Aligned(Address, SizeInBytes) != true)
+                if (MM_Verify32Aligned(Address, SizeInBytes) != true)
                 {
                     Valid = false;
                     CFE_EVS_SendEvent(MM_ALIGN32_ERR_EID, CFE_EVS_EventType_ERROR,
@@ -403,7 +417,7 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes,
                 }
                 PSP_MemType = CFE_PSP_MEM_RAM;
                 snprintf(MemTypeStr, MM_MAX_MEM_TYPE_STR_LEN, "%s", "MEM16");
-                if (CFS_Verify16Aligned(Address, SizeInBytes) != true)
+                if (MM_Verify16Aligned(Address, SizeInBytes) != true)
                 {
                     Valid = false;
                     CFE_EVS_SendEvent(MM_ALIGN16_ERR_EID, CFE_EVS_EventType_ERROR,
@@ -466,6 +480,140 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes,
     return (Valid);
 
 } /* end MM_VerifyFileLoadDumpParams */
+
+/******************************************************************************/
+
+bool MM_Verify32Aligned(cpuaddr Address, uint32 Size)
+{
+    bool IsAligned;
+
+    if (Address % sizeof(uint32) != 0)
+    {
+        IsAligned = false;
+    }
+    else if (Size % sizeof(uint32) != 0)
+    {
+        IsAligned = false;
+    }
+    else
+    {
+        IsAligned = true;
+    }
+
+    return (IsAligned);
+}
+
+/******************************************************************************/
+
+bool MM_Verify16Aligned(cpuaddr Address, uint32 Size)
+{
+    bool IsAligned;
+
+    if (Address % sizeof(uint16) != 0)
+    {
+        IsAligned = false;
+    }
+    else if (Size % sizeof(uint16) != 0)
+    {
+        IsAligned = false;
+    }
+    else
+    {
+        IsAligned = true;
+    }
+
+    return (IsAligned);
+}
+
+/******************************************************************************/
+
+bool MM_ResolveSymAddr(MM_SymAddr_t *SymAddr, cpuaddr *ResolvedAddr)
+{
+    bool  Valid;
+    int32 OS_Status = OS_SUCCESS;
+
+    /*
+    ** NUL terminate the very end of the symbol name string array as a
+    ** safety measure
+    */
+    SymAddr->SymName[OS_MAX_SYM_LEN - 1] = '\0';
+
+    /*
+    ** If the symbol name string is a nul string
+    ** we use the offset as the absolute address
+    */
+    if (strlen(SymAddr->SymName) == 0)
+    {
+        *ResolvedAddr = SymAddr->Offset;
+        Valid         = true;
+    }
+    else
+    {
+        /*
+        ** If symbol name is not an empty string look it up
+        ** using the OSAL API and add the offset if it succeeds
+        */
+        OS_Status = OS_SymbolLookup(ResolvedAddr, SymAddr->SymName);
+        if (OS_Status == OS_SUCCESS)
+        {
+            *ResolvedAddr += SymAddr->Offset;
+            Valid = true;
+        }
+        else
+            Valid = false;
+    }
+    return (Valid);
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*                                                                 */
+/* Compute the CRC of data in a file                               */
+/* Operates from the current location of the file poiner to EOF    */
+/*                                                                 */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+int32 MM_ComputeCRCFromFile(osal_id_t FileHandle, uint32 *CrcPtr, uint32 TypeCRC)
+{
+    int32        ByteCntr;
+    int32        OS_Status = OS_SUCCESS;
+    uint32       TempCrc   = 0;
+    static uint8 DataArray[FILE_CRC_BUFFER_SIZE];
+
+    do
+    {
+        /*
+        ** Read in some data
+        */
+        ByteCntr = OS_read(FileHandle, DataArray, sizeof(DataArray));
+
+        /*
+        ** If we didn't hit end of file on the last read...
+        */
+        if (ByteCntr > 0)
+        {
+            /*
+            ** Calculate the CRC based upon the previous CRC calculation
+            */
+            TempCrc = CFE_ES_CalculateCRC(DataArray, ByteCntr, TempCrc, TypeCRC);
+        }
+
+    } while (ByteCntr > 0);
+
+    /*
+    ** Check if we broke out of the loop because of an error return
+    ** from the OS_read call
+    */
+    if (ByteCntr < 0)
+    {
+        OS_Status = ByteCntr;
+    }
+    else
+    {
+        *CrcPtr = TempCrc;
+    }
+
+    return (OS_Status);
+
+} /* End MM_ComputeCRCFromFile */
 
 /************************/
 /*  End of File Comment */

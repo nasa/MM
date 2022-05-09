@@ -1,21 +1,28 @@
 /************************************************************************
-** File: mm_app.c 
-**
-**   Copyright � 2007-2014 United States Government as represented by the
-**   Administrator of the National Aeronautics and Space Administration.
-**   All Other Rights Reserved.
-**
-**   This software was created at NASA's Goddard Space Flight Center.
-**   This software is governed by the NASA Open Source Agreement and may be
-**   used, distributed and modified only pursuant to the terms of that
-**   agreement.
-**
-** Purpose:
-**   The CFS Memory Manager (MM) Application provides onboard hardware
-**   and software maintenance services by processing commands for memory
-**   operations and read and write accesses to memory mapped hardware.
-**
-*************************************************************************/
+ * NASA Docket No. GSC-18,923-1, and identified as “Core Flight
+ * System (cFS) Memory Manager Application version 2.5.0”
+ *
+ * Copyright (c) 2021 United States Government as represented by the
+ * Administrator of the National Aeronautics and Space Administration.
+ * All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ************************************************************************/
+
+/**
+ * @file
+ *   The CFS Memory Manager (MM) Application provides onboard hardware
+ *   and software maintenance services by processing commands for memory
+ *   operations and read and write accesses to memory mapped hardware.
+ */
 
 /************************************************************************
 ** Includes
@@ -156,7 +163,7 @@ int32 MM_AppInit(void)
     /*
     ** Initialize the local housekeeping telemetry packet (clear user data area)
     */
-    CFE_MSG_Init(&MM_AppData.HkPacket.TlmHeader.Msg, MM_HK_TLM_MID, sizeof(MM_HkPacket_t));
+    CFE_MSG_Init(&MM_AppData.HkPacket.TlmHeader.Msg, CFE_SB_ValueToMsgId(MM_HK_TLM_MID), sizeof(MM_HkPacket_t));
 
     /*
     ** Create Software Bus message pipe
@@ -171,7 +178,7 @@ int32 MM_AppInit(void)
     /*
     ** Subscribe to Housekeeping request commands
     */
-    Status = CFE_SB_Subscribe(MM_SEND_HK_MID, MM_AppData.CmdPipe);
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(MM_SEND_HK_MID), MM_AppData.CmdPipe);
     if (Status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(MM_HK_SUB_ERR_EID, CFE_EVS_EventType_ERROR, "Error Subscribing to HK Request, RC = 0x%08X",
@@ -182,7 +189,7 @@ int32 MM_AppInit(void)
     /*
     ** Subscribe to MM ground command packets
     */
-    Status = CFE_SB_Subscribe(MM_CMD_MID, MM_AppData.CmdPipe);
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(MM_CMD_MID), MM_AppData.CmdPipe);
     if (Status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(MM_CMD_SUB_ERR_EID, CFE_EVS_EventType_ERROR, "Error Subscribing to MM Command, RC = 0x%08X",
@@ -229,7 +236,7 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
 
     bool CmdResult = false;
 
-    switch (MessageID)
+    switch (CFE_SB_MsgIdToValue(MessageID))
     {
         /*
         ** Housekeeping telemetry request
@@ -302,7 +309,8 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
                 default:
                     CmdResult = false;
                     CFE_EVS_SendEvent(MM_CC1_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "Invalid ground command code: ID = 0x%08X, CC = %d", MessageID, CommandCode);
+                                      "Invalid ground command code: ID = 0x%08lX, CC = %d",
+                                      (unsigned long)CFE_SB_MsgIdToValue(MessageID), CommandCode);
                     break;
             }
 
@@ -324,8 +332,8 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
         */
         default:
             MM_AppData.HkPacket.ErrCounter++;
-            CFE_EVS_SendEvent(MM_MID_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid command pipe message ID: 0x%08X",
-                              MessageID);
+            CFE_EVS_SendEvent(MM_MID_ERR_EID, CFE_EVS_EventType_ERROR, "Invalid command pipe message ID: 0x%08lX",
+                              (unsigned long)CFE_SB_MsgIdToValue(MessageID));
             break;
 
     } /* end switch */
@@ -488,7 +496,6 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    bool  Valid                  = true;
     int32 OS_Status              = OS_ERROR; /* Set to error instead of success since we explicitly test for success */
     MM_SymTblToFileCmd_t *CmdPtr = NULL;
     size_t                ExpectedLength = sizeof(MM_SymTblToFileCmd_t);
@@ -517,35 +524,22 @@ bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
         }
         else
         {
-            Valid = CFS_IsValidFilename(CmdPtr->FileName, strlen(CmdPtr->FileName));
-
-            if (Valid == true)
+            OS_Status = OS_SymbolTableDump(CmdPtr->FileName, MM_MAX_DUMP_FILE_DATA_SYMTBL);
+            if (OS_Status == OS_SUCCESS)
             {
-                /*
-                ** If filename is good pass it to the OSAL API
-                */
-                OS_Status = OS_SymbolTableDump(CmdPtr->FileName, MM_MAX_DUMP_FILE_DATA_SYMTBL);
-                if (OS_Status == OS_SUCCESS)
-                {
-                    /* Update telemetry */
-                    MM_AppData.HkPacket.LastAction = MM_SYMTBL_SAVE;
-                    strncpy(MM_AppData.HkPacket.FileName, CmdPtr->FileName, OS_MAX_PATH_LEN);
+                /* Update telemetry */
+                MM_AppData.HkPacket.LastAction = MM_SYMTBL_SAVE;
+                strncpy(MM_AppData.HkPacket.FileName, CmdPtr->FileName, OS_MAX_PATH_LEN);
 
-                    CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                      "Symbol Table Dump to File Started: Name = '%s'", CmdPtr->FileName);
-                    Result = true;
-                }
-                else
-                {
-                    CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_FAIL_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "Error dumping symbol table, OS_Status= 0x%X, File='%s'", (unsigned int)OS_Status,
-                                      CmdPtr->FileName);
-                }
+                CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
+                                  "Symbol Table Dump to File Started: Name = '%s'", CmdPtr->FileName);
+                Result = true;
             }
             else
             {
-                CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_INVALID_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Illegal characters in target filename, File='%s'", CmdPtr->FileName);
+                CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_FAIL_ERR_EID, CFE_EVS_EventType_ERROR,
+                                  "Error dumping symbol table, OS_Status= 0x%X, File='%s'", (unsigned int)OS_Status,
+                                  CmdPtr->FileName);
             }
 
         } /* end strlen(CmdPtr->FileName) == 0 else */
