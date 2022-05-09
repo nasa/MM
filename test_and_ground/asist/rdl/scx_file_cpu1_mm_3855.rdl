@@ -1,0 +1,50 @@
+!==============================================================================
+!
+!                Originator: W. Moleski
+!                Responsible SC:  
+!                Responsible CSE: 
+!                Rev:  Last Change: Oct 25 2017
+
+!
+!                    Telemetry Packet # 3855 (dec)
+!                 =================================
+!
+!       Packet Application ID: 3855 (Hex '0F0F')
+!       Packet Title:  SCX CPU1 MM Load Dump File
+!       Packet Length:  ?? Bytes (Including ?? Bytes Of Header)
+!
+!       REFERENCES:
+!
+!       NOTES:
+!
+!       HISTORY: 
+!
+!  2008/03/18  WFM             : Initial implementation
+!                                                             
+!	2017/10/25	: Created from template 'template_file_MM_SYMTABDUMP.rdl'
+!	with parameters spacecraft='SCX' and processor='CPU1'.
+!==============================================================================
+!
+! #include "osconfig.h"
+#include "cfe_mission_cfg.h"
+#include "mm_platform_cfg.h"
+
+! #define MM_SYM_ENTRY_SIZE (OS_MAX_SYM_LEN + 4)
+#define MM_SYM_ENTRY_SIZE (CFE_MISSION_MAX_PATH_LEN + 4)
+#define MM_NUM_SYMBOLS	(MM_MAX_DUMP_FILE_DATA_SYMTBL/MM_SYM_ENTRY_SIZE) + 1
+
+TYPES
+  RECORD SCX_CPU1_MM_SymbolTableEntry	DESC="Memory Manager Symbol Table Entry"
+!!	char SymbolName[OS_MAX_SYM_LEN]	DESC="The name of the symbol"
+	char SymbolName[CFE_MISSION_MAX_PATH_LEN] DESC="The name of the symbol"
+	ULI  Address			DESC="The absolute address associated with this symbol"
+  END
+END_TYPES
+
+PACKET P0F0F APID=3855, DESC="SCX CPU1 Memory Manager Symbol Table File", VARYING
+!
+    SCX_CPU1_MM_SymbolTableEntry SCX_CPU1_MM_SymTabFile[MM_NUM_SYMBOLS] DESC="A list of symbol table enytries defined"
+!
+!  END                !END APPEND RECORD FUNCTION
+!
+END

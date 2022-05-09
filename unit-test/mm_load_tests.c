@@ -1,0 +1,3172 @@
+/************************************************************************
+** File: mm_load_tests.c 
+**
+**   Copyright © 2007-2014 United States Government as represented by the
+**   Administrator of the National Aeronautics and Space Administration.
+**   All Other Rights Reserved.
+**
+**   This software was created at NASA's Goddard Space Flight Center.
+**   This software is governed by the NASA Open Source Agreement and may be
+**   used, distributed and modified only pursuant to the terms of that
+**   agreement.
+**
+** Purpose:
+**   Unit tests for mm_load.c
+**
+*************************************************************************/
+
+/************************************************************************
+** Includes
+*************************************************************************/
+#include "mm_load.h"
+#include "mm_msg.h"
+#include "mm_msgdefs.h"
+#include "mm_msgids.h"
+#include "mm_events.h"
+#include "mm_filedefs.h"
+#include "mm_version.h"
+#include "mm_utils.h"
+#include "mm_test_utils.h"
+#include "mm_mem32.h"
+#include "mm_mem16.h"
+#include "mm_mem8.h"
+
+/************************************************************************
+** UT Includes
+*************************************************************************/
+#include "uttest.h"
+#include "utassert.h"
+#include "utstubs.h"
+
+#include <sys/fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <cfe.h>
+#include "cfe_msgids.h"
+#include "cfs_utils.h"
+
+/* mm_load_tests globals */
+uint8 call_count_CFE_EVS_SendEvent;
+
+MM_LoadDumpFileHeader_t MMHeaderSave;
+
+MM_LoadDumpFileHeader_t *MMHeaderRestore;
+
+uint8 DummyBuffer[MM_MAX_FILL_DATA_SEG * 2];
+
+/*
+ * Function Definitions
+ */
+
+int32 UT_MM_LOAD_TEST_MM_FillMemHook1(void *UserObj, int32 StubRetcode, uint32 CallCount,
+                                      const UT_StubContext_t *Context)
+{
+    MM_AppData.HkPacket.LastAction = MM_FILL;
+
+    return true;
+} /* end UT_MM_LOAD_TEST_MM_FillMemHook1 */
+
+int32 UT_MM_LOAD_TEST_CFS_ComputeCrcHook1(void *UserObj, int32 StubRetcode, uint32 CallCount,
+                                          const UT_StubContext_t *Context)
+{
+    uint32 *ComputedCRC = (uint32 *)Context->ArgPtr[1];
+
+    *ComputedCRC = 0;
+
+    return OS_SUCCESS;
+} /* end UT_MM_LOAD_TEST_CFS_ComputeCrcHook1 */
+
+int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook1(void *UserObj, int32 StubRetcode, uint32 CallCount,
+                                            const UT_StubContext_t *Context)
+{
+    uint32 *SymbolAddress = (uint32 *)Context->ArgPtr[0];
+
+    cpuaddr *ResolvedAddress = (cpuaddr *)Context->ArgPtr[1];
+
+    /* provide a valid address for CFE_PSP_MemCpy */
+    *ResolvedAddress = (cpuaddr)DummyBuffer;
+
+    *SymbolAddress = 0;
+
+    *MMHeaderRestore = MMHeaderSave;
+
+    return true;
+} /* end UT_MM_LOAD_TEST_CFE_SymbolLookupHook1 */
+
+int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook2(void *UserObj, int32 StubRetcode, uint32 CallCount,
+                                            const UT_StubContext_t *Context)
+{
+    uint32 *SymbolAddress = (uint32 *)Context->ArgPtr[0];
+
+    cpuaddr *ResolvedAddress = (cpuaddr *)Context->ArgPtr[1];
+
+    /* provide a valid address for CFE_PSP_MemCpy */
+    *ResolvedAddress = (cpuaddr)DummyBuffer;
+
+    *SymbolAddress = 0;
+
+    *MMHeaderRestore = MMHeaderSave;
+
+    return false;
+} /* end UT_MM_LOAD_TEST_CFE_SymbolLookupHook2 */
+
+int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook3(void *UserObj, int32 StubRetcode, uint32 CallCount,
+                                            const UT_StubContext_t *Context)
+{
+    cpuaddr *ResolvedAddress = (cpuaddr *)Context->ArgPtr[1];
+
+    /* provide a valid address for CFE_PSP_MemCpy */
+    *ResolvedAddress = (cpuaddr)DummyBuffer;
+
+    return true;
+} /* end UT_MM_LOAD_TEST_CFE_SymbolLookupHook3 */
+
+int8  UT_MM_CFE_OS_ReadHook1_MemType;
+int32 UT_MM_CFE_OS_ReadHook_RunCount;
+int32 UT_MM_CFE_OS_ReadHook1(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
+{
+    void *buffer = *(void **)Context->ArgPtr[1];
+
+    MM_LoadDumpFileHeader_t *header = (MM_LoadDumpFileHeader_t *)buffer;
+
+    ((MM_LoadDumpFileHeader_t *)(buffer))->NumOfBytes        = 4;
+    ((MM_LoadDumpFileHeader_t *)(buffer))->Crc               = 0;
+    ((MM_LoadDumpFileHeader_t *)(buffer))->MemType           = UT_MM_CFE_OS_ReadHook1_MemType;
+    ((MM_LoadDumpFileHeader_t *)(buffer))->SymAddress.Offset = 0;
+
+    strncpy(((MM_LoadDumpFileHeader_t *)(buffer))->SymAddress.SymName, "name", OS_MAX_SYM_LEN);
+    MMHeaderRestore = header;
+    MMHeaderSave    = *header;
+
+    UT_MM_CFE_OS_ReadHook_RunCount++;
+    if (UT_MM_CFE_OS_ReadHook_RunCount == 1)
+    {
+        return sizeof(MM_LoadDumpFileHeader_t);
+    }
+    else if (UT_MM_CFE_OS_ReadHook_RunCount == 2)
+    {
+        return 4;
+    }
+    else
+    {
+        return 0;
+    }
+} /* end UT_MM_CFE_OS_ReadHook1 */
+
+int32 UT_MM_CFE_OS_ReadHook2(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
+{
+    void *buffer = *(void **)Context->ArgPtr[1];
+
+    MM_LoadDumpFileHeader_t *header = (MM_LoadDumpFileHeader_t *)buffer;
+
+    ((MM_LoadDumpFileHeader_t *)(buffer))->NumOfBytes        = 4;
+    ((MM_LoadDumpFileHeader_t *)(buffer))->Crc               = 0;
+    ((MM_LoadDumpFileHeader_t *)(buffer))->MemType           = 99;
+    ((MM_LoadDumpFileHeader_t *)(buffer))->SymAddress.Offset = 0;
+
+    strncpy(((MM_LoadDumpFileHeader_t *)(buffer))->SymAddress.SymName, "name", OS_MAX_SYM_LEN);
+    MMHeaderRestore = header;
+    MMHeaderSave    = *header;
+
+    return sizeof(MM_LoadDumpFileHeader_t);
+
+} /* end UT_MM_CFE_OS_ReadHook2 */
+
+int32 UT_MM_LOAD_TEST_CFE_OS_StatHook1(void *UserObj, int32 StubRetcode, uint32 CallCount,
+                                       const UT_StubContext_t *Context)
+{
+    os_fstat_t *filestats = *(os_fstat_t **)Context->ArgPtr[1];
+
+    filestats->FileSize = sizeof(CFE_FS_Header_t) + sizeof(MM_LoadDumpFileHeader_t);
+
+    return OS_SUCCESS;
+} /* end UT_MM_LOAD_TEST_CFE_OS_StatHook1 */
+
+void MM_PokeCmd_Test_EEPROM(void)
+{
+    MM_PokeCmd_t      CmdPacket;
+    CFE_SB_MsgId_t    TestMsgId;
+    CFE_MSG_FcnCode_t FcnCode;
+    int32             strCmpResult;
+    char              ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool              Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Poke Command: Addr = 0x%%08X, Size = 32 bits, Data = 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    TestMsgId = MM_CMD_MID;
+    FcnCode   = MM_POKE_CC;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+
+    CmdPacket.MemType  = MM_EEPROM;
+    CmdPacket.DataSize = 32;
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyPeekPokeParams), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_PokeCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_POKE_DWORD_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeCmd_Test_EEPROM */
+
+void MM_PokeCmd_Test_NonEEPROM(void)
+{
+    MM_PokeCmd_t      CmdPacket;
+    CFE_SB_MsgId_t    TestMsgId;
+    CFE_MSG_FcnCode_t FcnCode;
+    int32             strCmpResult;
+    char              ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool              Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Poke Command: Addr = 0x%%08X, Size = %%d bits, Data = 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    TestMsgId = MM_CMD_MID;
+    FcnCode   = MM_POKE_CC;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+
+    CmdPacket.MemType  = MM_RAM;
+    CmdPacket.DataSize = 32;
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyPeekPokeParams), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_PokeCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_POKE_DWORD_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeCmd_Test_NonEEPROM */
+
+void MM_PokeCmd_Test_SymNameError(void)
+{
+    MM_PokeCmd_t      CmdPacket;
+    CFE_SB_MsgId_t    TestMsgId;
+    CFE_MSG_FcnCode_t FcnCode;
+    int32             strCmpResult;
+    char              ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool              Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Symbolic address can't be resolved: Name = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    TestMsgId = MM_CMD_MID;
+    FcnCode   = MM_POKE_CC;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+
+    CmdPacket.MemType  = MM_RAM;
+    CmdPacket.DataSize = 32;
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, false);
+
+    /* Execute the function being tested */
+    Result = MM_PokeCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_SYMNAME_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeCmd_Test_SymNameError */
+
+void MM_PokeCmd_Test_NoVerifyCmdLength(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    bool         Result;
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, false);
+
+    /* Execute the function being tested */
+    Result = MM_PokeCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeCmd_Test_NoVerifyCmdLength */
+
+void MM_PokeCmd_Test_NoVerifyPeekPokeParams(void)
+{
+    MM_PokeCmd_t      CmdPacket;
+    CFE_SB_MsgId_t    TestMsgId;
+    CFE_MSG_FcnCode_t FcnCode;
+    bool              Result;
+
+    TestMsgId = MM_CMD_MID;
+    FcnCode   = MM_POKE_CC;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+
+    CmdPacket.MemType  = MM_RAM;
+    CmdPacket.DataSize = 32;
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyPeekPokeParams), 1, false);
+
+    /* Execute the function being tested */
+    Result = MM_PokeCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeCmd_Test_NoVerifyPeekPokeParams */
+
+void MM_PokeMem_Test_NoDataSize(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    CmdPacket.MemType  = MM_RAM;
+    CmdPacket.DataSize = 0;
+    bool Result;
+
+    DestAddress = 1;
+
+    /* Execute the function being tested */
+    Result = MM_PokeMem(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeMem_Test_8bit */
+
+void MM_PokeMem_Test_8bit(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Poke Command: Addr = 0x%%08X, Size = %%d bits, Data = 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_RAM;
+    CmdPacket.DataSize = MM_BYTE_BIT_WIDTH;
+    CmdPacket.Data     = (uint8)(5);
+
+    DestAddress = 1;
+
+    /* Execute the function being tested */
+    Result = MM_PokeMem(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_POKE, "MM_AppData.HkPacket.LastAction == MM_POKE");
+    UtAssert_True(MM_AppData.HkPacket.MemType == MM_RAM, "MM_AppData.HkPacket.MemType == MM_RAM");
+    UtAssert_True(MM_AppData.HkPacket.Address == DestAddress, "MM_AppData.HkPacket.Address == DestAddress");
+    UtAssert_True(MM_AppData.HkPacket.DataValue == 5, "MM_AppData.HkPacket.DataValue  == 5");
+    UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 1, "MM_AppData.HkPacket.BytesProcessed == 1");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_POKE_BYTE_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeMem_Test_8bit */
+
+void MM_PokeMem_Test_8bitError(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "PSP write memory error: RC=0x%%08X, Address=0x%%08X, MemType=MEM%%d");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_RAM;
+    CmdPacket.DataSize = MM_BYTE_BIT_WIDTH;
+    CmdPacket.Data     = (uint8)(5);
+
+    /* CFE_PSP_MemWrite8 stub returns success with non-zero address */
+    DestAddress = 0;
+
+    /* Set to generate error message MM_PSP_WRITE_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemWrite8), 1, -1);
+
+    /* Execute the function being tested */
+    Result = MM_PokeMem(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_PSP_WRITE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeMem_Test_8bitError */
+
+void MM_PokeMem_Test_16bit(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Poke Command: Addr = 0x%%08X, Size = %%d bits, Data = 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_RAM;
+    CmdPacket.DataSize = MM_WORD_BIT_WIDTH;
+    CmdPacket.Data     = (uint16)(5);
+
+    DestAddress = 1;
+
+    /* Execute the function being tested */
+    Result = MM_PokeMem(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_POKE, "MM_AppData.HkPacket.LastAction == MM_POKE");
+    UtAssert_True(MM_AppData.HkPacket.MemType == MM_RAM, "MM_AppData.HkPacket.MemType == MM_RAM");
+    UtAssert_True(MM_AppData.HkPacket.Address == DestAddress, "MM_AppData.HkPacket.Address == DestAddress");
+    UtAssert_True(MM_AppData.HkPacket.DataValue == 5, "MM_AppData.HkPacket.DataValue  == 5");
+    UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 2, "MM_AppData.HkPacket.BytesProcessed == 2");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_POKE_WORD_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeMem_Test_16bit */
+
+void MM_PokeMem_Test_16bitError(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "PSP write memory error: RC=0x%%08X, Address=0x%%08X, MemType=MEM%%d");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_RAM;
+    CmdPacket.DataSize = MM_WORD_BIT_WIDTH;
+    CmdPacket.Data     = (uint16)(5);
+
+    /* CFE_PSP_MemWrite16 stub returns success with non-zero address */
+    DestAddress = 0;
+
+    /* Set to generate error message MM_PSP_WRITE_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemWrite16), 1, -1);
+
+    /* Execute the function being tested */
+    Result = MM_PokeMem(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_PSP_WRITE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeMem_Test_16bitError */
+
+void MM_PokeMem_Test_32bit(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Poke Command: Addr = 0x%%08X, Size = %%d bits, Data = 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_RAM;
+    CmdPacket.DataSize = MM_DWORD_BIT_WIDTH;
+    CmdPacket.Data     = (uint32)(5);
+
+    DestAddress = 1;
+
+    /* Execute the function being tested */
+    Result = MM_PokeMem(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_POKE, "MM_AppData.HkPacket.LastAction == MM_POKE");
+    UtAssert_True(MM_AppData.HkPacket.MemType == MM_RAM, "MM_AppData.HkPacket.MemType == MM_RAM");
+    UtAssert_True(MM_AppData.HkPacket.Address == DestAddress, "MM_AppData.HkPacket.Address == DestAddress");
+    UtAssert_True(MM_AppData.HkPacket.DataValue == 5, "MM_AppData.HkPacket.DataValue  == 5");
+    UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 4, "MM_AppData.HkPacket.BytesProcessed == 4");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_POKE_DWORD_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeMem_Test_32bit */
+
+void MM_PokeMem_Test_32bitError(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "PSP write memory error: RC=0x%%08X, Address=0x%%08X, MemType=MEM%%d");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_RAM;
+    CmdPacket.DataSize = MM_DWORD_BIT_WIDTH;
+    CmdPacket.Data     = (uint32)(5);
+
+    /* CFE_PSP_MemWrite32 stub returns success with non-zero address */
+    DestAddress = 0;
+
+    /* Set to generate error message MM_PSP_WRITE_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemWrite32), 1, -1);
+
+    /* Execute the function being tested */
+    Result = MM_PokeMem(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_PSP_WRITE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeMem_Test_32bitError */
+
+void MM_PokeEeprom_Test_NoDataSize(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    bool         Result;
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_EEPROM;
+    CmdPacket.DataSize = 0;
+
+    DestAddress = 1;
+
+    /* Execute the function being tested */
+    Result = MM_PokeEeprom(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeMem_Test_8bit */
+
+void MM_PokeEeprom_Test_8bit(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Poke Command: Addr = 0x%%08X, Size = 8 bits, Data = 0x%%02X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_EEPROM;
+    CmdPacket.DataSize = MM_BYTE_BIT_WIDTH;
+    CmdPacket.Data     = (uint8)(5);
+
+    DestAddress = 1;
+
+    /* Execute the function being tested */
+    Result = MM_PokeEeprom(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_POKE, "MM_AppData.HkPacket.LastAction == MM_POKE");
+    UtAssert_True(MM_AppData.HkPacket.MemType == MM_EEPROM, "MM_AppData.HkPacket.MemType == MM_EEPROM");
+    UtAssert_True(MM_AppData.HkPacket.Address == DestAddress, "MM_AppData.HkPacket.Address == DestAddress");
+    UtAssert_True(MM_AppData.HkPacket.DataValue == 5, "MM_AppData.HkPacket.DataValue  == 5");
+    UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 1, "MM_AppData.HkPacket.BytesProcessed == 1");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_POKE_BYTE_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeEeprom_Test_8bit */
+
+void MM_PokeEeprom_Test_8bitError(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "CFE_PSP_EepromWrite8 error received: RC = 0x%%08X, Addr = 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_EEPROM;
+    CmdPacket.DataSize = MM_BYTE_BIT_WIDTH;
+    CmdPacket.Data     = (uint8)(5);
+
+    /* CFE_PSP_MemWrite8 stub returns success with non-zero address */
+    DestAddress = 0;
+
+    /* Set to generate error message MM_OS_EEPROMWRITE8_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_EepromWrite8), 1, -1);
+
+    /* Execute the function being tested */
+    Result = MM_PokeEeprom(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_EEPROMWRITE8_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeEeprom_Test_8bitError */
+
+void MM_PokeEeprom_Test_16bit(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Poke Command: Addr = 0x%%08X, Size = 16 bits, Data = 0x%%04X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_EEPROM;
+    CmdPacket.DataSize = MM_WORD_BIT_WIDTH;
+    CmdPacket.Data     = (uint16)(5);
+
+    DestAddress = 1;
+
+    /* Execute the function being tested */
+    Result = MM_PokeEeprom(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_POKE, "MM_AppData.HkPacket.LastAction == MM_POKE");
+    UtAssert_True(MM_AppData.HkPacket.MemType == MM_EEPROM, "MM_AppData.HkPacket.MemType == MM_EEPROM");
+    UtAssert_True(MM_AppData.HkPacket.Address == DestAddress, "MM_AppData.HkPacket.Address == DestAddress");
+    UtAssert_True(MM_AppData.HkPacket.DataValue == 5, "MM_AppData.HkPacket.DataValue  == 5");
+    UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 2, "MM_AppData.HkPacket.BytesProcessed == 2");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_POKE_WORD_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeEeprom_Test_16bit */
+
+void MM_PokeEeprom_Test_16bitError(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "CFE_PSP_EepromWrite16 error received: RC = 0x%%08X, Addr = 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_EEPROM;
+    CmdPacket.DataSize = MM_WORD_BIT_WIDTH;
+    CmdPacket.Data     = (uint16)(5);
+
+    /* CFE_PSP_MemWrite16 stub returns success with non-zero address */
+    DestAddress = 0;
+
+    /* Set to generate error message MM_OS_EEPROMWRITE16_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_EepromWrite16), 1, -1);
+
+    /* Execute the function being tested */
+    Result = MM_PokeEeprom(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_EEPROMWRITE16_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeEeprom_Test_16bitError */
+
+void MM_PokeEeprom_Test_32bit(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Poke Command: Addr = 0x%%08X, Size = 32 bits, Data = 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_EEPROM;
+    CmdPacket.DataSize = MM_DWORD_BIT_WIDTH;
+    CmdPacket.Data     = (uint32)(5);
+
+    DestAddress = 1;
+
+    /* Execute the function being tested */
+    Result = MM_PokeEeprom(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_POKE, "MM_AppData.HkPacket.LastAction == MM_POKE");
+    UtAssert_True(MM_AppData.HkPacket.MemType == MM_EEPROM, "MM_AppData.HkPacket.MemType == MM_EEPROM");
+    UtAssert_True(MM_AppData.HkPacket.Address == DestAddress, "MM_AppData.HkPacket.Address == DestAddress");
+    UtAssert_True(MM_AppData.HkPacket.DataValue == 5, "MM_AppData.HkPacket.DataValue  == 5");
+    UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 4, "MM_AppData.HkPacket.BytesProcessed == 4");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_POKE_DWORD_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeEeprom_Test_32bit */
+
+void MM_PokeEeprom_Test_32bitError(void)
+{
+    MM_PokeCmd_t CmdPacket;
+    uint32       DestAddress;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "CFE_PSP_EepromWrite32 error received: RC = 0x%%08X, Addr = 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType  = MM_EEPROM;
+    CmdPacket.DataSize = MM_DWORD_BIT_WIDTH;
+    CmdPacket.Data     = (uint32)(5);
+
+    /* CFE_PSP_MemWrite32 stub returns success with non-zero address */
+    DestAddress = 0;
+
+    /* Set to generate error message MM_OS_EEPROMWRITE32_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_EepromWrite32), 1, -1);
+
+    /* Execute the function being tested */
+    Result = MM_PokeEeprom(&CmdPacket, DestAddress);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_EEPROMWRITE32_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_PokeEeprom_Test_32bitError */
+
+void MM_LoadMemWIDCmd_Test_Nominal(void)
+{
+    MM_LoadMemWIDCmd_t CmdPacket;
+    CFE_SB_MsgId_t     TestMsgId;
+    CFE_MSG_FcnCode_t  FcnCode;
+    int32              strCmpResult;
+    char               ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool               Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Load Memory WID Command: Wrote %%d bytes to address: 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    TestMsgId = MM_CMD_MID;
+    FcnCode   = MM_LOAD_MEM_WID_CC;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+
+    CmdPacket.DataArray[0]          = 1;
+    CmdPacket.DataArray[1]          = 2;
+    CmdPacket.NumOfBytes            = 2;
+    CmdPacket.Crc                   = 0;
+    CmdPacket.DestSymAddress.Offset = 0;
+
+    strncpy(CmdPacket.DestSymAddress.SymName, "", OS_MAX_PATH_LEN);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+
+    /* Set to prevent segmentation fault */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook3, 0);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemWIDCmd((CFE_SB_Buffer_t *)&CmdPacket);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_LOAD_WID_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemWIDCmd_Test_Nominal */
+
+void MM_LoadMemWIDCmd_Test_NoVerifyCmdLength(void)
+{
+    MM_LoadMemWIDCmd_t CmdPacket;
+    bool               Result;
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, false);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemWIDCmd((CFE_SB_Buffer_t *)&CmdPacket);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemWIDCmd_Test_NoVerifyCmdLength */
+
+void MM_LoadMemWIDCmd_Test_CRCError(void)
+{
+    MM_LoadMemWIDCmd_t CmdPacket;
+    CFE_SB_MsgId_t     TestMsgId;
+    CFE_MSG_FcnCode_t  FcnCode;
+    int32              strCmpResult;
+    char               ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool               Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Interrupts Disabled Load CRC failure: Expected = 0x%%X Calculated = 0x%%X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    TestMsgId = MM_CMD_MID;
+    FcnCode   = MM_LOAD_MEM_WID_CC;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+
+    CmdPacket.DataArray[0]          = 1;
+    CmdPacket.DataArray[1]          = 2;
+    CmdPacket.NumOfBytes            = 2;
+    CmdPacket.Crc                   = 1;
+    CmdPacket.DestSymAddress.Offset = 1;
+
+    strncpy(CmdPacket.DestSymAddress.SymName, "", OS_MAX_PATH_LEN);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemWIDCmd((CFE_SB_Buffer_t *)&CmdPacket);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_LOAD_WID_CRC_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemWIDCmd_Test_CRCError */
+
+void MM_LoadMemWIDCmd_Test_SymNameErr(void)
+{
+    MM_LoadMemWIDCmd_t CmdPacket;
+    CFE_SB_MsgId_t     TestMsgId;
+    CFE_MSG_FcnCode_t  FcnCode;
+    int32              strCmpResult;
+    char               ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool               Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Symbolic address can't be resolved: Name = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    TestMsgId = MM_CMD_MID;
+    FcnCode   = MM_LOAD_MEM_WID_CC;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+
+    CmdPacket.DataArray[0]          = 1;
+    CmdPacket.DataArray[1]          = 2;
+    CmdPacket.NumOfBytes            = 2;
+    CmdPacket.Crc                   = 0;
+    CmdPacket.DestSymAddress.Offset = 1;
+
+    strncpy(CmdPacket.DestSymAddress.SymName, "", OS_MAX_PATH_LEN);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, false);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemWIDCmd((CFE_SB_Buffer_t *)&CmdPacket);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_SYMNAME_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemWIDCmd_Test_SymNameErr */
+
+void MM_LoadMemWIDCmd_Test_NoVerifyLoadWIDParams(void)
+{
+    MM_LoadMemWIDCmd_t CmdPacket;
+    CFE_SB_MsgId_t     TestMsgId;
+    CFE_MSG_FcnCode_t  FcnCode;
+    bool               Result;
+
+    TestMsgId = MM_CMD_MID;
+    FcnCode   = MM_LOAD_MEM_WID_CC;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+
+    CmdPacket.DataArray[0]          = 1;
+    CmdPacket.DataArray[1]          = 2;
+    CmdPacket.NumOfBytes            = 0;
+    CmdPacket.Crc                   = 0;
+    CmdPacket.DestSymAddress.Offset = 1;
+
+    strncpy(CmdPacket.DestSymAddress.SymName, "", OS_MAX_PATH_LEN);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), false);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemWIDCmd((CFE_SB_Buffer_t *)&CmdPacket);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_VerifyLoadWIDParams_Test_Nominal */
+
+void MM_LoadMemFromFileCmd_Test_RAM(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Load Memory From File Command: Loaded %%d bytes to address 0x%%08X from file '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    UT_MM_CFE_OS_ReadHook1_MemType = MM_RAM;
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook1, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMemFromFile), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ReadHeader), 1, sizeof(CFE_FS_Header_t));
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_LD_MEM_FILE_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_RAM */
+
+void MM_LoadMemFromFileCmd_Test_BadType(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    bool                    Result;
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook2, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMemFromFile), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ReadHeader), 1, sizeof(CFE_FS_Header_t));
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_BadType */
+
+void MM_LoadMemFromFileCmd_Test_EEPROM(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Load Memory From File Command: Loaded %%d bytes to address 0x%%08X from file '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    UT_MM_CFE_OS_ReadHook1_MemType = MM_EEPROM;
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook1, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMemFromFile), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_LD_MEM_FILE_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_EEPROM */
+
+void MM_LoadMemFromFileCmd_Test_MEM32(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Load Memory From File Command: Loaded %%d bytes to address 0x%%08X from file '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM32;
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook1, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem32FromFile), 1, true);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+    UT_SetDeferredRetcode(UT_KEY(CFS_Verify32Aligned), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_LD_MEM_FILE_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_MEM32 */
+
+void MM_LoadMemFromFileCmd_Test_MEM32Invalid(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    bool                    Result;
+
+    UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM32;
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook1, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem32FromFile), 1, false);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+    UT_SetDeferredRetcode(UT_KEY(CFS_Verify32Aligned), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_MEM32 */
+
+void MM_LoadMemFromFileCmd_Test_MEM16(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Load Memory From File Command: Loaded %%d bytes to address 0x%%08X from file '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM16;
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook1, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem16FromFile), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_Verify16Aligned), 1, true);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_LD_MEM_FILE_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_MEM16 */
+
+void MM_LoadMemFromFileCmd_Test_MEM8(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Load Memory From File Command: Loaded %%d bytes to address 0x%%08X from file '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM8;
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook1, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem8FromFile), 1, true);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_LD_MEM_FILE_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_MEM8 */
+
+void MM_LoadMemFromFileCmd_Test_NoVerifyCmdLength(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    bool                    Result;
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, false);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_NoVerifyCmdLength */
+
+void MM_LoadMemFromFileCmd_Test_NoReadFileHeaders(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "CFE_FS_ReadHeader error received: RC = 0x%%08X Expected = %%u File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook1, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem8FromFile), 1, true);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+    /* Set to satisfy condition "OS_Status != sizeof(CFE_FS_Header_t)" */
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ReadHeader), 1, 0);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_CFE_FS_READHDR_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_NoReadFileHeaders */
+
+void MM_LoadMemFromFileCmd_Test_NoVerifyLoadFileSize(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Load file size error: Reported by OS = %%d Expected = %%d File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook1, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem8FromFile), 1, true);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_LD_FILE_SIZE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_NoVerifyLoadFileSize */
+
+void MM_LoadMemFromFileCmd_Test_lseekError(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM8;
+    int32 strCmpResult;
+    char  ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool  Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Load file CRC failure: Expected = 0x%%X Calculated = 0x%%X File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook1, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem8FromFile), 1, false);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
+
+    UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, -1);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_LOAD_FILE_CRC_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_NoValidMemType */
+
+void MM_LoadMemFromFileCmd_Test_LoadParamsError(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[2][CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString[0], CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Load file failed parameters check: File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent[2];
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    UT_MM_CFE_OS_ReadHook1_MemType = 99;
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook1, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem8FromFile), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_FILE_LOAD_PARAMS_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult =
+        strncmp(ExpectedEventString[0], context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_LoadParamsError */
+
+void MM_LoadMemFromFileCmd_Test_SymNameError(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Symbolic address can't be resolved: Name = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM8;
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Set to generate error message MM_SYMNAME_ERR_EID */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook2, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, false);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook1, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyLoadDumpParams), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem8FromFile), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_SYMNAME_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_SymNameError */
+
+void MM_LoadMemFromFileCmd_Test_LoadFileCRCError(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Load file CRC failure: Expected = 0x%%X Calculated = 0x%%X File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyLoadDumpParams), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem8FromFile), 1, true);
+
+    /* Not calling UT_MM_LOAD_TEST_CFS_ComputeCrcHook1 causes condition
+       "ComputedCRC == MMFileHeader.Crc" to fail, in order to generate
+       error message MM_LOAD_FILE_CRC_ERR_EID */
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_LOAD_FILE_CRC_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_LoadFileCRCError */
+
+void MM_LoadMemFromFileCmd_Test_ComputeCRCError(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "CFS_ComputeCRCFromFile error received: RC = 0x%%08X File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyLoadDumpParams), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem8FromFile), 1, true);
+
+    /* Causes call to CFS_ComputeCRCFromFile to fail,
+       in order to generate error message MM_LOAD_FILE_CRC_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(CFS_ComputeCRCFromFile), 1, -1);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_CFS_COMPUTECRCFROMFILE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_ComputeCRCError */
+
+void MM_LoadMemFromFileCmd_Test_CloseError(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[2][CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString[0], CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "OS_close error received: RC = 0x%%08X File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent[2];
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Causes call to MM_LoadMemFromFile to return true, in order to generate event message MM_LD_MEM_FILE_INF_EID */
+    UT_SetHookFunction(UT_KEY(OS_read), UT_MM_CFE_OS_ReadHook1, 0);
+    UT_MM_CFE_OS_ReadHook_RunCount = 0;
+
+    /* Causes call to CFS_ComputeCRCFromFile to return 0 for ComputedCRC */
+    UT_SetHookFunction(UT_KEY(CFS_ComputeCRCFromFile), UT_MM_LOAD_TEST_CFS_ComputeCrcHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem8FromFile), 1, true);
+
+    /* Set to generate error message MM_OS_CLOSE_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(OS_close), 1, -1);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[1].EventID, MM_OS_CLOSE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[1].EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult =
+        strncmp(ExpectedEventString[0], context_CFE_EVS_SendEvent[1].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
+
+    /* Generates 1 event message we don't care about in this test */
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 2, "CFE_EVS_SendEvent was called %u time(s), expected 2",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_CloseError */
+
+void MM_LoadMemFromFileCmd_Test_OpenError(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "OS_OpenCreate error received: RC = %%d File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem8FromFile), 1, true);
+
+    /* Set to generate error message MM_OS_OPEN_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, -1);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_OPEN_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_OpenError */
+
+void MM_LoadMemFromFileCmd_Test_InvalidFilename(void)
+{
+    MM_LoadMemFromFileCmd_t CmdPacket;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                    Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Command specified filename invalid: Name = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    strncpy(CmdPacket.FileName, "name", OS_MAX_PATH_LEN);
+
+    /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
+     * "Valid == true" */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    /* Set to generate error message MM_CMD_FNAME_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(CFS_IsValidFilename), 1, false);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_LoadMem8FromFile), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFileCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_CMD_FNAME_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFileCmd_Test_InvalidFilename */
+
+void MM_LoadMemFromFile_Test_PreventCPUHogging(void)
+{
+    bool                    Result;
+    MM_LoadDumpFileHeader_t FileHeader;
+    FileHeader.MemType    = MM_EEPROM;
+    FileHeader.NumOfBytes = 2 * MM_MAX_LOAD_DATA_SEG;
+
+    /* Set to satisfy condition "(ReadLength = OS_read(FileHandle, ioBuffer, SegmentSize)) == SegmentSize" */
+    UT_SetDefaultReturnValue(UT_KEY(OS_read), MM_MAX_LOAD_DATA_SEG);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFile(0, (char *)"filename", &FileHeader, (cpuaddr)&DummyBuffer[0]);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_LOAD_FROM_FILE,
+                  "MM_AppData.HkPacket.LastAction == MM_LOAD_FROM_FILE");
+    UtAssert_True(MM_AppData.HkPacket.MemType == MM_EEPROM, "MM_AppData.HkPacket.MemType == MM_EEPROM");
+    UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)(&DummyBuffer[0]), "MM_AppData.HkPacket.Address == 0");
+    UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 2 * MM_MAX_LOAD_DATA_SEG,
+                  "MM_AppData.HkPacket.BytesProcessed == 2*MM_MAX_LOAD_DATA_SEG");
+    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, "filename", OS_MAX_PATH_LEN) == 0,
+                  "strncmp(MM_AppData.HkPacket.FileName, 'filename', OS_MAX_PATH_LEN) == 0");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFile_Test_PreventCPUHogging */
+
+void MM_LoadMemFromFile_Test_ReadError(void)
+{
+    bool                    Result;
+    MM_LoadDumpFileHeader_t FileHeader;
+    FileHeader.MemType    = MM_EEPROM;
+    FileHeader.NumOfBytes = 2;
+    int32 strCmpResult;
+    char  ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "OS_read error received: RC = 0x%%08X Expected = %%d File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    /* Set to generate error message MM_OS_READ_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 1, 0);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFile(0, (char *)"filename", &FileHeader, (cpuaddr)&DummyBuffer[0]);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_READ_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFile_Test_ReadError */
+
+void MM_LoadMemFromFile_Test_NotEepromMemType(void)
+{
+    bool                    Result;
+    MM_LoadDumpFileHeader_t FileHeader;
+    FileHeader.MemType    = MM_MEM8;
+    FileHeader.NumOfBytes = 2 * MM_MAX_LOAD_DATA_SEG;
+
+    /* Set to satisfy condition "(ReadLength = OS_read(FileHandle, ioBuffer, SegmentSize)) == SegmentSize" */
+    UT_SetDefaultReturnValue(UT_KEY(OS_read), MM_MAX_LOAD_DATA_SEG);
+
+    /* Execute the function being tested */
+    Result = MM_LoadMemFromFile(0, (char *)"filename", &FileHeader, (cpuaddr)&DummyBuffer[0]);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_LOAD_FROM_FILE,
+                  "MM_AppData.HkPacket.LastAction == MM_LOAD_FROM_FILE");
+    UtAssert_True(MM_AppData.HkPacket.MemType == MM_MEM8, "MM_AppData.HkPacket.MemType == MM_MEM8");
+    UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)(&DummyBuffer[0]), "MM_AppData.HkPacket.Address == 0");
+    UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 2 * MM_MAX_LOAD_DATA_SEG,
+                  "MM_AppData.HkPacket.BytesProcessed == 2*MM_MAX_LOAD_DATA_SEG");
+    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, "filename", OS_MAX_PATH_LEN) == 0,
+                  "strncmp(MM_AppData.HkPacket.FileName, 'filename', OS_MAX_PATH_LEN) == 0");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_LoadMemFromFile_Test_NotEepromMemType */
+
+void MM_ReadFileHeaders_Test_ReadHeaderError(void)
+{
+    bool                    Result;
+    int32                   FileHandle = 1;
+    CFE_FS_Header_t         CFEHeader;
+    MM_LoadDumpFileHeader_t MMHeader;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "CFE_FS_ReadHeader error received: RC = 0x%%08X Expected = %%u File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    /* Set to satisfy condition "OS_Status != sizeof(CFE_FS_Header_t)" */
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ReadHeader), 1, 0);
+
+    /* Execute the function being tested */
+    Result = MM_ReadFileHeaders((char *)"filename", FileHandle, &CFEHeader, &MMHeader);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_CFE_FS_READHDR_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_ReadFileHeaders_Test_ReadHeaderError */
+
+void MM_ReadFileHeaders_Test_ReadError(void)
+{
+    bool                    Result;
+    int32                   FileHandle = 1;
+    CFE_FS_Header_t         CFEHeader;
+    MM_LoadDumpFileHeader_t MMHeader;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "OS_read error received: RC = 0x%%08X Expected = %%u File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    /* Set to generate error message MM_OS_READ_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 1, 0);
+
+    /* Execute the function being tested */
+    Result = MM_ReadFileHeaders((char *)"filename", FileHandle, &CFEHeader, &MMHeader);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_READ_EXP_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_ReadFileHeaders_Test_ReadError */
+
+void MM_VerifyLoadFileSize_Test_StatError(void)
+{
+    bool                    Result;
+    MM_LoadDumpFileHeader_t FileHeader;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "OS_stat error received: RC = 0x%%08X File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
+    UT_SetDeferredRetcode(UT_KEY(OS_stat), 1, -1);
+
+    /* Execute the function being tested */
+    Result = MM_VerifyLoadFileSize((char *)"filename", &FileHeader);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_OS_STAT_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_VerifyLoadFileSize_Test_StatError */
+
+void MM_VerifyLoadFileSize_Test_SizeError(void)
+{
+    bool                    Result;
+    MM_LoadDumpFileHeader_t FileHeader;
+    int32                   strCmpResult;
+    char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Load file size error: Reported by OS = %%d Expected = %%d File = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    FileHeader.NumOfBytes = 99;
+
+    /* Generates error message MM_LD_FILE_SIZE_ERR_EID */
+    UT_SetHookFunction(UT_KEY(OS_stat), UT_MM_LOAD_TEST_CFE_OS_StatHook1, 0);
+
+    /* Execute the function being tested */
+    Result = MM_VerifyLoadFileSize((char *)"filename", &FileHeader);
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_LD_FILE_SIZE_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_VerifyLoadFileSize_Test_SizeError */
+
+void MM_FillMemCmd_Test_RAM(void)
+{
+    MM_FillMemCmd_t CmdPacket;
+    int32           strCmpResult;
+    char            ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool            Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Fill Memory Command: Filled %%d bytes at address: 0x%%08X with pattern: 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook3, 0);
+
+    CmdPacket.MemType    = MM_RAM;
+    CmdPacket.NumOfBytes = 1;
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyLoadDumpParams), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_FillMemCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_FILL_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_FillMemCmd_Test_RAM */
+
+void MM_FillMemCmd_Test_EEPROM(void)
+{
+    MM_FillMemCmd_t CmdPacket;
+    int32           strCmpResult;
+    char            ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool            Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Fill Memory Command: Filled %%d bytes at address: 0x%%08X with pattern: 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook3, 0);
+
+    CmdPacket.MemType    = MM_EEPROM;
+    CmdPacket.NumOfBytes = 1;
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyLoadDumpParams), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_FillMemCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_FILL_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_FillMemCmd_Test_EEPROM */
+
+void MM_FillMemCmd_Test_MEM32(void)
+{
+    MM_FillMemCmd_t CmdPacket;
+    int32           strCmpResult;
+    char            ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool            Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Fill Memory Command: Filled %%d bytes at address: 0x%%08X with pattern: 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType    = MM_MEM32;
+    CmdPacket.NumOfBytes = 4;
+
+    /* Causes MM_AppData.HkPacket.LastAction == MM_FILL */
+    UT_SetHookFunction(UT_KEY(MM_FillMem32), UT_MM_LOAD_TEST_MM_FillMemHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyLoadDumpParams), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_Verify32Aligned), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_FillMemCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_FILL_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_FillMemCmd_Test_MEM32 */
+
+void MM_FillMemCmd_Test_MEM16(void)
+{
+    MM_FillMemCmd_t CmdPacket;
+    int32           strCmpResult;
+    char            ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool            Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Fill Memory Command: Filled %%d bytes at address: 0x%%08X with pattern: 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType    = MM_MEM16;
+    CmdPacket.NumOfBytes = 2;
+
+    /* Causes MM_AppData.HkPacket.LastAction == MM_FILL */
+    UT_SetHookFunction(UT_KEY(MM_FillMem16), UT_MM_LOAD_TEST_MM_FillMemHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyLoadDumpParams), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_Verify16Aligned), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_FillMemCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_FILL_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_FillMemCmd_Test_MEM16 */
+
+void MM_FillMemCmd_Test_MEM8(void)
+{
+    MM_FillMemCmd_t CmdPacket;
+    int32           strCmpResult;
+    char            ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool            Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Fill Memory Command: Filled %%d bytes at address: 0x%%08X with pattern: 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType    = MM_MEM8;
+    CmdPacket.NumOfBytes = 1;
+
+    /* Causes MM_AppData.HkPacket.LastAction == MM_FILL */
+    UT_SetHookFunction(UT_KEY(MM_FillMem8), UT_MM_LOAD_TEST_MM_FillMemHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyLoadDumpParams), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_FillMemCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_FILL_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_INFORMATION);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_FillMemCmd_Test_MEM8 */
+
+void MM_FillMemCmd_Test_SymNameError(void)
+{
+    MM_FillMemCmd_t CmdPacket;
+    int32           strCmpResult;
+    char            ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool            Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Symbolic address can't be resolved: Name = '%%s'");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    CmdPacket.MemType    = MM_MEM8;
+    CmdPacket.NumOfBytes = 1;
+
+    /* Causes MM_AppData.HkPacket.LastAction == MM_FILL */
+    UT_SetHookFunction(UT_KEY(MM_FillMem8), UT_MM_LOAD_TEST_MM_FillMemHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_FillMemCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventID, MM_SYMNAME_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent.EventType, CFE_EVS_EventType_ERROR);
+
+    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+
+    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent.Spec);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_FillMemCmd_Test_SymNameError */
+
+void MM_FillMemCmd_Test_NoVerifyCmdLength(void)
+{
+    MM_FillMemCmd_t CmdPacket;
+    bool            Result;
+
+    /* Causes MM_AppData.HkPacket.LastAction == MM_FILL */
+    UT_SetHookFunction(UT_KEY(MM_FillMem8), UT_MM_LOAD_TEST_MM_FillMemHook1, 0);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, false);
+
+    /* Execute the function being tested */
+    Result = MM_FillMemCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_FillMemCmd_Test_NoVerifyCmdLength */
+
+void MM_FillMemCmd_Test_NoLastActionFill(void)
+{
+    MM_FillMemCmd_t CmdPacket;
+    bool            Result;
+
+    CmdPacket.MemType    = MM_MEM8;
+    CmdPacket.NumOfBytes = 1;
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyLoadDumpParams), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_FillMemCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_FillMemCmd_Test_NoLastActionFill */
+
+void MM_FillMemCmd_Test_NoVerifyLoadDump(void)
+{
+    MM_FillMemCmd_t CmdPacket;
+    bool            Result;
+
+    CmdPacket.MemType    = MM_MEM8;
+    CmdPacket.NumOfBytes = 1;
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyLoadDumpParams), 1, false);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_FillMemCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_FillMemCmd_Test_NoVerifyLoadDump */
+
+void MM_FillMemCmd_Test_BadType(void)
+{
+    MM_FillMemCmd_t CmdPacket;
+    int32           strCmpResult;
+    char            ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool            Result;
+
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
+             "Fill Memory Command: Filled %%d bytes at address: 0x%%08X with pattern: 0x%%08X");
+
+    CFE_EVS_SendEvent_context_t context_CFE_EVS_SendEvent;
+    UT_SetHookFunction(UT_KEY(CFE_EVS_SendEvent), UT_Utils_stub_reporter_hook, &context_CFE_EVS_SendEvent);
+
+    /* Causes call to CFS_ResolveSymAddr to return a known value for DestAddress */
+    UT_SetHookFunction(UT_KEY(CFS_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook3, 0);
+
+    CmdPacket.MemType    = 99;
+    CmdPacket.NumOfBytes = 1;
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyLoadDumpParams), 1, true);
+
+    UT_SetDeferredRetcode(UT_KEY(CFS_ResolveSymAddr), 1, true);
+
+    /* Execute the function being tested */
+    Result = MM_FillMemCmd((CFE_SB_Buffer_t *)(&CmdPacket));
+
+    /* Verify results */
+    UtAssert_True(Result == false, "Result == false");
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_FillMemCmd_Test_RAM */
+
+void MM_FillMem_Test_Nominal(void)
+{
+    MM_FillMemCmd_t CmdPacket;
+    bool            Result;
+
+    CmdPacket.MemType    = MM_EEPROM;
+    CmdPacket.NumOfBytes = 2;
+
+    /* Execute the function being tested */
+    Result = MM_FillMem((cpuaddr)&DummyBuffer[0], &CmdPacket);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_FILL, "MM_AppData.HkPacket.LastAction == MM_FILL");
+    UtAssert_True(MM_AppData.HkPacket.MemType == CmdPacket.MemType, "MM_AppData.HkPacket.MemType == CmdPacket.MemType");
+    UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)(&DummyBuffer[0]),
+                  "MM_AppData.HkPacket.Address == DestAddress");
+    UtAssert_True(MM_AppData.HkPacket.DataValue == CmdPacket.FillPattern,
+                  "MM_AppData.HkPacket.DataValue == CmdPacket.FillPattern");
+    UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 2, "MM_AppData.HkPacket.BytesProcessed == 2");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_FillMem_Test_Nominal */
+
+void MM_FillMem_Test_MaxFillDataSegment(void)
+{
+    MM_FillMemCmd_t CmdPacket;
+    bool            Result;
+
+    CmdPacket.MemType    = MM_EEPROM;
+    CmdPacket.NumOfBytes = MM_MAX_FILL_DATA_SEG + 1;
+
+    /* Execute the function being tested */
+    Result = MM_FillMem((cpuaddr)&DummyBuffer[0], &CmdPacket);
+
+    /* Verify results */
+    UtAssert_True(Result == true, "Result == true");
+
+    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_FILL, "MM_AppData.HkPacket.LastAction == MM_FILL");
+    UtAssert_True(MM_AppData.HkPacket.MemType == CmdPacket.MemType, "MM_AppData.HkPacket.MemType == CmdPacket.MemType");
+    UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)(&DummyBuffer[0]),
+                  "MM_AppData.HkPacket.Address == DestAddress");
+    UtAssert_True(MM_AppData.HkPacket.DataValue == CmdPacket.FillPattern,
+                  "MM_AppData.HkPacket.DataValue == CmdPacket.FillPattern");
+    UtAssert_True(MM_AppData.HkPacket.BytesProcessed == MM_MAX_FILL_DATA_SEG + 1,
+                  "MM_AppData.HkPacket.BytesProcessed == MM_MAX_FILL_DATA_SEG + 1");
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+
+    /* No command-handling function should be updating the cmd or err counter itself */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+
+} /* end MM_FillMem_Test_MaxFillDataSegment */
+
+/*
+ * Register the test cases to execute with the unit test tool
+ */
+void UtTest_Setup(void)
+{
+    UtTest_Add(MM_PokeCmd_Test_EEPROM, MM_Test_Setup, MM_Test_TearDown, "MM_PokeCmd_Test_EEPROM");
+    UtTest_Add(MM_PokeCmd_Test_NonEEPROM, MM_Test_Setup, MM_Test_TearDown, "MM_PokeCmd_Test_NonEEPROM");
+    UtTest_Add(MM_PokeCmd_Test_SymNameError, MM_Test_Setup, MM_Test_TearDown, "MM_PokeCmd_Test_SymNameError");
+    UtTest_Add(MM_PokeCmd_Test_NoVerifyCmdLength, MM_Test_Setup, MM_Test_TearDown, "MM_PokeCmd_Test_NoVerifyCmdLength");
+    UtTest_Add(MM_PokeCmd_Test_NoVerifyPeekPokeParams, MM_Test_Setup, MM_Test_TearDown,
+               "MM_PokeCmd_Test_NoVerifyPeekPokeParams");
+    UtTest_Add(MM_PokeMem_Test_NoDataSize, MM_Test_Setup, MM_Test_TearDown, "MM_PokeMem_Test_NoDataSize");
+    UtTest_Add(MM_PokeMem_Test_8bit, MM_Test_Setup, MM_Test_TearDown, "MM_PokeMem_Test_8bit");
+    UtTest_Add(MM_PokeMem_Test_8bitError, MM_Test_Setup, MM_Test_TearDown, "MM_PokeMem_Test_8bitError");
+    UtTest_Add(MM_PokeMem_Test_16bit, MM_Test_Setup, MM_Test_TearDown, "MM_PokeMem_Test_16bit");
+    UtTest_Add(MM_PokeMem_Test_16bitError, MM_Test_Setup, MM_Test_TearDown, "MM_PokeMem_Test_16bitError");
+    UtTest_Add(MM_PokeMem_Test_32bit, MM_Test_Setup, MM_Test_TearDown, "MM_PokeMem_Test_32bit");
+    UtTest_Add(MM_PokeMem_Test_32bitError, MM_Test_Setup, MM_Test_TearDown, "MM_PokeMem_Test_32bitError");
+    UtTest_Add(MM_PokeEeprom_Test_NoDataSize, MM_Test_Setup, MM_Test_TearDown, "MM_PokeMem_Test_NoDataSize");
+    UtTest_Add(MM_PokeEeprom_Test_8bit, MM_Test_Setup, MM_Test_TearDown, "MM_PokeEeprom_Test_8bit");
+    UtTest_Add(MM_PokeEeprom_Test_8bitError, MM_Test_Setup, MM_Test_TearDown, "MM_PokeEeprom_Test_8bitError");
+    UtTest_Add(MM_PokeEeprom_Test_16bit, MM_Test_Setup, MM_Test_TearDown, "MM_PokeEeprom_Test_16bit");
+    UtTest_Add(MM_PokeEeprom_Test_16bitError, MM_Test_Setup, MM_Test_TearDown, "MM_PokeEeprom_Test_16bitError");
+    UtTest_Add(MM_PokeEeprom_Test_32bit, MM_Test_Setup, MM_Test_TearDown, "MM_PokeEeprom_Test_32bit");
+    UtTest_Add(MM_PokeEeprom_Test_32bitError, MM_Test_Setup, MM_Test_TearDown, "MM_PokeEeprom_Test_32bitError");
+
+    UtTest_Add(MM_LoadMemWIDCmd_Test_Nominal, MM_Test_Setup, MM_Test_TearDown, "MM_LoadMemWIDCmd_Test_Nominal");
+    UtTest_Add(MM_LoadMemWIDCmd_Test_NoVerifyCmdLength, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemWIDCmd_Test_NoVerifyCmdLength");
+    UtTest_Add(MM_LoadMemWIDCmd_Test_CRCError, MM_Test_Setup, MM_Test_TearDown, "MM_LoadMemWIDCmd_Test_CRCError");
+    UtTest_Add(MM_LoadMemWIDCmd_Test_SymNameErr, MM_Test_Setup, MM_Test_TearDown, "MM_LoadMemWIDCmd_Test_SymNameErr");
+    UtTest_Add(MM_LoadMemWIDCmd_Test_NoVerifyLoadWIDParams, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemWIDCmd_Test_NoVerifyLoadWIDParams");
+
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_RAM, MM_Test_Setup, MM_Test_TearDown, "MM_LoadMemFromFileCmd_Test_RAM");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_BadType, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_BadType");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_EEPROM, MM_Test_Setup, MM_Test_TearDown, "MM_LoadMemFromFileCmd_Test_EEPROM");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_MEM32, MM_Test_Setup, MM_Test_TearDown, "MM_LoadMemFromFileCmd_Test_MEM32");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_MEM32Invalid, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_MEM32Invalid");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_MEM16, MM_Test_Setup, MM_Test_TearDown, "MM_LoadMemFromFileCmd_Test_MEM16");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_MEM8, MM_Test_Setup, MM_Test_TearDown, "MM_LoadMemFromFileCmd_Test_MEM8");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_NoVerifyCmdLength, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_NoVerifyCmdLength");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_NoReadFileHeaders, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_NoReadFileHeaders");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_NoVerifyLoadFileSize, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_NoVerifyLoadFileSize");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_lseekError, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_lseekError");
+
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_LoadParamsError, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_LoadParamsError");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_SymNameError, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_SymNameError");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_LoadFileCRCError, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_LoadFileCRCError");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_ComputeCRCError, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_ComputeCRCError");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_CloseError, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_CloseError");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_OpenError, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_OpenError");
+    UtTest_Add(MM_LoadMemFromFileCmd_Test_InvalidFilename, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFileCmd_Test_InvalidFilename");
+
+    UtTest_Add(MM_LoadMemFromFile_Test_PreventCPUHogging, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFile_Test_PreventCPUHogging");
+    UtTest_Add(MM_LoadMemFromFile_Test_ReadError, MM_Test_Setup, MM_Test_TearDown, "MM_LoadMemFromFile_Test_ReadError");
+    UtTest_Add(MM_LoadMemFromFile_Test_NotEepromMemType, MM_Test_Setup, MM_Test_TearDown,
+               "MM_LoadMemFromFile_Test_NotEepromMemType");
+    UtTest_Add(MM_VerifyLoadFileSize_Test_StatError, MM_Test_Setup, MM_Test_TearDown,
+               "MM_VerifyLoadFileSize_Test_StatError");
+    UtTest_Add(MM_VerifyLoadFileSize_Test_SizeError, MM_Test_Setup, MM_Test_TearDown,
+               "MM_VerifyLoadFileSize_Test_SizeError");
+
+    UtTest_Add(MM_ReadFileHeaders_Test_ReadHeaderError, MM_Test_Setup, MM_Test_TearDown,
+               "MM_ReadFileHeaders_Test_ReadHeaderError");
+    UtTest_Add(MM_ReadFileHeaders_Test_ReadError, MM_Test_Setup, MM_Test_TearDown, "MM_ReadFileHeaders_Test_ReadError");
+
+    UtTest_Add(MM_FillMemCmd_Test_RAM, MM_Test_Setup, MM_Test_TearDown, "MM_FillMemCmd_Test_RAM");
+    UtTest_Add(MM_FillMemCmd_Test_EEPROM, MM_Test_Setup, MM_Test_TearDown, "MM_FillMemCmd_Test_EEPROM");
+    UtTest_Add(MM_FillMemCmd_Test_MEM32, MM_Test_Setup, MM_Test_TearDown, "MM_FillMemCmd_Test_MEM32");
+    UtTest_Add(MM_FillMemCmd_Test_MEM16, MM_Test_Setup, MM_Test_TearDown, "MM_FillMemCmd_Test_MEM16");
+    UtTest_Add(MM_FillMemCmd_Test_MEM8, MM_Test_Setup, MM_Test_TearDown, "MM_FillMemCmd_Test_MEM8");
+    UtTest_Add(MM_FillMemCmd_Test_SymNameError, MM_Test_Setup, MM_Test_TearDown, "MM_FillMemCmd_Test_SymNameError");
+    UtTest_Add(MM_FillMemCmd_Test_NoVerifyCmdLength, MM_Test_Setup, MM_Test_TearDown,
+               "MM_FillMemCmd_Test_NoVerifyCmdLength");
+    UtTest_Add(MM_FillMemCmd_Test_NoLastActionFill, MM_Test_Setup, MM_Test_TearDown,
+               "MM_FillMemCmd_Test_NoLastActionFill");
+    UtTest_Add(MM_FillMemCmd_Test_NoVerifyLoadDump, MM_Test_Setup, MM_Test_TearDown,
+               "MM_FillMemCmd_Test_NoVerifyLoadDump");
+    UtTest_Add(MM_FillMemCmd_Test_BadType, MM_Test_Setup, MM_Test_TearDown, "MM_FillMemCmd_Test_BadType");
+    UtTest_Add(MM_FillMem_Test_Nominal, MM_Test_Setup, MM_Test_TearDown, "MM_FillMem_Test_Nominal");
+    UtTest_Add(MM_FillMem_Test_MaxFillDataSegment, MM_Test_Setup, MM_Test_TearDown,
+               "MM_FillMem_Test_MaxFillDataSegment");
+
+} /* end UtTest_Setup */
+
+/************************/
+/*  End of File Comment */
+/************************/
