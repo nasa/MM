@@ -170,11 +170,10 @@ bool MM_ReadFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Heade
  *  \par Assumptions, External Events, and Notes:
  *       None
  *
- *  \param [in]   DestAddr   The destination address for the fill
- *                           operation
- *  \param [in]   CmdPtr     Pointer to command
+ *  \param [in]   DestAddress The destination address for the fill operation
+ *  \param [in]   CmdPtr      Pointer to command
  */
-bool MM_FillMem(cpuaddr DestAddr, const MM_FillMemCmd_t *CmdPtr);
+bool MM_FillMem(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr);
 
 /**
  * \brief Process memory poke command
