@@ -49,8 +49,8 @@ extern MM_AppData_t MM_AppData;
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_PokeCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    bool          Valid = false;
-    cpuaddr       DestAddress;
+    bool          Valid       = false;
+    cpuaddr       DestAddress = 0;
     MM_PokeCmd_t *CmdPtr;
     uint16        ExpectedLength = sizeof(MM_PokeCmd_t);
 
@@ -296,8 +296,8 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
 bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
 {
     MM_LoadMemWIDCmd_t *CmdPtr;
-    uint32              ComputedCRC = 0;
-    cpuaddr             DestAddress;
+    uint32              ComputedCRC    = 0;
+    cpuaddr             DestAddress    = 0;
     uint16              ExpectedLength = sizeof(MM_LoadMemWIDCmd_t);
     bool                CmdResult      = false;
 
@@ -366,15 +366,17 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    bool                     Valid = false;
-    osal_id_t                FileHandle;
-    int32                    OS_Status = OS_SUCCESS;
-    cpuaddr                  DestAddress;
+    bool                     Valid       = false;
+    osal_id_t                FileHandle  = OS_OBJECT_ID_UNDEFINED;
+    int32                    OS_Status   = OS_SUCCESS;
+    cpuaddr                  DestAddress = 0;
     MM_LoadMemFromFileCmd_t *CmdPtr;
     CFE_FS_Header_t          CFEFileHeader;
     MM_LoadDumpFileHeader_t  MMFileHeader;
     uint32                   ComputedCRC;
     uint16                   ExpectedLength = sizeof(MM_LoadMemFromFileCmd_t);
+
+    memset(&MMFileHeader, 0, sizeof(MMFileHeader));
 
     /* Verify command packet length */
     if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
@@ -637,6 +639,8 @@ bool MM_VerifyLoadFileSize(const char *FileName, const MM_LoadDumpFileHeader_t *
     int32      ActualSize; /* The size returned by OS_stat is signed */
     os_fstat_t FileStats;
 
+    memset(&FileStats, 0, sizeof(FileStats));
+
     /*
     ** Get the filesystem statistics on our load file
     */
@@ -727,7 +731,7 @@ bool MM_ReadFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Heade
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_FillMemCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    cpuaddr          DestAddress;
+    cpuaddr          DestAddress    = 0;
     MM_FillMemCmd_t *CmdPtr         = (MM_FillMemCmd_t *)BufPtr;
     uint16           ExpectedLength = sizeof(MM_FillMemCmd_t);
     bool             CmdResult      = false;

@@ -49,7 +49,7 @@ bool MM_PeekCmd(const CFE_SB_Buffer_t *BufPtr)
 {
     bool          Valid = true;
     MM_PeekCmd_t *CmdPtr;
-    cpuaddr       SrcAddress;
+    cpuaddr       SrcAddress     = 0;
     uint16        ExpectedLength = sizeof(MM_PeekCmd_t);
     bool          Result         = false;
 
@@ -188,10 +188,10 @@ bool MM_PeekMem(const MM_PeekCmd_t *CmdPtr, cpuaddr SrcAddress)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    bool                    Valid     = false;
-    int32                   OS_Status = OS_SUCCESS;
-    osal_id_t               FileHandle;
-    cpuaddr                 SrcAddress;
+    bool                    Valid      = false;
+    int32                   OS_Status  = OS_SUCCESS;
+    osal_id_t               FileHandle = OS_OBJECT_ID_UNDEFINED;
+    cpuaddr                 SrcAddress = 0;
     MM_DumpMemToFileCmd_t * CmdPtr;
     CFE_FS_Header_t         CFEFileHeader;
     MM_LoadDumpFileHeader_t MMFileHeader;
@@ -486,7 +486,7 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
     bool                 Valid = false;
     MM_DumpInEventCmd_t *CmdPtr;
     uint32               i;
-    cpuaddr              SrcAddress;
+    cpuaddr              SrcAddress     = 0;
     uint16               ExpectedLength = sizeof(MM_DumpInEventCmd_t);
     uint8 *              BytePtr;
     char                 TempString[MM_DUMPINEVENT_TEMP_CHARS];
