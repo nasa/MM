@@ -2782,6 +2782,8 @@ void MM_FillMem_Test_Nominal(void)
     MM_FillMemCmd_t CmdPacket;
     bool            Result;
 
+    memset(&CmdPacket, 0, sizeof(CmdPacket));
+
     CmdPacket.MemType    = MM_EEPROM;
     CmdPacket.NumOfBytes = 2;
     memset(DummyBuffer, 1, (MM_MAX_FILL_DATA_SEG * 2));
@@ -2814,6 +2816,8 @@ void MM_FillMem_Test_MaxFillDataSegment(void)
 {
     MM_FillMemCmd_t CmdPacket;
     bool            Result;
+
+    memset(&CmdPacket, 0, sizeof(CmdPacket));
 
     CmdPacket.MemType    = MM_EEPROM;
     CmdPacket.NumOfBytes = MM_MAX_FILL_DATA_SEG + 1;

@@ -3596,7 +3596,7 @@ void MM_Verify16Aligned_Test(void)
 void MM_ResolveSymAddr_Test(void)
 {
     MM_SymAddr_t SymAddr;
-    cpuaddr      ResolvedAddr;
+    cpuaddr      ResolvedAddr = 0;
     bool         Result;
 
     memset(&SymAddr, 0, sizeof(MM_SymAddr_t));
