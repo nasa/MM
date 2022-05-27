@@ -471,8 +471,8 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
                 MM_AppData.HkPacket.Address    = ResolvedAddr;
 
                 CFE_EVS_SendEvent(MM_SYM_LOOKUP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                  "Symbol Lookup Command: Name = '%s' Addr = 0x%08X", CmdPtr->SymName,
-                                  (unsigned int)ResolvedAddr);
+                                  "Symbol Lookup Command: Name = '%s' Addr = %p", CmdPtr->SymName,
+                                  (void *)ResolvedAddr);
                 Result = true;
             }
             else

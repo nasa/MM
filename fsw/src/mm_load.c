@@ -171,14 +171,14 @@ bool MM_PokeMem(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
         MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
 
         CFE_EVS_SendEvent(EventID, CFE_EVS_EventType_INFORMATION,
-                          "Poke Command: Addr = 0x%08X, Size = %d bits, Data = 0x%08X", (unsigned int)DestAddress,
-                          DataSize, (unsigned int)DataValue);
+                          "Poke Command: Addr = %p, Size = %d bits, Data = 0x%08X", (void *)DestAddress, DataSize,
+                          (unsigned int)DataValue);
     }
     else
     {
         CFE_EVS_SendEvent(MM_PSP_WRITE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "PSP write memory error: RC=0x%08X, Address=0x%08X, MemType=MEM%d", (unsigned int)PSP_Status,
-                          (unsigned int)DestAddress, DataSize);
+                          "PSP write memory error: RC=0x%08X, Address=%p, MemType=MEM%d", (unsigned int)PSP_Status,
+                          (void *)DestAddress, DataSize);
     }
 
     return ValidPoke;
@@ -212,14 +212,14 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
             if (PSP_Status != CFE_PSP_SUCCESS)
             {
                 CFE_EVS_SendEvent(MM_OS_EEPROMWRITE8_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "CFE_PSP_EepromWrite8 error received: RC = 0x%08X, Addr = 0x%08X",
-                                  (unsigned int)PSP_Status, (unsigned int)DestAddress);
+                                  "CFE_PSP_EepromWrite8 error received: RC = 0x%08X, Addr = %p",
+                                  (unsigned int)PSP_Status, (void *)DestAddress);
             }
             else
             {
                 CFE_EVS_SendEvent(MM_POKE_BYTE_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                  "Poke Command: Addr = 0x%08X, Size = 8 bits, Data = 0x%02X",
-                                  (unsigned int)DestAddress, ByteValue);
+                                  "Poke Command: Addr = %p, Size = 8 bits, Data = 0x%02X", (void *)DestAddress,
+                                  ByteValue);
                 ValidPoke = true;
             }
             break;
@@ -232,14 +232,14 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
             if (PSP_Status != CFE_PSP_SUCCESS)
             {
                 CFE_EVS_SendEvent(MM_OS_EEPROMWRITE16_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "CFE_PSP_EepromWrite16 error received: RC = 0x%08X, Addr = 0x%08X",
-                                  (unsigned int)PSP_Status, (unsigned int)DestAddress);
+                                  "CFE_PSP_EepromWrite16 error received: RC = 0x%08X, Addr = %p",
+                                  (unsigned int)PSP_Status, (void *)DestAddress);
             }
             else
             {
                 CFE_EVS_SendEvent(MM_POKE_WORD_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                  "Poke Command: Addr = 0x%08X, Size = 16 bits, Data = 0x%04X",
-                                  (unsigned int)DestAddress, WordValue);
+                                  "Poke Command: Addr = %p, Size = 16 bits, Data = 0x%04X", (void *)DestAddress,
+                                  WordValue);
                 ValidPoke = true;
             }
             break;
@@ -251,14 +251,14 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
             if (PSP_Status != CFE_PSP_SUCCESS)
             {
                 CFE_EVS_SendEvent(MM_OS_EEPROMWRITE32_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "CFE_PSP_EepromWrite32 error received: RC = 0x%08X, Addr = 0x%08X",
-                                  (unsigned int)PSP_Status, (unsigned int)DestAddress);
+                                  "CFE_PSP_EepromWrite32 error received: RC = 0x%08X, Addr = %p",
+                                  (unsigned int)PSP_Status, (void *)DestAddress);
             }
             else
             {
                 CFE_EVS_SendEvent(MM_POKE_DWORD_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                  "Poke Command: Addr = 0x%08X, Size = 32 bits, Data = 0x%08X",
-                                  (unsigned int)DestAddress, (unsigned int)(CmdPtr->Data));
+                                  "Poke Command: Addr = %p, Size = 32 bits, Data = 0x%08X", (void *)DestAddress,
+                                  (unsigned int)(CmdPtr->Data));
                 ValidPoke = true;
             }
             break;
@@ -328,8 +328,8 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
 
                     CmdResult = true;
                     CFE_EVS_SendEvent(MM_LOAD_WID_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                      "Load Memory WID Command: Wrote %d bytes to address: 0x%08X",
-                                      (int)CmdPtr->NumOfBytes, (unsigned int)DestAddress);
+                                      "Load Memory WID Command: Wrote %d bytes to address: %p", (int)CmdPtr->NumOfBytes,
+                                      (void *)DestAddress);
 
                     /* Update last action statistics */
                     MM_AppData.HkPacket.LastAction     = MM_LOAD_WID;
@@ -471,9 +471,9 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
                                     {
                                         CFE_EVS_SendEvent(MM_LD_MEM_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
                                                           "Load Memory From File Command: Loaded %d bytes to "
-                                                          "address 0x%08X from file '%s'",
-                                                          (int)MM_AppData.HkPacket.BytesProcessed,
-                                                          (unsigned int)DestAddress, CmdPtr->FileName);
+                                                          "address %p from file '%s'",
+                                                          (int)MM_AppData.HkPacket.BytesProcessed, (void *)DestAddress,
+                                                          CmdPtr->FileName);
                                     }
 
                                 } /* end MM_VerifyFileLoadParams if */
@@ -782,8 +782,8 @@ bool MM_FillMemCmd(const CFE_SB_Buffer_t *BufPtr)
                 if (MM_AppData.HkPacket.LastAction == MM_FILL)
                 {
                     CFE_EVS_SendEvent(MM_FILL_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                      "Fill Memory Command: Filled %d bytes at address: 0x%08X with pattern: 0x%08X",
-                                      (int)MM_AppData.HkPacket.BytesProcessed, (unsigned int)DestAddress,
+                                      "Fill Memory Command: Filled %d bytes at address: %p with pattern: 0x%08X",
+                                      (int)MM_AppData.HkPacket.BytesProcessed, (void *)DestAddress,
                                       (unsigned int)MM_AppData.HkPacket.DataValue);
                 }
             }

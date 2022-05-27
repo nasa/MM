@@ -321,8 +321,8 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                         {
                             CFE_EVS_SendEvent(
                                 MM_DMP_MEM_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                "Dump Memory To File Command: Dumped %d bytes from address 0x%08X to file '%s'",
-                                (int)MM_AppData.HkPacket.BytesProcessed, (unsigned int)SrcAddress, CmdPtr->FileName);
+                                "Dump Memory To File Command: Dumped %d bytes from address %p to file '%s'",
+                                (int)MM_AppData.HkPacket.BytesProcessed, (void *)SrcAddress, CmdPtr->FileName);
                             /*
                             ** Update last action statistics
                             */
@@ -540,9 +540,9 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
 
                     /*
                     ** Append tail
-                    ** This adds up to 33 characters including the NUL terminator
+                    ** This adds up to 33 characters depending on pointer representation including the NUL terminator
                     */
-                    snprintf(TempString, MM_DUMPINEVENT_TEMP_CHARS, "from address: 0x%08lX", (unsigned long)SrcAddress);
+                    snprintf(TempString, MM_DUMPINEVENT_TEMP_CHARS, "from address: %p", (void *)SrcAddress);
                     strncat(EventString, TempString, strlen(TempString));
 
                     /* Send it out */

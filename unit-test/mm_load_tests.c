@@ -219,7 +219,7 @@ void MM_PokeCmd_Test_EEPROM(void)
     bool              Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Poke Command: Addr = 0x%%08X, Size = 32 bits, Data = 0x%%08X");
+             "Poke Command: Addr = %%p, Size = 32 bits, Data = 0x%%08X");
 
     TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
     FcnCode   = MM_POKE_CC;
@@ -267,7 +267,7 @@ void MM_PokeCmd_Test_NonEEPROM(void)
     bool              Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Poke Command: Addr = 0x%%08X, Size = %%d bits, Data = 0x%%08X");
+             "Poke Command: Addr = %%p, Size = %%d bits, Data = 0x%%08X");
 
     TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
     FcnCode   = MM_POKE_CC;
@@ -446,7 +446,7 @@ void MM_PokeMem_Test_8bit(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Poke Command: Addr = 0x%%08X, Size = %%d bits, Data = 0x%%08X");
+             "Poke Command: Addr = %%p, Size = %%d bits, Data = 0x%%08X");
 
     CmdPacket.MemType  = MM_RAM;
     CmdPacket.DataSize = MM_BYTE_BIT_WIDTH;
@@ -493,7 +493,7 @@ void MM_PokeMem_Test_8bitError(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "PSP write memory error: RC=0x%%08X, Address=0x%%08X, MemType=MEM%%d");
+             "PSP write memory error: RC=0x%%08X, Address=%%p, MemType=MEM%%d");
 
     CmdPacket.MemType  = MM_RAM;
     CmdPacket.DataSize = MM_BYTE_BIT_WIDTH;
@@ -538,7 +538,7 @@ void MM_PokeMem_Test_16bit(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Poke Command: Addr = 0x%%08X, Size = %%d bits, Data = 0x%%08X");
+             "Poke Command: Addr = %%p, Size = %%d bits, Data = 0x%%08X");
 
     CmdPacket.MemType  = MM_RAM;
     CmdPacket.DataSize = MM_WORD_BIT_WIDTH;
@@ -585,7 +585,7 @@ void MM_PokeMem_Test_16bitError(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "PSP write memory error: RC=0x%%08X, Address=0x%%08X, MemType=MEM%%d");
+             "PSP write memory error: RC=0x%%08X, Address=%%p, MemType=MEM%%d");
 
     CmdPacket.MemType  = MM_RAM;
     CmdPacket.DataSize = MM_WORD_BIT_WIDTH;
@@ -630,7 +630,7 @@ void MM_PokeMem_Test_32bit(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Poke Command: Addr = 0x%%08X, Size = %%d bits, Data = 0x%%08X");
+             "Poke Command: Addr = %%p, Size = %%d bits, Data = 0x%%08X");
 
     CmdPacket.MemType  = MM_RAM;
     CmdPacket.DataSize = MM_DWORD_BIT_WIDTH;
@@ -677,7 +677,7 @@ void MM_PokeMem_Test_32bitError(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "PSP write memory error: RC=0x%%08X, Address=0x%%08X, MemType=MEM%%d");
+             "PSP write memory error: RC=0x%%08X, Address=%%p, MemType=MEM%%d");
 
     CmdPacket.MemType  = MM_RAM;
     CmdPacket.DataSize = MM_DWORD_BIT_WIDTH;
@@ -750,7 +750,7 @@ void MM_PokeEeprom_Test_8bit(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Poke Command: Addr = 0x%%08X, Size = 8 bits, Data = 0x%%02X");
+             "Poke Command: Addr = %%p, Size = 8 bits, Data = 0x%%02X");
 
     CmdPacket.MemType  = MM_EEPROM;
     CmdPacket.DataSize = MM_BYTE_BIT_WIDTH;
@@ -797,7 +797,7 @@ void MM_PokeEeprom_Test_8bitError(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_EepromWrite8 error received: RC = 0x%%08X, Addr = 0x%%08X");
+             "CFE_PSP_EepromWrite8 error received: RC = 0x%%08X, Addr = %%p");
 
     CmdPacket.MemType  = MM_EEPROM;
     CmdPacket.DataSize = MM_BYTE_BIT_WIDTH;
@@ -842,7 +842,7 @@ void MM_PokeEeprom_Test_16bit(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Poke Command: Addr = 0x%%08X, Size = 16 bits, Data = 0x%%04X");
+             "Poke Command: Addr = %%p, Size = 16 bits, Data = 0x%%04X");
 
     CmdPacket.MemType  = MM_EEPROM;
     CmdPacket.DataSize = MM_WORD_BIT_WIDTH;
@@ -889,7 +889,7 @@ void MM_PokeEeprom_Test_16bitError(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_EepromWrite16 error received: RC = 0x%%08X, Addr = 0x%%08X");
+             "CFE_PSP_EepromWrite16 error received: RC = 0x%%08X, Addr = %%p");
 
     CmdPacket.MemType  = MM_EEPROM;
     CmdPacket.DataSize = MM_WORD_BIT_WIDTH;
@@ -934,7 +934,7 @@ void MM_PokeEeprom_Test_32bit(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Poke Command: Addr = 0x%%08X, Size = 32 bits, Data = 0x%%08X");
+             "Poke Command: Addr = %%p, Size = 32 bits, Data = 0x%%08X");
 
     CmdPacket.MemType  = MM_EEPROM;
     CmdPacket.DataSize = MM_DWORD_BIT_WIDTH;
@@ -981,7 +981,7 @@ void MM_PokeEeprom_Test_32bitError(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_EepromWrite32 error received: RC = 0x%%08X, Addr = 0x%%08X");
+             "CFE_PSP_EepromWrite32 error received: RC = 0x%%08X, Addr = %%p");
 
     CmdPacket.MemType  = MM_EEPROM;
     CmdPacket.DataSize = MM_DWORD_BIT_WIDTH;
@@ -1026,7 +1026,7 @@ void MM_LoadMemWIDCmd_Test_Nominal(void)
     bool              Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Load Memory WID Command: Wrote %%d bytes to address: 0x%%08X");
+             "Load Memory WID Command: Wrote %%d bytes to address: %%p");
 
     TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
     FcnCode   = MM_LOAD_MEM_WID_CC;
@@ -1252,7 +1252,7 @@ void MM_LoadMemFromFileCmd_Test_RAM(void)
     bool  Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Load Memory From File Command: Loaded %%d bytes to address 0x%%08X from file '%%s'");
+             "Load Memory From File Command: Loaded %%d bytes to address %%p from file '%%s'");
 
     UT_MM_CFE_OS_ReadHook1_MemType = MM_RAM;
 
@@ -1355,7 +1355,7 @@ void MM_LoadMemFromFileCmd_Test_EEPROM(void)
     bool  Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Load Memory From File Command: Loaded %%d bytes to address 0x%%08X from file '%%s'");
+             "Load Memory From File Command: Loaded %%d bytes to address %%p from file '%%s'");
 
     UT_MM_CFE_OS_ReadHook1_MemType = MM_EEPROM;
 
@@ -1411,7 +1411,7 @@ void MM_LoadMemFromFileCmd_Test_MEM32(void)
     bool  Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Load Memory From File Command: Loaded %%d bytes to address 0x%%08X from file '%%s'");
+             "Load Memory From File Command: Loaded %%d bytes to address %%p from file '%%s'");
 
     UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM32;
 
@@ -1515,7 +1515,7 @@ void MM_LoadMemFromFileCmd_Test_MEM16(void)
     bool  Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Load Memory From File Command: Loaded %%d bytes to address 0x%%08X from file '%%s'");
+             "Load Memory From File Command: Loaded %%d bytes to address %%p from file '%%s'");
 
     UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM16;
 
@@ -1574,7 +1574,7 @@ void MM_LoadMemFromFileCmd_Test_MEM8(void)
     bool  Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Load Memory From File Command: Loaded %%d bytes to address 0x%%08X from file '%%s'");
+             "Load Memory From File Command: Loaded %%d bytes to address %%p from file '%%s'");
 
     UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM8;
 
@@ -2413,7 +2413,7 @@ void MM_FillMemCmd_Test_RAM(void)
     bool  Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Fill Memory Command: Filled %%d bytes at address: 0x%%08X with pattern: 0x%%08X");
+             "Fill Memory Command: Filled %%d bytes at address: %%p with pattern: 0x%%08X");
 
     /* Causes call to MM_ResolveSymAddr to return a known value for DestAddress */
     UT_SetHookFunction(UT_KEY(MM_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook3, 0);
@@ -2457,7 +2457,7 @@ void MM_FillMemCmd_Test_EEPROM(void)
     bool  Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Fill Memory Command: Filled %%d bytes at address: 0x%%08X with pattern: 0x%%08X");
+             "Fill Memory Command: Filled %%d bytes at address: %%p with pattern: 0x%%08X");
 
     /* Causes call to MM_ResolveSymAddr to return a known value for DestAddress */
     UT_SetHookFunction(UT_KEY(MM_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook3, 0);
@@ -2501,7 +2501,7 @@ void MM_FillMemCmd_Test_MEM32(void)
     bool  Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Fill Memory Command: Filled %%d bytes at address: 0x%%08X with pattern: 0x%%08X");
+             "Fill Memory Command: Filled %%d bytes at address: %%p with pattern: 0x%%08X");
 
     UT_CmdBuf.FillMemCmd.MemType    = MM_MEM32;
     UT_CmdBuf.FillMemCmd.NumOfBytes = 4;
@@ -2547,7 +2547,7 @@ void MM_FillMemCmd_Test_MEM16(void)
     bool  Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Fill Memory Command: Filled %%d bytes at address: 0x%%08X with pattern: 0x%%08X");
+             "Fill Memory Command: Filled %%d bytes at address: %%p with pattern: 0x%%08X");
 
     UT_CmdBuf.FillMemCmd.MemType    = MM_MEM16;
     UT_CmdBuf.FillMemCmd.NumOfBytes = 2;
@@ -2593,7 +2593,7 @@ void MM_FillMemCmd_Test_MEM8(void)
     bool  Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Fill Memory Command: Filled %%d bytes at address: 0x%%08X with pattern: 0x%%08X");
+             "Fill Memory Command: Filled %%d bytes at address: %%p with pattern: 0x%%08X");
 
     UT_CmdBuf.FillMemCmd.MemType    = MM_MEM8;
     UT_CmdBuf.FillMemCmd.NumOfBytes = 1;

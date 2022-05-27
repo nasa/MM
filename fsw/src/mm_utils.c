@@ -161,7 +161,7 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
             {
                 Valid = false;
                 CFE_EVS_SendEvent(MM_ALIGN16_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Data and address not 16 bit aligned: Addr = 0x%08X Size = %d", (unsigned int)Address,
+                                  "Data and address not 16 bit aligned: Addr = %p Size = %d", (void *)Address,
                                   SizeInBytes);
             }
             break;
@@ -172,7 +172,7 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
             {
                 Valid = false;
                 CFE_EVS_SendEvent(MM_ALIGN32_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Data and address not 32 bit aligned: Addr = 0x%08X Size = %d", (unsigned int)Address,
+                                  "Data and address not 32 bit aligned: Addr = %p Size = %d", (void *)Address,
                                   SizeInBytes);
             }
             break;
@@ -196,9 +196,9 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
                 {
                     Valid = false;
                     CFE_EVS_SendEvent(MM_OS_MEMVALIDATE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "CFE_PSP_MemValidateRange error received: RC = 0x%08X Addr = 0x%08X Size = %d "
+                                      "CFE_PSP_MemValidateRange error received: RC = 0x%08X Addr = %p Size = %d "
                                       "MemType = MEM_RAM",
-                                      (unsigned int)OS_Status, (unsigned int)Address, SizeInBytes);
+                                      (unsigned int)OS_Status, (void *)Address, SizeInBytes);
                 }
                 break;
 
@@ -209,9 +209,9 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
                 {
                     Valid = false;
                     CFE_EVS_SendEvent(MM_OS_MEMVALIDATE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "CFE_PSP_MemValidateRange error received: RC = 0x%08X Addr = 0x%08X Size = %d "
+                                      "CFE_PSP_MemValidateRange error received: RC = 0x%08X Addr = %p Size = %d "
                                       "MemType = MEM_EEPROM",
-                                      (unsigned int)OS_Status, (unsigned int)Address, SizeInBytes);
+                                      (unsigned int)OS_Status, (void *)Address, SizeInBytes);
                 }
                 break;
 
@@ -224,8 +224,8 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
                     Valid = false;
                     CFE_EVS_SendEvent(
                         MM_OS_MEMVALIDATE_ERR_EID, CFE_EVS_EventType_ERROR,
-                        "CFE_PSP_MemValidateRange error received: RC = 0x%08X Addr = 0x%08X Size = %d MemType = MEM32",
-                        (unsigned int)OS_Status, (unsigned int)Address, SizeInBytes);
+                        "CFE_PSP_MemValidateRange error received: RC = 0x%08X Addr = %p Size = %d MemType = MEM32",
+                        (unsigned int)OS_Status, (void *)Address, SizeInBytes);
                 }
                 /*
                 ** Peeks and Pokes must be 32 bits wide for this memory type
@@ -248,8 +248,8 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
                     Valid = false;
                     CFE_EVS_SendEvent(
                         MM_OS_MEMVALIDATE_ERR_EID, CFE_EVS_EventType_ERROR,
-                        "CFE_PSP_MemValidateRange error received: RC = 0x%08X Addr = 0x%08X Size = %d MemType = MEM16",
-                        (unsigned int)OS_Status, (unsigned int)Address, SizeInBytes);
+                        "CFE_PSP_MemValidateRange error received: RC = 0x%08X Addr = %p Size = %d MemType = MEM16",
+                        (unsigned int)OS_Status, (void *)Address, SizeInBytes);
                 }
                 /*
                 ** Peeks and Pokes must be 16 bits wide for this memory type
@@ -272,8 +272,8 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
                     Valid = false;
                     CFE_EVS_SendEvent(
                         MM_OS_MEMVALIDATE_ERR_EID, CFE_EVS_EventType_ERROR,
-                        "CFE_PSP_MemValidateRange error received: RC = 0x%08X Addr = 0x%08X Size = %d MemType = MEM8",
-                        (unsigned int)OS_Status, (unsigned int)Address, SizeInBytes);
+                        "CFE_PSP_MemValidateRange error received: RC = 0x%08X Addr = %p Size = %d MemType = MEM8",
+                        (unsigned int)OS_Status, (void *)Address, SizeInBytes);
                 }
                 /*
                 ** Peeks and Pokes must be 8 bits wide for this memory type
@@ -396,8 +396,8 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes,
                 {
                     Valid = false;
                     CFE_EVS_SendEvent(MM_ALIGN32_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "Data and address not 32 bit aligned: Addr = 0x%08X Size = %d",
-                                      (unsigned int)Address, (int)SizeInBytes);
+                                      "Data and address not 32 bit aligned: Addr = %p Size = %d", (void *)Address,
+                                      (int)SizeInBytes);
                 }
                 break;
 #endif
@@ -421,8 +421,8 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes,
                 {
                     Valid = false;
                     CFE_EVS_SendEvent(MM_ALIGN16_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "Data and address not 16 bit aligned: Addr = 0x%08X Size = %d",
-                                      (unsigned int)Address, (int)SizeInBytes);
+                                      "Data and address not 16 bit aligned: Addr = %p Size = %d", (void *)Address,
+                                      (int)SizeInBytes);
                 }
                 break;
 #endif
@@ -470,10 +470,9 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes,
         if (PSP_Status != CFE_PSP_SUCCESS)
         {
             Valid = false;
-            CFE_EVS_SendEvent(
-                MM_OS_MEMVALIDATE_ERR_EID, CFE_EVS_EventType_ERROR,
-                "CFE_PSP_MemValidateRange error received: RC = 0x%08X Addr = 0x%08X Size = %d MemType = %s",
-                (unsigned int)PSP_Status, (unsigned int)Address, (int)SizeInBytes, MemTypeStr);
+            CFE_EVS_SendEvent(MM_OS_MEMVALIDATE_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "CFE_PSP_MemValidateRange error received: RC = 0x%08X Addr = %p Size = %d MemType = %s",
+                              (unsigned int)PSP_Status, (void *)Address, (int)SizeInBytes, MemTypeStr);
         }
     }
 

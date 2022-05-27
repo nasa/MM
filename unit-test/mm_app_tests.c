@@ -1271,8 +1271,7 @@ void MM_LookupSymbolCmd_Test_Nominal(void)
     int32             strCmpResult;
     char              ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
-    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Symbol Lookup Command: Name = '%%s' Addr = 0x%%08X");
+    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Symbol Lookup Command: Name = '%%s' Addr = %%p");
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
