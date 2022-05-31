@@ -149,7 +149,7 @@ void MM_PeekCmd_Test_SymNameError(void)
     UT_CmdBuf.PeekCmd.MemType  = MM_RAM;
     UT_CmdBuf.PeekCmd.DataSize = 32;
 
-    strncpy(UT_CmdBuf.PeekCmd.SrcSymAddress.SymName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.PeekCmd.SrcSymAddress.SymName, "name", sizeof(UT_CmdBuf.PeekCmd.SrcSymAddress.SymName) - 1);
 
     /* Set to generate error message MM_SYMNAME_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(OS_SymbolLookup), 1, -1);
@@ -533,13 +533,14 @@ void MM_DumpMemToFileCmd_Test_RAM(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = (cpuaddr)&DummyBuffer[0];
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_RAM;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Causes call to MM_ResolveSymAddr to return a known value for DestAddress */
     UT_SetHookFunction(UT_KEY(MM_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
@@ -578,8 +579,8 @@ void MM_DumpMemToFileCmd_Test_RAM(void)
                   "MM_AppData.HkPacket.LastAction == MM_DUMP_TO_FILE");
     UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset,
                   "MM_AppData.HkPacket.Address == FileHeader.SymAddress.Offset");
-    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.DumpMemToFileCmd.FileName, OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.DumpMemToFileCmd.FileName, OS_MAX_PATH_LEN) == 0");
+    UtAssert_STRINGBUF_EQ(MM_AppData.HkPacket.FileName, sizeof(MM_AppData.HkPacket.FileName),
+                          UT_CmdBuf.DumpMemToFileCmd.FileName, sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName));
     UtAssert_True(MM_AppData.HkPacket.MemType == UT_CmdBuf.DumpMemToFileCmd.MemType,
                   "MM_AppData.HkPacket.MemType == UT_CmdBuf.DumpMemToFileCmd.MemType");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == UT_CmdBuf.DumpMemToFileCmd.NumOfBytes,
@@ -607,13 +608,14 @@ void MM_DumpMemToFileCmd_Test_BadType(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = (cpuaddr)&DummyBuffer[0];
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = 99;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Causes call to MM_ResolveSymAddr to return a known value for DestAddress */
     UT_SetHookFunction(UT_KEY(MM_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
@@ -667,13 +669,14 @@ void MM_DumpMemToFileCmd_Test_EEPROM(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = (cpuaddr)&DummyBuffer[0];
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_EEPROM;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Causes call to MM_ResolveSymAddr to return a known value for DestAddress */
     UT_SetHookFunction(UT_KEY(MM_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
@@ -710,8 +713,8 @@ void MM_DumpMemToFileCmd_Test_EEPROM(void)
 
     UtAssert_True(MM_AppData.HkPacket.LastAction == MM_DUMP_TO_FILE,
                   "MM_AppData.HkPacket.LastAction == MM_DUMP_TO_FILE");
-    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.DumpMemToFileCmd.FileName, OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.DumpMemToFileCmd.FileName, OS_MAX_PATH_LEN) == 0");
+    UtAssert_STRINGBUF_EQ(MM_AppData.HkPacket.FileName, sizeof(MM_AppData.HkPacket.FileName),
+                          UT_CmdBuf.DumpMemToFileCmd.FileName, sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName));
     UtAssert_True(MM_AppData.HkPacket.MemType == UT_CmdBuf.DumpMemToFileCmd.MemType,
                   "MM_AppData.HkPacket.MemType == UT_CmdBuf.DumpMemToFileCmd.MemType");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == UT_CmdBuf.DumpMemToFileCmd.NumOfBytes,
@@ -744,13 +747,14 @@ void MM_DumpMemToFileCmd_Test_MEM32(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = 0;
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_MEM32;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 4;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Set to satisfy 2 instances of condition "Valid == true": after comment "Write the file headers" and comment "end
      * Valid == true if" */
@@ -786,8 +790,8 @@ void MM_DumpMemToFileCmd_Test_MEM32(void)
 
     UtAssert_True(MM_AppData.HkPacket.LastAction == MM_DUMP_TO_FILE,
                   "MM_AppData.HkPacket.LastAction == MM_DUMP_TO_FILE");
-    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.DumpMemToFileCmd.FileName, OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.DumpMemToFileCmd.FileName, OS_MAX_PATH_LEN) == 0");
+    UtAssert_STRINGBUF_EQ(MM_AppData.HkPacket.FileName, sizeof(MM_AppData.HkPacket.FileName),
+                          UT_CmdBuf.DumpMemToFileCmd.FileName, sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName));
     UtAssert_True(MM_AppData.HkPacket.MemType == UT_CmdBuf.DumpMemToFileCmd.MemType,
                   "MM_AppData.HkPacket.MemType == UT_CmdBuf.DumpMemToFileCmd.MemType");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == UT_CmdBuf.DumpMemToFileCmd.NumOfBytes,
@@ -820,13 +824,14 @@ void MM_DumpMemToFileCmd_Test_MEM16(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = 0;
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_MEM16;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 2;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Set to satisfy 2 instances of condition "Valid == true": after comment "Write the file headers" and comment "end
      * Valid == true if" */
@@ -862,8 +867,8 @@ void MM_DumpMemToFileCmd_Test_MEM16(void)
 
     UtAssert_True(MM_AppData.HkPacket.LastAction == MM_DUMP_TO_FILE,
                   "MM_AppData.HkPacket.LastAction == MM_DUMP_TO_FILE");
-    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.DumpMemToFileCmd.FileName, OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.DumpMemToFileCmd.FileName, OS_MAX_PATH_LEN) == 0");
+    UtAssert_STRINGBUF_EQ(MM_AppData.HkPacket.FileName, sizeof(MM_AppData.HkPacket.FileName),
+                          UT_CmdBuf.DumpMemToFileCmd.FileName, sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName));
     UtAssert_True(MM_AppData.HkPacket.MemType == UT_CmdBuf.DumpMemToFileCmd.MemType,
                   "MM_AppData.HkPacket.MemType == UT_CmdBuf.DumpMemToFileCmd.MemType");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == UT_CmdBuf.DumpMemToFileCmd.NumOfBytes,
@@ -896,13 +901,14 @@ void MM_DumpMemToFileCmd_Test_MEM8(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = 0;
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_MEM8;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Set to satisfy 2 instances of condition "Valid == true": after comment "Write the file headers" and comment "end
      * Valid == true if" */
@@ -937,8 +943,8 @@ void MM_DumpMemToFileCmd_Test_MEM8(void)
 
     UtAssert_True(MM_AppData.HkPacket.LastAction == MM_DUMP_TO_FILE,
                   "MM_AppData.HkPacket.LastAction == MM_DUMP_TO_FILE");
-    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.DumpMemToFileCmd.FileName, OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.DumpMemToFileCmd.FileName, OS_MAX_PATH_LEN) == 0");
+    UtAssert_STRINGBUF_EQ(MM_AppData.HkPacket.FileName, sizeof(MM_AppData.HkPacket.FileName),
+                          UT_CmdBuf.DumpMemToFileCmd.FileName, sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName));
     UtAssert_True(MM_AppData.HkPacket.MemType == UT_CmdBuf.DumpMemToFileCmd.MemType,
                   "MM_AppData.HkPacket.MemType == UT_CmdBuf.DumpMemToFileCmd.MemType");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == UT_CmdBuf.DumpMemToFileCmd.NumOfBytes,
@@ -971,13 +977,14 @@ void MM_DumpMemToFileCmd_Test_ComputeCRCError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = 0;
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_MEM8;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Set to satisfy 2 instances of condition "Valid == true": after comment "Write the file headers" and comment "end
      * Valid == true if" */
@@ -1044,13 +1051,14 @@ void MM_DumpMemToFileCmd_Test_CloseError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = 0;
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_MEM8;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Set to satisfy 2 instances of condition "Valid == true": after comment "Write the file headers" and comment "end
      * Valid == true if" */
@@ -1098,8 +1106,8 @@ void MM_DumpMemToFileCmd_Test_CloseError(void)
 
     UtAssert_True(MM_AppData.HkPacket.LastAction == MM_DUMP_TO_FILE,
                   "MM_AppData.HkPacket.LastAction == MM_DUMP_TO_FILE");
-    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.DumpMemToFileCmd.FileName, OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.DumpMemToFileCmd.FileName, OS_MAX_PATH_LEN) == 0");
+    UtAssert_STRINGBUF_EQ(MM_AppData.HkPacket.FileName, sizeof(MM_AppData.HkPacket.FileName),
+                          UT_CmdBuf.DumpMemToFileCmd.FileName, sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName));
     UtAssert_True(MM_AppData.HkPacket.MemType == UT_CmdBuf.DumpMemToFileCmd.MemType,
                   "MM_AppData.HkPacket.MemType == UT_CmdBuf.DumpMemToFileCmd.MemType");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == UT_CmdBuf.DumpMemToFileCmd.NumOfBytes,
@@ -1132,13 +1140,14 @@ void MM_DumpMemToFileCmd_Test_CreatError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = 0;
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_MEM8;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Set to satisfy 2 instances of condition "Valid == true": after comment "Write the file headers" and comment "end
      * Valid == true if" */
@@ -1196,13 +1205,14 @@ void MM_DumpMemToFileCmd_Test_InvalidDumpResult(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = 0;
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_MEM8;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Set to satisfy 2 instances of condition "Valid == true": after comment "Write the file headers" and comment "end
      * Valid == true if" */
@@ -1247,13 +1257,14 @@ void MM_DumpMemToFileCmd_Test_lseekError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = 0;
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_MEM8;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Set to satisfy 2 instances of condition "Valid == true": after comment "Write the file headers" and comment "end
      * Valid == true if" */
@@ -1303,13 +1314,14 @@ void MM_DumpMemToFileCmd_Test_SymNameError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = 0;
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_MEM8;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Set to satisfy 2 instances of condition "Valid == true": after comment "Write the file headers" and comment "end
      * Valid == true if" */
@@ -1362,7 +1374,8 @@ void MM_DumpMemToFileCmd_Test_NoVerifyDumpParams(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = 0;
 
     UT_CmdBuf.DumpMemToFileCmd.MemType = MM_RAM;
@@ -1371,7 +1384,7 @@ void MM_DumpMemToFileCmd_Test_NoVerifyDumpParams(void)
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), false);
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 0;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Set to satisfy 2 instances of condition "Valid == true": after comment "Write the file headers" and comment "end
      * Valid == true if" */
@@ -1449,13 +1462,14 @@ void MM_DumpMemToFileCmd_Test_NoWriteHeaders(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
+            sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
     UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = 0;
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_RAM;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
 
-    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpMemToFileCmd.FileName, "filename", sizeof(UT_CmdBuf.DumpMemToFileCmd.FileName) - 1);
 
     /* Set to satisfy 2 instances of condition "Valid == true": after comment "Write the file headers" and comment "end
      * Valid == true if" */
@@ -1507,7 +1521,8 @@ void MM_DumpMemToFile_Test_Nominal(void)
     MM_LoadDumpFileHeader_t FileHeader;
     bool                    Result;
 
-    strncpy(FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(FileName, "filename", sizeof(FileName) - 1);
+    FileName[sizeof(FileName) - 1] = '\0';
 
     FileHeader.NumOfBytes = 1;
     /* a valid source address is required input to memcpy */
@@ -1526,8 +1541,8 @@ void MM_DumpMemToFile_Test_Nominal(void)
     UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)FileHeader.SymAddress.Offset,
                   "MM_AppData.HkPacket.Address == FileHeader.SymAddress.Offset");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 1, "MM_AppData.HkPacket.BytesProcessed == 1");
-    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN) == 0");
+    UtAssert_STRINGBUF_EQ(MM_AppData.HkPacket.FileName, sizeof(MM_AppData.HkPacket.FileName), FileName,
+                          sizeof(FileName));
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1548,7 +1563,8 @@ void MM_DumpMemToFile_Test_CPUHogging(void)
     bool                    Result;
     char                    Data[2 * MM_MAX_DUMP_DATA_SEG] = {0};
 
-    strncpy(FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(FileName, "filename", sizeof(FileName) - 1);
+    FileName[sizeof(FileName) - 1] = '\0';
 
     FileHeader.NumOfBytes = sizeof(Data);
     /* a valid source address is required input to memcpy */
@@ -1568,8 +1584,8 @@ void MM_DumpMemToFile_Test_CPUHogging(void)
                   "MM_AppData.HkPacket.Address == FileHeader.SymAddress.Offset");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 2 * MM_MAX_DUMP_DATA_SEG,
                   "MM_AppData.HkPacket.BytesProcessed == 2 * MM_MAX_DUMP_DATA_SEG");
-    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN) == 0");
+    UtAssert_STRINGBUF_EQ(MM_AppData.HkPacket.FileName, sizeof(MM_AppData.HkPacket.FileName), FileName,
+                          sizeof(FileName));
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1594,7 +1610,8 @@ void MM_DumpMemToFile_Test_WriteError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "OS_write error received: RC = %%d, Expected = %%d, File = '%%s'");
 
-    strncpy(FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(FileName, "filename", sizeof(FileName) - 1);
+    FileName[sizeof(FileName) - 1] = '\0';
 
     FileHeader.NumOfBytes = 1;
     /* a valid source address is required input to memcpy */
@@ -1636,7 +1653,8 @@ void MM_WriteFileHeaders_Test_Nominal(void)
     MM_LoadDumpFileHeader_t MMHeader;
     bool                    Result;
 
-    strncpy(FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(FileName, "filename", sizeof(FileName) - 1);
+    FileName[sizeof(FileName) - 1] = '\0';
 
     MMHeader.NumOfBytes        = 1;
     MMHeader.SymAddress.Offset = 0;
@@ -1674,7 +1692,8 @@ void MM_WriteFileHeaders_Test_WriteHeaderError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_FS_WriteHeader error received: RC = %%d Expected = %%d File = '%%s'");
 
-    strncpy(FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(FileName, "filename", sizeof(FileName) - 1);
+    FileName[sizeof(FileName) - 1] = '\0';
 
     MMHeader.NumOfBytes        = 1;
     MMHeader.SymAddress.Offset = 0;
@@ -1720,7 +1739,8 @@ void MM_WriteFileHeaders_Test_WriteError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "OS_write error received: RC = %%d Expected = %%d File = '%%s'");
 
-    strncpy(FileName, "filename", OS_MAX_PATH_LEN);
+    strncpy(FileName, "filename", sizeof(FileName) - 1);
+    FileName[sizeof(FileName) - 1] = '\0';
 
     MMHeader.NumOfBytes        = 1;
     MMHeader.SymAddress.Offset = 0;
@@ -1775,7 +1795,7 @@ void MM_DumpInEventCmd_Test_Nominal(void)
     UT_CmdBuf.DumpInEventCmd.NumOfBytes           = 1;
     UT_CmdBuf.DumpInEventCmd.SrcSymAddress.Offset = (cpuaddr)&DummyBuffer[0];
 
-    strncpy(UT_CmdBuf.DumpInEventCmd.SrcSymAddress.SymName, "", OS_MAX_PATH_LEN);
+    UT_CmdBuf.DumpInEventCmd.SrcSymAddress.SymName[0] = '\0';
 
     /* Causes call to MM_ResolveSymAddr to return a known value for DestAddress */
     UT_SetHookFunction(UT_KEY(MM_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
@@ -1847,7 +1867,8 @@ void MM_DumpInEventCmd_Test_SymNameError(void)
     UT_CmdBuf.DumpInEventCmd.NumOfBytes           = 1;
     UT_CmdBuf.DumpInEventCmd.SrcSymAddress.Offset = 0;
 
-    strncpy(UT_CmdBuf.DumpInEventCmd.SrcSymAddress.SymName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpInEventCmd.SrcSymAddress.SymName, "name",
+            sizeof(UT_CmdBuf.DumpInEventCmd.SrcSymAddress.SymName) - 1);
 
     /* Set to generate error message MM_SYMNAME_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(OS_SymbolLookup), 1, -1);
@@ -1920,7 +1941,8 @@ void MM_DumpInEventCmd_Test_NoVerifyDumpParams(void)
     UT_CmdBuf.DumpInEventCmd.NumOfBytes           = 0;
     UT_CmdBuf.DumpInEventCmd.SrcSymAddress.Offset = 0;
 
-    strncpy(UT_CmdBuf.DumpInEventCmd.SrcSymAddress.SymName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.DumpInEventCmd.SrcSymAddress.SymName, "name",
+            sizeof(UT_CmdBuf.DumpInEventCmd.SrcSymAddress.SymName) - 1);
 
     UT_SetDeferredRetcode(UT_KEY(MM_ResolveSymAddr), 1, true);
 
@@ -1959,7 +1981,7 @@ void MM_DumpInEventCmd_Test_FillDumpInvalid(void)
     UT_CmdBuf.DumpInEventCmd.NumOfBytes           = 1;
     UT_CmdBuf.DumpInEventCmd.SrcSymAddress.Offset = (cpuaddr)&DummyBuffer[0];
 
-    strncpy(UT_CmdBuf.DumpInEventCmd.SrcSymAddress.SymName, "", OS_MAX_PATH_LEN);
+    UT_CmdBuf.DumpInEventCmd.SrcSymAddress.SymName[0] = '\0';
 
     /* Causes call to MM_ResolveSymAddr to return a known value for DestAddress */
     UT_SetHookFunction(UT_KEY(MM_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);

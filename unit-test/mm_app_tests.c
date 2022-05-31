@@ -886,7 +886,7 @@ void MM_AppPipe_Test_LookupSymbolSuccess(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.LookupSymCmd.SymName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LookupSymCmd.SymName, "name", sizeof(UT_CmdBuf.LookupSymCmd.SymName) - 1);
     UT_SetDataBuffer(UT_KEY(OS_SymbolLookup), &ResolvedAddr, sizeof(ResolvedAddr), false);
 
     /* ignore dummy message length check */
@@ -944,7 +944,7 @@ void MM_AppPipe_Test_SymTblToFileSuccess(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.SymTblToFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.SymTblToFileCmd.FileName, "name", sizeof(UT_CmdBuf.SymTblToFileCmd.FileName) - 1);
 
     /* Set to satisfy condition "OS_Status == OS_SUCCESS" */
     UT_SetDeferredRetcode(UT_KEY(OS_SymbolTableDump), 1, CFE_SUCCESS);
@@ -1201,7 +1201,7 @@ void MM_HousekeepingCmd_Test(void)
     MM_AppData.HkPacket.DataValue      = 6;
     MM_AppData.HkPacket.BytesProcessed = 7;
 
-    strncpy(MM_AppData.HkPacket.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(MM_AppData.HkPacket.FileName, "name", sizeof(MM_AppData.HkPacket.FileName) - 1);
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1278,7 +1278,7 @@ void MM_LookupSymbolCmd_Test_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.LookupSymCmd.SymName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LookupSymCmd.SymName, "name", sizeof(UT_CmdBuf.LookupSymCmd.SymName) - 1);
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1322,7 +1322,7 @@ void MM_LookupSymbolCmd_Test_SymbolNameNull(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.LookupSymCmd.SymName, "", OS_MAX_PATH_LEN);
+    UT_CmdBuf.LookupSymCmd.SymName[0] = '\0';
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1363,7 +1363,7 @@ void MM_LookupSymbolCmd_Test_SymbolLookupError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.LookupSymCmd.SymName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LookupSymCmd.SymName, "name", sizeof(UT_CmdBuf.LookupSymCmd.SymName) - 1);
 
     /* Set to generate error message MM_SYMNAME_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(OS_SymbolLookup), 1, -1);
@@ -1424,7 +1424,7 @@ void MM_SymTblToFileCmd_Test_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.SymTblToFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.SymTblToFileCmd.FileName, "name", sizeof(UT_CmdBuf.SymTblToFileCmd.FileName) - 1);
 
     /* Set to satisfy condition "OS_Status == OS_SUCCESS" */
     UT_SetDeferredRetcode(UT_KEY(OS_SymbolTableDump), 1, CFE_SUCCESS);
@@ -1471,7 +1471,7 @@ void MM_SymTblToFileCmd_Test_SymbolFilenameNull(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.SymTblToFileCmd.FileName, "", OS_MAX_PATH_LEN);
+    UT_CmdBuf.SymTblToFileCmd.FileName[0] = '\0';
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1512,7 +1512,7 @@ void MM_SymTblToFileCmd_Test_SymbolTableDumpError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.SymTblToFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.SymTblToFileCmd.FileName, "name", sizeof(UT_CmdBuf.SymTblToFileCmd.FileName) - 1);
 
     /* Set to generate error message MM_SYMTBL_TO_FILE_FAIL_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(OS_SymbolTableDump), 1, -1);

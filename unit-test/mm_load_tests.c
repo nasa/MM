@@ -1039,7 +1039,7 @@ void MM_LoadMemWIDCmd_Test_Nominal(void)
     UT_CmdBuf.LoadMemWIDCmd.Crc                   = 0;
     UT_CmdBuf.LoadMemWIDCmd.DestSymAddress.Offset = 0;
 
-    strncpy(UT_CmdBuf.LoadMemWIDCmd.DestSymAddress.SymName, "", OS_MAX_PATH_LEN);
+    UT_CmdBuf.LoadMemWIDCmd.DestSymAddress.SymName[0] = '\0';
 
     UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
 
@@ -1120,7 +1120,7 @@ void MM_LoadMemWIDCmd_Test_CRCError(void)
     UT_CmdBuf.LoadMemWIDCmd.Crc                   = 1;
     UT_CmdBuf.LoadMemWIDCmd.DestSymAddress.Offset = 1;
 
-    strncpy(UT_CmdBuf.LoadMemWIDCmd.DestSymAddress.SymName, "", OS_MAX_PATH_LEN);
+    UT_CmdBuf.LoadMemWIDCmd.DestSymAddress.SymName[0] = '\0';
 
     UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
 
@@ -1173,7 +1173,7 @@ void MM_LoadMemWIDCmd_Test_SymNameErr(void)
     UT_CmdBuf.LoadMemWIDCmd.Crc                   = 0;
     UT_CmdBuf.LoadMemWIDCmd.DestSymAddress.Offset = 1;
 
-    strncpy(UT_CmdBuf.LoadMemWIDCmd.DestSymAddress.SymName, "", OS_MAX_PATH_LEN);
+    UT_CmdBuf.LoadMemWIDCmd.DestSymAddress.SymName[0] = '\0';
 
     UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
 
@@ -1221,7 +1221,7 @@ void MM_LoadMemWIDCmd_Test_NoVerifyLoadWIDParams(void)
     UT_CmdBuf.LoadMemWIDCmd.Crc                   = 0;
     UT_CmdBuf.LoadMemWIDCmd.DestSymAddress.Offset = 1;
 
-    strncpy(UT_CmdBuf.LoadMemWIDCmd.DestSymAddress.SymName, "", OS_MAX_PATH_LEN);
+    UT_CmdBuf.LoadMemWIDCmd.DestSymAddress.SymName[0] = '\0';
 
     UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
 
@@ -1256,7 +1256,7 @@ void MM_LoadMemFromFileCmd_Test_RAM(void)
 
     UT_MM_CFE_OS_ReadHook1_MemType = MM_RAM;
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -1308,7 +1308,7 @@ void MM_LoadMemFromFileCmd_Test_BadType(void)
 {
     bool Result;
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -1359,7 +1359,7 @@ void MM_LoadMemFromFileCmd_Test_EEPROM(void)
 
     UT_MM_CFE_OS_ReadHook1_MemType = MM_EEPROM;
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -1415,7 +1415,7 @@ void MM_LoadMemFromFileCmd_Test_MEM32(void)
 
     UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM32;
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -1468,7 +1468,7 @@ void MM_LoadMemFromFileCmd_Test_MEM32Invalid(void)
 
     UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM32;
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -1519,7 +1519,7 @@ void MM_LoadMemFromFileCmd_Test_MEM16(void)
 
     UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM16;
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -1578,7 +1578,7 @@ void MM_LoadMemFromFileCmd_Test_MEM8(void)
 
     UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM8;
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -1656,7 +1656,7 @@ void MM_LoadMemFromFileCmd_Test_NoReadFileHeaders(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_FS_ReadHeader error received: RC = 0x%%08X Expected = %%u File = '%%s'");
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -1713,7 +1713,7 @@ void MM_LoadMemFromFileCmd_Test_NoVerifyLoadFileSize(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Load file size error: Reported by OS = %%d Expected = %%d File = '%%s'");
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_ResolveSymAddr to return a known value for DestAddress */
     UT_SetHookFunction(UT_KEY(MM_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook1, 0);
@@ -1765,7 +1765,7 @@ void MM_LoadMemFromFileCmd_Test_lseekError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Load file CRC failure: Expected = 0x%%X Calculated = 0x%%X File = '%%s'");
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -1824,7 +1824,7 @@ void MM_LoadMemFromFileCmd_Test_LoadParamsError(void)
 
     UT_MM_CFE_OS_ReadHook1_MemType = 99;
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -1880,7 +1880,7 @@ void MM_LoadMemFromFileCmd_Test_SymNameError(void)
 
     UT_MM_CFE_OS_ReadHook1_MemType = MM_MEM8;
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -1938,7 +1938,7 @@ void MM_LoadMemFromFileCmd_Test_LoadFileCRCError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Load file CRC failure: Expected = 0x%%X Calculated = 0x%%X File = '%%s'");
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -1996,7 +1996,7 @@ void MM_LoadMemFromFileCmd_Test_ComputeCRCError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "MM_ComputeCRCFromFile error received: RC = 0x%%08X File = '%%s'");
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -2048,7 +2048,7 @@ void MM_LoadMemFromFileCmd_Test_CloseError(void)
     snprintf(ExpectedEventString[0], CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "OS_close error received: RC = 0x%%08X File = '%%s'");
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -2106,7 +2106,7 @@ void MM_LoadMemFromFileCmd_Test_OpenError(void)
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "OS_OpenCreate error received: RC = %%d File = '%%s'");
 
-    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", OS_MAX_PATH_LEN);
+    strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
     /* Causes call to MM_VerifyLoadFileSize to return true, in order to satisfy the immediately following condition
      * "Valid == true" */
@@ -2150,6 +2150,8 @@ void MM_LoadMemFromFile_Test_PreventCPUHogging(void)
 {
     bool                    Result;
     MM_LoadDumpFileHeader_t FileHeader;
+    char                    FileName[] = "filename";
+
     FileHeader.MemType    = MM_EEPROM;
     FileHeader.NumOfBytes = 2 * MM_MAX_LOAD_DATA_SEG;
 
@@ -2157,7 +2159,7 @@ void MM_LoadMemFromFile_Test_PreventCPUHogging(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_read), MM_MAX_LOAD_DATA_SEG);
 
     /* Execute the function being tested */
-    Result = MM_LoadMemFromFile(MM_UT_OBJID_1, (char *)"filename", &FileHeader, (cpuaddr)&DummyBuffer[0]);
+    Result = MM_LoadMemFromFile(MM_UT_OBJID_1, FileName, &FileHeader, (cpuaddr)&DummyBuffer[0]);
 
     /* Verify results */
     UtAssert_True(Result == true, "Result == true");
@@ -2167,8 +2169,8 @@ void MM_LoadMemFromFile_Test_PreventCPUHogging(void)
     UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)(&DummyBuffer[0]), "MM_AppData.HkPacket.Address == 0");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 2 * MM_MAX_LOAD_DATA_SEG,
                   "MM_AppData.HkPacket.BytesProcessed == 2*MM_MAX_LOAD_DATA_SEG");
-    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, "filename", OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.FileName, 'filename', OS_MAX_PATH_LEN) == 0");
+    UtAssert_STRINGBUF_EQ(MM_AppData.HkPacket.FileName, sizeof(MM_AppData.HkPacket.FileName), FileName,
+                          sizeof(FileName));
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
@@ -2222,6 +2224,8 @@ void MM_LoadMemFromFile_Test_NotEepromMemType(void)
 {
     bool                    Result;
     MM_LoadDumpFileHeader_t FileHeader;
+    char                    FileName[] = "filename";
+
     FileHeader.MemType    = MM_MEM8;
     FileHeader.NumOfBytes = 2 * MM_MAX_LOAD_DATA_SEG;
 
@@ -2229,7 +2233,7 @@ void MM_LoadMemFromFile_Test_NotEepromMemType(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_read), MM_MAX_LOAD_DATA_SEG);
 
     /* Execute the function being tested */
-    Result = MM_LoadMemFromFile(MM_UT_OBJID_1, (char *)"filename", &FileHeader, (cpuaddr)&DummyBuffer[0]);
+    Result = MM_LoadMemFromFile(MM_UT_OBJID_1, FileName, &FileHeader, (cpuaddr)&DummyBuffer[0]);
 
     /* Verify results */
     UtAssert_True(Result == true, "Result == true");
@@ -2239,8 +2243,8 @@ void MM_LoadMemFromFile_Test_NotEepromMemType(void)
     UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)(&DummyBuffer[0]), "MM_AppData.HkPacket.Address == 0");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 2 * MM_MAX_LOAD_DATA_SEG,
                   "MM_AppData.HkPacket.BytesProcessed == 2*MM_MAX_LOAD_DATA_SEG");
-    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, "filename", OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.FileName, 'filename', OS_MAX_PATH_LEN) == 0");
+    UtAssert_STRINGBUF_EQ(MM_AppData.HkPacket.FileName, sizeof(MM_AppData.HkPacket.FileName), FileName,
+                          sizeof(FileName));
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
@@ -2782,6 +2786,8 @@ void MM_FillMem_Test_Nominal(void)
     MM_FillMemCmd_t CmdPacket;
     bool            Result;
 
+    memset(&CmdPacket, 0, sizeof(CmdPacket));
+
     CmdPacket.MemType    = MM_EEPROM;
     CmdPacket.NumOfBytes = 2;
     memset(DummyBuffer, 1, (MM_MAX_FILL_DATA_SEG * 2));
@@ -2814,6 +2820,8 @@ void MM_FillMem_Test_MaxFillDataSegment(void)
 {
     MM_FillMemCmd_t CmdPacket;
     bool            Result;
+
+    memset(&CmdPacket, 0, sizeof(CmdPacket));
 
     CmdPacket.MemType    = MM_EEPROM;
     CmdPacket.NumOfBytes = MM_MAX_FILL_DATA_SEG + 1;
