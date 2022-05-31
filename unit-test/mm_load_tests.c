@@ -87,15 +87,11 @@ int32 UT_MM_LOAD_TEST_MM_ComputeCrcHook1(void *UserObj, int32 StubRetcode, uint3
 int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook1(void *UserObj, int32 StubRetcode, uint32 CallCount,
                                             const UT_StubContext_t *Context)
 {
-    uint32 *SymbolAddress = (uint32 *)Context->ArgPtr[0];
-
+    uint32 * SymbolAddress   = (uint32 *)Context->ArgPtr[0];
     cpuaddr *ResolvedAddress = (cpuaddr *)Context->ArgPtr[1];
 
-    /* provide a valid address for CFE_PSP_MemCpy */
     *ResolvedAddress = (cpuaddr)DummyBuffer;
-
-    *SymbolAddress = 0;
-
+    *SymbolAddress   = 0;
     *MMHeaderRestore = MMHeaderSave;
 
     return true;
@@ -104,15 +100,11 @@ int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook1(void *UserObj, int32 StubRetcode, ui
 int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook2(void *UserObj, int32 StubRetcode, uint32 CallCount,
                                             const UT_StubContext_t *Context)
 {
-    uint32 *SymbolAddress = (uint32 *)Context->ArgPtr[0];
-
+    uint32 * SymbolAddress   = (uint32 *)Context->ArgPtr[0];
     cpuaddr *ResolvedAddress = (cpuaddr *)Context->ArgPtr[1];
 
-    /* provide a valid address for CFE_PSP_MemCpy */
     *ResolvedAddress = (cpuaddr)DummyBuffer;
-
-    *SymbolAddress = 0;
-
+    *SymbolAddress   = 0;
     *MMHeaderRestore = MMHeaderSave;
 
     return false;
@@ -123,7 +115,6 @@ int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook3(void *UserObj, int32 StubRetcode, ui
 {
     cpuaddr *ResolvedAddress = (cpuaddr *)Context->ArgPtr[1];
 
-    /* provide a valid address for CFE_PSP_MemCpy */
     *ResolvedAddress = (cpuaddr)DummyBuffer;
 
     return true;
@@ -1046,9 +1037,6 @@ void MM_LoadMemWIDCmd_Test_Nominal(void)
     UT_SetDeferredRetcode(UT_KEY(MM_ResolveSymAddr), 1, true);
 
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
-
-    /* Set to prevent segmentation fault */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
 
     /* Causes call to MM_ResolveSymAddr to return a known value for DestAddress */
     UT_SetHookFunction(UT_KEY(MM_ResolveSymAddr), UT_MM_LOAD_TEST_CFE_SymbolLookupHook3, 0);

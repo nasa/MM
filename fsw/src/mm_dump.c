@@ -221,14 +221,14 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                 /*
                 ** Initialize the cFE primary file header structure
                 */
-                memset(&CFEFileHeader, 0, sizeof(CFE_FS_Header_t));
+                memset(&CFEFileHeader, 0, sizeof(CFEFileHeader));
                 CFEFileHeader.SubType = MM_CFE_HDR_SUBTYPE;
                 strncpy(&CFEFileHeader.Description[0], MM_CFE_HDR_DESCRIPTION, CFE_FS_HDR_DESC_MAX_LEN);
 
                 /*
                 ** Initialize the MM secondary file header structure
                 */
-                memset(&MMFileHeader, 0, sizeof(MM_LoadDumpFileHeader_t));
+                memset(&MMFileHeader, 0, sizeof(MMFileHeader));
                 MMFileHeader.SymAddress.SymName[0] = MM_CLEAR_SYMNAME;
 
                 /*
