@@ -3599,7 +3599,7 @@ void MM_ResolveSymAddr_Test(void)
     cpuaddr      ResolvedAddr = 0;
     bool         Result;
 
-    memset(&SymAddr, 0, sizeof(MM_SymAddr_t));
+    memset(&SymAddr, 0, sizeof(SymAddr));
 
     SymAddr.Offset = 99;
 

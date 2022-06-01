@@ -64,7 +64,6 @@ int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook1(void *UserObj, int32 StubRetcode, ui
 {
     cpuaddr *ResolvedAddress = (cpuaddr *)Context->ArgPtr[1];
 
-    /* provide a valid address for CFE_PSP_MemCpy */
     *ResolvedAddress = (cpuaddr)DummyBuffer;
 
     return true;
@@ -552,9 +551,6 @@ void MM_DumpMemToFileCmd_Test_RAM(void)
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
 
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
-
     UT_SetDefaultReturnValue(UT_KEY(MM_ResolveSymAddr), true);
 
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
@@ -627,9 +623,6 @@ void MM_DumpMemToFileCmd_Test_BadType(void)
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
 
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
-
     UT_SetDefaultReturnValue(UT_KEY(MM_ResolveSymAddr), true);
 
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
@@ -687,9 +680,6 @@ void MM_DumpMemToFileCmd_Test_EEPROM(void)
 
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
-
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
 
     UT_SetDefaultReturnValue(UT_KEY(MM_ResolveSymAddr), true);
 
@@ -762,9 +752,6 @@ void MM_DumpMemToFileCmd_Test_MEM32(void)
 
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
-
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -840,9 +827,6 @@ void MM_DumpMemToFileCmd_Test_MEM16(void)
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
 
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
-
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
 
@@ -917,9 +901,6 @@ void MM_DumpMemToFileCmd_Test_MEM8(void)
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
 
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
-
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
 
@@ -993,9 +974,6 @@ void MM_DumpMemToFileCmd_Test_ComputeCRCError(void)
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
 
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
-
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
 
@@ -1066,9 +1044,6 @@ void MM_DumpMemToFileCmd_Test_CloseError(void)
 
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
-
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1155,9 +1130,6 @@ void MM_DumpMemToFileCmd_Test_CreatError(void)
 
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
-
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1330,9 +1302,6 @@ void MM_DumpMemToFileCmd_Test_SymNameError(void)
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
 
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
-
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
 
@@ -1392,9 +1361,6 @@ void MM_DumpMemToFileCmd_Test_NoVerifyDumpParams(void)
 
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
-
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
 
     UT_SetDefaultReturnValue(UT_KEY(MM_ResolveSymAddr), true);
 
@@ -1477,9 +1443,6 @@ void MM_DumpMemToFileCmd_Test_NoWriteHeaders(void)
 
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
-
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
 
     UT_SetDefaultReturnValue(UT_KEY(MM_ResolveSymAddr), true);
 
@@ -1807,9 +1770,6 @@ void MM_DumpInEventCmd_Test_Nominal(void)
     /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(MM_LoadDumpFileHeader_t));
 
-    /* Set to satisfy condition "Valid == true" before comment "Compute CRC of dumped data" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, CFE_PSP_SUCCESS);
-
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
     UT_SetDefaultReturnValue(UT_KEY(MM_ResolveSymAddr), true);
@@ -1995,9 +1955,6 @@ void MM_DumpInEventCmd_Test_FillDumpInvalid(void)
 
     /* Set to generate error message MM_PSP_READ_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemRead8), 1, -1);
-
-    /* Set to satisfy condition "Valid == false" after comment "Fill a local data buffer with the dump words" */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemCpy), 1, -1);
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -2330,7 +2287,6 @@ void UtTest_Setup(void)
     UtTest_Add(MM_PeekMem_Test_DefaultSwitch, MM_Test_Setup, MM_Test_TearDown, "MM_PeekMem_Test_DefaultSwitch");
     UtTest_Add(MM_PeekMem_Test_NoLengthVerify, MM_Test_Setup, MM_Test_TearDown, "MM_PeekMem_Test_NoLengthVerify");
 
-    /* CFE_PSP_MemCpy stub and MM_SymAddr_t Offset type causes segmentation faults for these 2 tests */
     UtTest_Add(MM_DumpMemToFileCmd_Test_RAM, MM_Test_Setup, MM_Test_TearDown, "MM_DumpMemToFileCmd_Test_RAM");
     UtTest_Add(MM_DumpMemToFileCmd_Test_BadType, MM_Test_Setup, MM_Test_TearDown, "MM_DumpMemToFileCmd_Test_BadType");
     UtTest_Add(MM_DumpMemToFileCmd_Test_EEPROM, MM_Test_Setup, MM_Test_TearDown, "MM_DumpMemToFileCmd_Test_EEPROM");
@@ -2357,7 +2313,6 @@ void UtTest_Setup(void)
     UtTest_Add(MM_DumpMemToFileCmd_Test_NoWriteHeaders, MM_Test_Setup, MM_Test_TearDown,
                "MM_DumpMemToFileCmd_Test_NoWriteHeaders");
 
-    /* CFE_PSP_MemCpy stub and MM_SymAddr_t Offset type causes segmentation faults for these 3 tests */
     UtTest_Add(MM_DumpMemToFile_Test_Nominal, MM_Test_Setup, MM_Test_TearDown, "MM_DumpMemToFile_Test_Nominal");
     UtTest_Add(MM_DumpMemToFile_Test_CPUHogging, MM_Test_Setup, MM_Test_TearDown, "MM_DumpMemToFile_Test_CPUHogging");
     UtTest_Add(MM_DumpMemToFile_Test_WriteError, MM_Test_Setup, MM_Test_TearDown, "MM_DumpMemToFile_Test_WriteError");

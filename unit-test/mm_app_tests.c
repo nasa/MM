@@ -230,7 +230,7 @@ void MM_AppInit_Test_Nominal(void)
 
     /* Initialize all elements to 1, in order verify that elements initialized to 0 by MM_AppInit are actually
      * initialized */
-    CFE_PSP_MemSet(&MM_AppData, 1, sizeof(MM_AppData_t));
+    memset(&MM_AppData, 1, sizeof(MM_AppData));
 
     /* Execute the function being tested */
     Result = MM_AppInit();
@@ -267,7 +267,7 @@ void MM_AppInit_Test_EVSRegisterError(void)
 
     /* Initialize all elements to 1, in order verify that elements initialized to 0 by MM_AppInit are actually
      * initialized */
-    CFE_PSP_MemSet(&MM_AppData, 1, sizeof(MM_AppData_t));
+    memset(&MM_AppData, 1, sizeof(MM_AppData));
 
     /* Set to generate system log message "MM App: Error Registering For Event Services " */
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_Register), 1, -1);
@@ -302,7 +302,7 @@ void MM_AppInit_Test_SBCreatePipeError(void)
 
     /* Initialize all elements to 1, in order verify that elements initialized to 0 by MM_AppInit are actually
      * initialized */
-    CFE_PSP_MemSet(&MM_AppData, 1, sizeof(MM_AppData_t));
+    memset(&MM_AppData, 1, sizeof(MM_AppData));
 
     /* Set to generate system log message "MM App: Error Creating SB Pipe" */
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_CreatePipe), -1);
@@ -337,7 +337,7 @@ void MM_AppInit_Test_SBSubscribeHKError(void)
 
     /* Initialize all elements to 1, in order verify that elements initialized to 0 by MM_AppInit are actually
      * initialized */
-    CFE_PSP_MemSet(&MM_AppData, 1, sizeof(MM_AppData_t));
+    memset(&MM_AppData, 1, sizeof(MM_AppData));
 
     /* Set to generate system log message "MM App: Error Subscribing to HK Request" */
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 1, -1);
@@ -372,7 +372,7 @@ void MM_AppInit_Test_SBSubscribeMMError(void)
 
     /* Initialize all elements to 1, in order verify that elements initialized to 0 by MM_AppInit are actually
      * initialized */
-    CFE_PSP_MemSet(&MM_AppData, 1, sizeof(MM_AppData_t));
+    memset(&MM_AppData, 1, sizeof(MM_AppData));
 
     /* Set to generate system log message "MM App: Error Subscribing to MM Command" */
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 2, -1);
