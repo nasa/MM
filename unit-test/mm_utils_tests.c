@@ -301,7 +301,7 @@ void MM_VerifyPeekPokeParams_Test_WordWidthAlignmentError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Data and address not 16 bit aligned: Addr = 0x%%08X Size = %%d");
+             "Data and address not 16 bit aligned: Addr = %%p Size = %%d");
 
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
@@ -337,7 +337,7 @@ void MM_VerifyPeekPokeParams_Test_DWordWidthAlignmentError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Data and address not 32 bit aligned: Addr = 0x%%08X Size = %%d");
+             "Data and address not 32 bit aligned: Addr = %%p Size = %%d");
 
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
@@ -457,7 +457,7 @@ void MM_VerifyPeekPokeParams_Test_RAMValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = MEM_RAM");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = MEM_RAM");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -496,7 +496,7 @@ void MM_VerifyPeekPokeParams_Test_EEPROMValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = MEM_EEPROM");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = MEM_EEPROM");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -535,7 +535,7 @@ void MM_VerifyPeekPokeParams_Test_MEM32ValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = MEM32");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = MEM32");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -574,7 +574,7 @@ void MM_VerifyPeekPokeParams_Test_MEM16ValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = MEM16");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = MEM16");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -613,7 +613,7 @@ void MM_VerifyPeekPokeParams_Test_MEM8ValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = MEM8");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = MEM8");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -797,7 +797,7 @@ void MM_VerifyLoadDumpParams_Test_LoadRAMValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -905,7 +905,7 @@ void MM_VerifyLoadDumpParams_Test_LoadEEPROMValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -1013,7 +1013,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32ValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -1121,7 +1121,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32AlignmentError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Data and address not 32 bit aligned: Addr = 0x%%08X Size = %%d");
+             "Data and address not 32 bit aligned: Addr = %%p Size = %%d");
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
@@ -1156,7 +1156,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16ValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -1264,7 +1264,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16AlignmentError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Data and address not 16 bit aligned: Addr = 0x%%08X Size = %%d");
+             "Data and address not 16 bit aligned: Addr = %%p Size = %%d");
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_LOAD);
@@ -1299,7 +1299,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM8ValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -1591,7 +1591,7 @@ void MM_VerifyLoadDumpParams_Test_DumpRAMRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -1702,7 +1702,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROMRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -1813,7 +1813,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32RangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -1924,7 +1924,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32AlignmentError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Data and address not 32 bit aligned: Addr = 0x%%08X Size = %%d");
+             "Data and address not 32 bit aligned: Addr = %%p Size = %%d");
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
@@ -1960,7 +1960,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16RangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -2071,7 +2071,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16AlignmentError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Data and address not 16 bit aligned: Addr = 0x%%08X Size = %%d");
+             "Data and address not 16 bit aligned: Addr = %%p Size = %%d");
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
@@ -2107,7 +2107,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8RangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -2450,7 +2450,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventRAMRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -2489,7 +2489,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventEEPROMRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -2528,7 +2528,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM32RangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -2567,7 +2567,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM32AlignmentError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Data and address not 32 bit aligned: Addr = 0x%%08X Size = %%d");
+             "Data and address not 32 bit aligned: Addr = %%p Size = %%d");
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
@@ -2603,7 +2603,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM16RangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -2642,7 +2642,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM16AlignmentError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Data and address not 16 bit aligned: Addr = 0x%%08X Size = %%d");
+             "Data and address not 16 bit aligned: Addr = %%p Size = %%d");
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
@@ -2678,7 +2678,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM8RangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -2757,7 +2757,7 @@ void MM_VerifyLoadDumpParams_Test_FillRAMValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -2865,7 +2865,7 @@ void MM_VerifyLoadDumpParams_Test_FillEEPROMValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -2973,7 +2973,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32ValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -3081,7 +3081,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32AlignmentError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Data and address not 32 bit aligned: Addr = 0x%%08X Size = %%d");
+             "Data and address not 32 bit aligned: Addr = %%p Size = %%d");
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
@@ -3116,7 +3116,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16ValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -3224,7 +3224,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16AlignmentError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Data and address not 16 bit aligned: Addr = 0x%%08X Size = %%d");
+             "Data and address not 16 bit aligned: Addr = %%p Size = %%d");
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_FILL);
@@ -3259,7 +3259,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM8ValidateRangeError(void)
     char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
@@ -3423,7 +3423,7 @@ void MM_VerifyLoadDumpParams_Test_WIDMemValidateError(void)
     bool   Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = 0x%%08X Size = %%d MemType = %%s");
+             "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
 
     /* Set to generate error message MM_OS_MEMVALIDATE_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);

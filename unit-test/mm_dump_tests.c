@@ -525,7 +525,7 @@ void MM_DumpMemToFileCmd_Test_RAM(void)
     bool              Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Dump Memory To File Command: Dumped %%d bytes from address 0x%%08X to file '%%s'");
+             "Dump Memory To File Command: Dumped %%d bytes from address %%p to file '%%s'");
 
     TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
     FcnCode   = MM_DUMP_MEM_TO_FILE_CC;
@@ -655,7 +655,7 @@ void MM_DumpMemToFileCmd_Test_EEPROM(void)
     bool              Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Dump Memory To File Command: Dumped %%d bytes from address 0x%%08X to file '%%s'");
+             "Dump Memory To File Command: Dumped %%d bytes from address %%p to file '%%s'");
 
     TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
     FcnCode   = MM_DUMP_MEM_TO_FILE_CC;
@@ -730,7 +730,7 @@ void MM_DumpMemToFileCmd_Test_MEM32(void)
     bool              Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Dump Memory To File Command: Dumped %%d bytes from address 0x%%08X to file '%%s'");
+             "Dump Memory To File Command: Dumped %%d bytes from address %%p to file '%%s'");
 
     TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
     FcnCode   = MM_DUMP_MEM_TO_FILE_CC;
@@ -804,7 +804,7 @@ void MM_DumpMemToFileCmd_Test_MEM16(void)
     bool              Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Dump Memory To File Command: Dumped %%d bytes from address 0x%%08X to file '%%s'");
+             "Dump Memory To File Command: Dumped %%d bytes from address %%p to file '%%s'");
 
     TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
     FcnCode   = MM_DUMP_MEM_TO_FILE_CC;
@@ -878,7 +878,7 @@ void MM_DumpMemToFileCmd_Test_MEM8(void)
     bool              Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Dump Memory To File Command: Dumped %%d bytes from address 0x%%08X to file '%%s'");
+             "Dump Memory To File Command: Dumped %%d bytes from address %%p to file '%%s'");
 
     TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
     FcnCode   = MM_DUMP_MEM_TO_FILE_CC;
@@ -1019,7 +1019,7 @@ void MM_DumpMemToFileCmd_Test_CloseError(void)
     bool              Result;
 
     snprintf(ExpectedEventString[0], CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Dump Memory To File Command: Dumped %%d bytes from address 0x%%08X to file '%%s'");
+             "Dump Memory To File Command: Dumped %%d bytes from address %%p to file '%%s'");
 
     snprintf(ExpectedEventString[1], CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "OS_close error received: RC = 0x%%08X File = '%%s'");
