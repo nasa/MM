@@ -112,10 +112,9 @@ void MM_AppMain_Test_Nominal(void)
 
 void MM_AppMain_Test_AppInitError(void)
 {
-    CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
-    CFE_MSG_FcnCode_t FcnCode   = MM_NOOP_CC;
-    ;
-    size_t forced_Size = 1;
+    CFE_SB_MsgId_t    TestMsgId   = CFE_SB_ValueToMsgId(MM_CMD_MID);
+    CFE_MSG_FcnCode_t FcnCode     = MM_NOOP_CC;
+    size_t            forced_Size = 1;
 
     /* Set to exit loop after first run */
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RunLoop), 1, true);
