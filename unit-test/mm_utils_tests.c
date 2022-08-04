@@ -3491,10 +3491,9 @@ void MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooLarge(void)
 {
     uint32 Address     = 0;
     uint32 SizeInBytes = MM_MAX_UNINTERRUPTIBLE_DATA + 1;
-    ;
-    int32 strCmpResult;
-    char  ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
-    bool  Result;
+    int32  strCmpResult;
+    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool   Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
