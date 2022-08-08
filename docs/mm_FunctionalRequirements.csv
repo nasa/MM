@@ -4,33 +4,38 @@ MM1001,MM1001,"Upon receipt of a Reset command,  MM shall reset the following ho
 a) MM Valid Command Counter
 b) MM Command Rejected Counter",Important for testing and on-orbit flight operations in order to start with a “clean slate”.
 MM1006,MM1006,"For all MM commands, if the length contained in the message header is not equal to the expected length, MM shall reject the command.",Basic command verification in the event of SEU or memory corruption
-MM1007,MM1007,"If the address specified in any MM command fails validation, MM shall reject the command",Covers source and/or destination address. Protects against operator error.
-MM1008,MM1008,"If the filename specified in any MM command is not valid, MM shall reject the command",Erroneous filename makes the entire command erroneous and not trustworthy.
+MM1007,MM1007,"If the address specified in any MM command fails validation, MM shall reject the command",Covers source and/or destination address. Protects against operator error. Does not apply to `MM_NoopCmd` or `MM_ResetCmd` and other commands that do not reference memory. 
+MM1008,MM1008,"If the filename specified in any MM command is not valid, MM shall reject the command","Erroneous filename makes the entire command erroneous and not trustworthy. Protects against operator error. Only applies to MM_LoadMemFromFileCmd
+, MM_DumpMemToFileCmd, MM_SymTblToFileCmd
+"
 MM1009,MM1009,"If MM accepts any command as valid, MM shall execute the command, increment the MM Valid Command Counter and issue an event message",Provides command verification
 MM1010,MM1010,"If MM rejects any command, MM shall abort the command execution, increment the MM Command Rejected Counter and issue an error event message",Provides an alert of a command error
-MM1011,MM1011,<OPTIONAL>  Symbol Name and offset can be used in lieu an absolute address in any RAM command,"If symbolic addressing supported, symbolic names and offset can be used instead of an absolute address in RAM"
+MM1011,MM1011,<OPTIONAL>  Symbol Name and offset can be used in lieu of an absolute address in any RAM command,"If symbolic addressing is supported, symbolic names and offset can be used instead of an absolute address in RAM"
 MM1012,MM1012,<OPTIONAL>  Symbol Name and offset can be used in lieu an absolute address in any EEPROM command,"If symbolic addressing supported, symbolic names and offset can be used instead of an absolute address in EEPROM"
 MM1013,MM1013,The MM application shall generate an error event message if symbol table operations are initiated but not supported in the current target environment.,Got to do something graceful if we’re running without a system symbol table to query
-MM2000,MM2000,"Upon receipt of a Poke command , MM shall write 8, 16, or 32 bits of data to the command-specified RAM address",Memory poke to any RAM address. Typically the peek function is used to verify the poke.
+MM2000,MM2000,"Upon receipt of a Poke command , MM shall write 8, 16, or 32 bits of data to the command-specified RAM address.",Memory poke to any RAM address. Typically the peek function is used to verify the poke.
 MM2000.1,MM2000.1,"MM shall confirm a write to the RAM address by issuing an event message which includes:
 a) address written
 b) length of data written
-c) value of the data written",Confirms memory poke operations
-MM2002,MM2002,"Upon receipt of a Peek command,  MM shall read 8, 16, or 32 bits of data from the command-specified RAM address  and generate an event message containing the following data:
-a) address read
-b) length of data read
-c) value of the data read",Memory peek to any Memory Type
-MM2003,MM2003,"Upon receipt of a Write With Interrupts Disable command,  MM shall write up to <PLATFORM_DEFINED, TBD> bytes to the command-specified RAM memory address  with interrupts disabled.",Load with interrupts disabled so that can patch software that is executing.
-MM2003.1,MM2003.1,MM shall verify that the command-specified <MISSION_DEFINED> CRC matches the computed CRC of the data,Verify the integrity of the data specified in the command to insure no corruption of the data to be written. Note that the cFE provides functions to calculate the CRC using a desired CRC
-MM2003.2,MM2003.2,"If the command-specified CRC fails validation,  MM shall reject the command",Verify data before changing memory
-MM2004,MM2004,"Upon receipt of a Read command,  MM shall read the command-specified number of consecutive bytes from the command-specified RAM memory address  and generate an event message containing the data.",Dump in event message in order to provide a quick display (alleviates post processing)
-MM2004.1,MM2004.1,If the number of bytes exceeds the maximum event message size then the command shall be rejected.,Cannot exceed the event message size maximum
+c) value of the data written
+",Confirms memory poke operations
+MM2000.2,MM2000.2,"When MM receives a Poke command, if the data size is not 8, 16, or 32 bits, MM shall reject the command.",Ensure writes happen at 8-bit boundaries
+MM2002,MM2002,"Upon receipt of a Peek command, MM shall read 8, 16, or 32 bits of data from the command-specified RAM address and generate an event message containing the following data: 
+a) address read 
+b) length of data read 
+c) value of the data read
+",Memory peek to any Memory Type
+MM2003,MM2003,"Upon receipt of a Write With Interrupts Disable command, MM shall write up to <PLATFORM_DEFINED, TBD> bytes to the command-specified RAM memory address with interrupts disabled.",Load with interrupts disabled so that can patch software that is executing.
+MM2003.1,MM2003.1,MM shall verify that the command-specified CRC matches the computed CRC of the data.,Verify the integrity of the data specified in the command to insure no corruption of the data to be written. Note that the cFE provides functions to calculate the CRC using a desired CRC
+MM2003.2,MM2003.2,"If the command-specified CRC fails validation, MM shall reject the command",Verify data before changing memory
+MM2004,MM2004,"Upon receipt of a Read command, MM shall read the command-specified number of consecutive bytes from the command-specified RAM memory address and generate an event message containing the data.",Dump in event message in order to provide a quick display (alleviates post processing)
+MM2004.1,MM2004.1,"When MM receives a “Dump to Event” command, if the number of bytes exceeds the maximum event message size then the command shall be rejected.",Cannot exceed the event message size maximum
 MM2100,MM2100,"Upon receipt of a Load From File command, MM shall load RAM, with interrupts enabled during the actual load, based on the following information contained in the command-specified ""file:"" 
 a) Destination Address 
 b) Destination Memory Type 
 c) <MISSION_DEFINED> CRC (data only) 
 d) Number of Bytes to Load",Standard load from file into RAM memory. Files are assumed to be binary
-MM2100.1,MM2100.1,"If the CRC contained in the file fails validation,  MM shall reject the command",Verifies load file integrity
+MM2100.1,MM2100.1,"If the CRC contained in the file fails validation, MM shall reject the command.",Verifies load file integrity
 MM2100.2,MM2100.2,"If the number of bytes exceeds <PLATFORM_DEFINED, TBD> then the command shall be rejected.",<Platform_defined>maximum should be sized to be able to handle the largest app. Requirement prevents exceeding memory bounds.
 MM2104,MM2104,"Upon receipt of a Dump to File command, MM shall write the data associated with the command-specified RAM address , command-specified number of bytes and calculated <MISSION_DEFINED> CRC  to the command-specified file.",Standard dump from RAM memory to a file.
 MM2104.1,MM2104.1,"If the command-specified number of bytes exceeds <PLATFORM_DEFINED, TBD> then the command shall be rejected.",Keep from running beyond memory type address range.
