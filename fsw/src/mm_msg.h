@@ -24,10 +24,7 @@
  *
  * @note
  *   Constant and enumerated types related to these message structures
- *   are defined in mm_msgdefs.h. They are kept separate to allow easy
- *   integration with ASIST RDL files which can't handle typedef
- *   declarations (see the main comment block in mm_msgdefs.h for more
- *   info).
+ *   are defined in mm_msgdefs.h.
  **/
 #ifndef MM_MSG_H
 #define MM_MSG_H
