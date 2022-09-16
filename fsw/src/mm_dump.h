@@ -139,10 +139,7 @@ bool MM_WriteFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Head
  *
  *  \param [in]   SrcAddress   The source address to read from
  *  \param [in]   CmdPtr       Pointer to dump in event command message
- *  \param [in]   DumpBuffer   A pointer to the byte array to store
- *                             the dump data in
- *  \param [out]  *DumpBuffer  A pointer to the byte array holding the
- *                             dump data
+ *  \param [out]  DumpBuffer   Byte array holding the dump data
  *
  *  \return Boolean execution status
  *  \retval true  Dump in event buffer successful

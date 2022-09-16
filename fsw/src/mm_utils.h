@@ -190,9 +190,7 @@ bool MM_Verify16Aligned(cpuaddr Address, uint32 Size);
  *
  *  \param [in]   SymAddr          A #MM_SymAddr_t pointer that holds
  *                                 the symbol name and optional offset
- *  \param [in]   ResolvedAddr     A pointer to the location to store
- *                                 the resolved address in
- *  \param [out]  *ResolvedAddr    The fully resolved address. Only valid
+ *  \param [out]  ResolvedAddr     The fully resolved address. Only valid
  *                                 if the return value is TRUE
  *
  *  \return Boolean execution status
@@ -215,9 +213,8 @@ bool MM_ResolveSymAddr(MM_SymAddr_t *SymAddr, cpuaddr *ResolvedAddr);
  *       file pointer to the end of file
  *
  *  \param [in]   FileHandle   The open file handle of the file to scan
- *  \param [in]   CrcPtr       Where to store the computed CRC.
  *  \param [in]   TypeCRC      CRC type to compute
- *  \param [out]  *CrcPtr      The computed CRC. Only updated if the return
+ *  \param [out]  CrcPtr       The computed CRC. Only updated if the return
  *                             value is #OS_SUCCESS
  *
  *  \return Execution status, see \ref OSReturnCodes

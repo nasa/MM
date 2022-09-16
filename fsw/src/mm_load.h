@@ -146,11 +146,9 @@ bool MM_VerifyLoadFileSize(const char *FileName, const MM_LoadDumpFileHeader_t *
  *                             the file name (used only for error event
  *                             messages).
  *  \param [in]   FileHandle   File handle to read header from
- *  \param [in]   CFEHeader    Pointer to CFE file header
- *  \param [in]   MMHeader     Pointer to MM file header
- *  \param [out]  *CFEHeader   Contents of the cFE primary file header
+ *  \param [out]  CFEHeader    Contents of the cFE primary file header
  *                             structure for the specified file.
- *  \param [out]  *MMHeader    Contents of the MM secondary file header
+ *  \param [out]  MMHeader     Contents of the MM secondary file header
  *                             structure for the specified file.
  *
  *  \return Boolean execution status
