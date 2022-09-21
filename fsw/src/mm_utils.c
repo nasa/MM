@@ -59,8 +59,6 @@ void MM_ResetHk(void)
     MM_AppData.HkPacket.BytesProcessed = 0;
     MM_AppData.HkPacket.FileName[0]    = MM_CLEAR_FNAME;
 
-    return;
-
 } /* end MM_ResetHk */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -84,8 +82,6 @@ void MM_SegmentBreak(void)
     ** Performance Log exit stamp
     */
     CFE_ES_PerfLogExit(MM_SEGBREAK_PERF_ID);
-
-    return;
 
 } /* End of MM_SegmentBreak */
 
@@ -484,17 +480,9 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes,
 
 bool MM_Verify32Aligned(cpuaddr Address, uint32 Size)
 {
-    bool IsAligned;
+    bool IsAligned = false;
 
-    if (Address % sizeof(uint32) != 0)
-    {
-        IsAligned = false;
-    }
-    else if (Size % sizeof(uint32) != 0)
-    {
-        IsAligned = false;
-    }
-    else
+    if (Address % sizeof(uint32) == 0 && Size % sizeof(uint32) == 0)
     {
         IsAligned = true;
     }
@@ -506,17 +494,9 @@ bool MM_Verify32Aligned(cpuaddr Address, uint32 Size)
 
 bool MM_Verify16Aligned(cpuaddr Address, uint32 Size)
 {
-    bool IsAligned;
+    bool IsAligned = false;
 
-    if (Address % sizeof(uint16) != 0)
-    {
-        IsAligned = false;
-    }
-    else if (Size % sizeof(uint16) != 0)
-    {
-        IsAligned = false;
-    }
-    else
+    if (Address % sizeof(uint16) == 0 && Size % sizeof(uint16) == 0)
     {
         IsAligned = true;
     }
@@ -528,7 +508,7 @@ bool MM_Verify16Aligned(cpuaddr Address, uint32 Size)
 
 bool MM_ResolveSymAddr(MM_SymAddr_t *SymAddr, cpuaddr *ResolvedAddr)
 {
-    bool  Valid;
+    bool  Valid     = false;
     int32 OS_Status = OS_SUCCESS;
 
     /*

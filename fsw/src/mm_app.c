@@ -338,8 +338,6 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
 
     } /* end switch */
 
-    return;
-
 } /* End MM_AppPipe */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -368,8 +366,6 @@ void MM_HousekeepingCmd(const CFE_SB_Buffer_t *BufPtr)
         */
 
     } /* end if */
-
-    return;
 
 } /* end MM_HousekeepingCmd */
 
