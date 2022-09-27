@@ -123,7 +123,7 @@ bool MM_LoadMem8FromFile(osal_id_t FileHandle, const char *FileName, const MM_Lo
         strncpy(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN);
     }
 
-    return (Valid);
+    return Valid;
 
 } /* end MM_LoadMem8FromFile */
 
@@ -210,7 +210,7 @@ bool MM_DumpMem8ToFile(osal_id_t FileHandle, const char *FileName, const MM_Load
         MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
     }
 
-    return (Valid);
+    return Valid;
 
 } /* end MM_DumpMem8ToFile */
 
