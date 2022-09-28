@@ -58,9 +58,6 @@ void MM_ResetHk(void)
     MM_AppData.HkPacket.DataValue      = MM_CLEAR_PATTERN;
     MM_AppData.HkPacket.BytesProcessed = 0;
     MM_AppData.HkPacket.FileName[0]    = MM_CLEAR_FNAME;
-
-    return;
-
 } /* end MM_ResetHk */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -84,9 +81,6 @@ void MM_SegmentBreak(void)
     ** Performance Log exit stamp
     */
     CFE_ES_PerfLogExit(MM_SEGBREAK_PERF_ID);
-
-    return;
-
 } /* End of MM_SegmentBreak */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

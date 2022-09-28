@@ -183,7 +183,7 @@ bool MM_PeekMem(const MM_PeekCmd_t *CmdPtr, cpuaddr SrcAddress)
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
-/* Dump memory to file comand                                      */
+/* Dump memory to file command                                      */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
