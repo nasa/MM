@@ -130,7 +130,7 @@ bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
         result = false;
     }
 
-    return (result);
+    return result;
 
 } /* End of MM_VerifyCmdLength */
 
@@ -293,7 +293,7 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
 
     } /* end Valid == true if */
 
-    return (Valid);
+    return Valid;
 
 } /* end MM_VerifyPeekPokeParams */
 
@@ -472,7 +472,7 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes,
         }
     }
 
-    return (Valid);
+    return Valid;
 
 } /* end MM_VerifyFileLoadDumpParams */
 
@@ -487,7 +487,7 @@ bool MM_Verify32Aligned(cpuaddr Address, uint32 Size)
         IsAligned = true;
     }
 
-    return (IsAligned);
+    return IsAligned;
 }
 
 /******************************************************************************/
@@ -501,7 +501,7 @@ bool MM_Verify16Aligned(cpuaddr Address, uint32 Size)
         IsAligned = true;
     }
 
-    return (IsAligned);
+    return IsAligned;
 }
 
 /******************************************************************************/
@@ -541,7 +541,7 @@ bool MM_ResolveSymAddr(MM_SymAddr_t *SymAddr, cpuaddr *ResolvedAddr)
         else
             Valid = false;
     }
-    return (Valid);
+    return Valid;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -590,7 +590,7 @@ int32 MM_ComputeCRCFromFile(osal_id_t FileHandle, uint32 *CrcPtr, uint32 TypeCRC
         *CrcPtr = TempCrc;
     }
 
-    return (OS_Status);
+    return OS_Status;
 
 } /* End MM_ComputeCRCFromFile */
 
