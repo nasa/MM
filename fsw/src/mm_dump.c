@@ -221,9 +221,7 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                 /*
                 ** Initialize the cFE primary file header structure
                 */
-                memset(&CFEFileHeader, 0, sizeof(CFEFileHeader));
-                CFEFileHeader.SubType = MM_CFE_HDR_SUBTYPE;
-                strncpy(&CFEFileHeader.Description[0], MM_CFE_HDR_DESCRIPTION, CFE_FS_HDR_DESC_MAX_LEN);
+                CFE_FS_InitHeader(&CFEFileHeader, MM_CFE_HDR_DESCRIPTION, MM_CFE_HDR_SUBTYPE);
 
                 /*
                 ** Initialize the MM secondary file header structure
