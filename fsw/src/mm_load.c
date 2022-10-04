@@ -621,7 +621,7 @@ bool MM_LoadMemFromFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
         strncpy(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN);
     }
 
-    return (Valid);
+    return Valid;
 
 } /* end MM_LoadMemFromFile */
 
@@ -674,7 +674,7 @@ bool MM_VerifyLoadFileSize(const char *FileName, const MM_LoadDumpFileHeader_t *
         }
     }
 
-    return (Valid);
+    return Valid;
 
 } /* end MM_VerifyLoadFileSize */
 
@@ -720,7 +720,7 @@ bool MM_ReadFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Heade
 
     } /* end CFE_FS_ReadHeader else */
 
-    return (Valid);
+    return Valid;
 
 } /* end MM_ReadFileHeaders */
 

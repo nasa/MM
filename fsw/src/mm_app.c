@@ -157,7 +157,7 @@ int32 MM_AppInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("MM App: Error Registering For Event Services, RC = 0x%08X\n", (unsigned int)Status);
-        return (Status);
+        return Status;
     }
 
     /*
@@ -172,7 +172,7 @@ int32 MM_AppInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(MM_CR_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, "Error Creating SB Pipe, RC = 0x%08X", Status);
-        return (Status);
+        return Status;
     }
 
     /*
@@ -183,7 +183,7 @@ int32 MM_AppInit(void)
     {
         CFE_EVS_SendEvent(MM_HK_SUB_ERR_EID, CFE_EVS_EventType_ERROR, "Error Subscribing to HK Request, RC = 0x%08X",
                           Status);
-        return (Status);
+        return Status;
     }
 
     /*
@@ -194,7 +194,7 @@ int32 MM_AppInit(void)
     {
         CFE_EVS_SendEvent(MM_CMD_SUB_ERR_EID, CFE_EVS_EventType_ERROR, "Error Subscribing to MM Command, RC = 0x%08X",
                           Status);
-        return (Status);
+        return Status;
     }
 
     /*
@@ -218,7 +218,7 @@ int32 MM_AppInit(void)
     CFE_EVS_SendEvent(MM_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "MM Initialized. Version %d.%d.%d.%d",
                       MM_MAJOR_VERSION, MM_MINOR_VERSION, MM_REVISION, MM_MISSION_REV);
 
-    return (CFE_SUCCESS);
+    return CFE_SUCCESS;
 
 } /* end MM_AppInit */
 
@@ -337,6 +337,7 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
             break;
 
     } /* end switch */
+
 } /* End MM_AppPipe */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -365,6 +366,7 @@ void MM_HousekeepingCmd(const CFE_SB_Buffer_t *BufPtr)
         */
 
     } /* end if */
+
 } /* end MM_HousekeepingCmd */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

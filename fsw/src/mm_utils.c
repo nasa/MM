@@ -58,6 +58,7 @@ void MM_ResetHk(void)
     MM_AppData.HkPacket.DataValue      = MM_CLEAR_PATTERN;
     MM_AppData.HkPacket.BytesProcessed = 0;
     MM_AppData.HkPacket.FileName[0]    = MM_CLEAR_FNAME;
+
 } /* end MM_ResetHk */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -81,6 +82,7 @@ void MM_SegmentBreak(void)
     ** Performance Log exit stamp
     */
     CFE_ES_PerfLogExit(MM_SEGBREAK_PERF_ID);
+
 } /* End of MM_SegmentBreak */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -128,7 +130,7 @@ bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
         result = false;
     }
 
-    return (result);
+    return result;
 
 } /* End of MM_VerifyCmdLength */
 
@@ -291,7 +293,7 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
 
     } /* end Valid == true if */
 
-    return (Valid);
+    return Valid;
 
 } /* end MM_VerifyPeekPokeParams */
 
@@ -470,7 +472,7 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes,
         }
     }
 
-    return (Valid);
+    return Valid;
 
 } /* end MM_VerifyFileLoadDumpParams */
 
@@ -478,51 +480,35 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes,
 
 bool MM_Verify32Aligned(cpuaddr Address, uint32 Size)
 {
-    bool IsAligned;
+    bool IsAligned = false;
 
-    if (Address % sizeof(uint32) != 0)
-    {
-        IsAligned = false;
-    }
-    else if (Size % sizeof(uint32) != 0)
-    {
-        IsAligned = false;
-    }
-    else
+    if (Address % sizeof(uint32) == 0 && Size % sizeof(uint32) == 0)
     {
         IsAligned = true;
     }
 
-    return (IsAligned);
+    return IsAligned;
 }
 
 /******************************************************************************/
 
 bool MM_Verify16Aligned(cpuaddr Address, uint32 Size)
 {
-    bool IsAligned;
+    bool IsAligned = false;
 
-    if (Address % sizeof(uint16) != 0)
-    {
-        IsAligned = false;
-    }
-    else if (Size % sizeof(uint16) != 0)
-    {
-        IsAligned = false;
-    }
-    else
+    if (Address % sizeof(uint16) == 0 && Size % sizeof(uint16) == 0)
     {
         IsAligned = true;
     }
 
-    return (IsAligned);
+    return IsAligned;
 }
 
 /******************************************************************************/
 
 bool MM_ResolveSymAddr(MM_SymAddr_t *SymAddr, cpuaddr *ResolvedAddr)
 {
-    bool  Valid;
+    bool  Valid     = false;
     int32 OS_Status = OS_SUCCESS;
 
     /*
@@ -555,7 +541,7 @@ bool MM_ResolveSymAddr(MM_SymAddr_t *SymAddr, cpuaddr *ResolvedAddr)
         else
             Valid = false;
     }
-    return (Valid);
+    return Valid;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -604,7 +590,7 @@ int32 MM_ComputeCRCFromFile(osal_id_t FileHandle, uint32 *CrcPtr, uint32 TypeCRC
         *CrcPtr = TempCrc;
     }
 
-    return (OS_Status);
+    return OS_Status;
 
 } /* End MM_ComputeCRCFromFile */
 
