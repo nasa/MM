@@ -221,10 +221,10 @@ void MM_SegmentBreak_Test_Nominal(void)
 
 void MM_VerifyPeekPokeParams_Test_ByteWidthRAM(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_RAM;
-    uint8  SizeInBits = 8;
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_RAM;
+    uint8        SizeInBits = 8;
 
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
@@ -245,10 +245,10 @@ void MM_VerifyPeekPokeParams_Test_ByteWidthRAM(void)
 
 void MM_VerifyPeekPokeParams_Test_WordWidthMEM16(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_MEM16;
-    uint8  SizeInBits = 16;
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_MEM16;
+    uint8        SizeInBits = 16;
 
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
@@ -269,10 +269,10 @@ void MM_VerifyPeekPokeParams_Test_WordWidthMEM16(void)
 
 void MM_VerifyPeekPokeParams_Test_DWordWidthMEM32(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_MEM32;
-    uint8  SizeInBits = 32;
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_MEM32;
+    uint8        SizeInBits = 32;
 
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
@@ -293,12 +293,12 @@ void MM_VerifyPeekPokeParams_Test_DWordWidthMEM32(void)
 
 void MM_VerifyPeekPokeParams_Test_WordWidthAlignmentError(void)
 {
-    bool   Result;
-    uint32 Address    = 1;
-    uint8  MemType    = MM_MEM16;
-    uint8  SizeInBits = 16;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address    = 1;
+    MM_MemType_t MemType    = MM_MEM16;
+    uint8        SizeInBits = 16;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 16 bit aligned: Addr = %%p Size = %%d");
@@ -329,12 +329,12 @@ void MM_VerifyPeekPokeParams_Test_WordWidthAlignmentError(void)
 
 void MM_VerifyPeekPokeParams_Test_DWordWidthAlignmentError(void)
 {
-    bool   Result;
-    uint32 Address    = 1;
-    uint8  MemType    = MM_MEM32;
-    uint8  SizeInBits = 32;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address    = 1;
+    MM_MemType_t MemType    = MM_MEM32;
+    uint8        SizeInBits = 32;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 32 bit aligned: Addr = %%p Size = %%d");
@@ -365,9 +365,9 @@ void MM_VerifyPeekPokeParams_Test_DWordWidthAlignmentError(void)
 
 void MM_VerifyPeekPokeParams_Test_InvalidDataSize(void)
 {
-    bool   Result;
-    uint32 Address = 0;
-    uint8  MemType = MM_MEM8;
+    bool         Result;
+    uint32       Address = 0;
+    MM_MemType_t MemType = MM_MEM8;
     /* To reach size error: Peeks and Pokes must be 8 bits wide for this memory type */
     uint8 SizeInBits = 16;
     int32 strCmpResult;
@@ -401,10 +401,10 @@ void MM_VerifyPeekPokeParams_Test_InvalidDataSize(void)
 
 void MM_VerifyPeekPokeParams_Test_EEPROM(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_EEPROM;
-    uint8  SizeInBits = 8;
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_EEPROM;
+    uint8        SizeInBits = 8;
 
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
@@ -425,10 +425,10 @@ void MM_VerifyPeekPokeParams_Test_EEPROM(void)
 
 void MM_VerifyPeekPokeParams_Test_MEM8(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_MEM8;
-    uint8  SizeInBits = 8;
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_MEM8;
+    uint8        SizeInBits = 8;
 
     /* Execute the function being tested */
     Result = MM_VerifyPeekPokeParams(Address, MemType, SizeInBits);
@@ -449,12 +449,12 @@ void MM_VerifyPeekPokeParams_Test_MEM8(void)
 
 void MM_VerifyPeekPokeParams_Test_RAMValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_RAM;
-    uint8  SizeInBits = 8;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_RAM;
+    uint8        SizeInBits = 8;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = MEM_RAM");
@@ -488,12 +488,12 @@ void MM_VerifyPeekPokeParams_Test_RAMValidateRangeError(void)
 
 void MM_VerifyPeekPokeParams_Test_EEPROMValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_EEPROM;
-    uint8  SizeInBits = 8;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_EEPROM;
+    uint8        SizeInBits = 8;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = MEM_EEPROM");
@@ -527,12 +527,12 @@ void MM_VerifyPeekPokeParams_Test_EEPROMValidateRangeError(void)
 
 void MM_VerifyPeekPokeParams_Test_MEM32ValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_MEM32;
-    uint8  SizeInBits = 8;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_MEM32;
+    uint8        SizeInBits = 8;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = MEM32");
@@ -566,12 +566,12 @@ void MM_VerifyPeekPokeParams_Test_MEM32ValidateRangeError(void)
 
 void MM_VerifyPeekPokeParams_Test_MEM16ValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_MEM16;
-    uint8  SizeInBits = 8;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_MEM16;
+    uint8        SizeInBits = 8;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = MEM16");
@@ -605,12 +605,12 @@ void MM_VerifyPeekPokeParams_Test_MEM16ValidateRangeError(void)
 
 void MM_VerifyPeekPokeParams_Test_MEM8ValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_MEM8;
-    uint8  SizeInBits = 8;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_MEM8;
+    uint8        SizeInBits = 8;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = MEM8");
@@ -644,12 +644,12 @@ void MM_VerifyPeekPokeParams_Test_MEM8ValidateRangeError(void)
 
 void MM_VerifyPeekPokeParams_Test_MEM32InvalidDataSize(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_MEM32;
-    uint8  SizeInBits = 8;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_MEM32;
+    uint8        SizeInBits = 8;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Data size in bits invalid: Data Size = %%d");
 
@@ -679,12 +679,12 @@ void MM_VerifyPeekPokeParams_Test_MEM32InvalidDataSize(void)
 
 void MM_VerifyPeekPokeParams_Test_MEM16InvalidDataSize(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_MEM16;
-    uint8  SizeInBits = 8;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_MEM16;
+    uint8        SizeInBits = 8;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Data size in bits invalid: Data Size = %%d");
 
@@ -714,12 +714,12 @@ void MM_VerifyPeekPokeParams_Test_MEM16InvalidDataSize(void)
 
 void MM_VerifyPeekPokeParams_Test_MEM8InvalidDataSize(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = MM_MEM8;
-    uint8  SizeInBits = 99;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = MM_MEM8;
+    uint8        SizeInBits = 99;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Data size in bits invalid: Data Size = %%d");
 
@@ -749,12 +749,12 @@ void MM_VerifyPeekPokeParams_Test_MEM8InvalidDataSize(void)
 
 void MM_VerifyPeekPokeParams_Test_InvalidMemType(void)
 {
-    bool   Result;
-    uint32 Address    = 0;
-    uint8  MemType    = 99;
-    uint8  SizeInBits = 8;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address    = 0;
+    MM_MemType_t MemType    = 99;
+    uint8        SizeInBits = 8;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Invalid memory type specified: MemType = %%d");
 
@@ -789,12 +789,12 @@ void MM_VerifyPeekPokeParams_Test_InvalidMemType(void)
 /* Loading */
 void MM_VerifyLoadDumpParams_Test_LoadRAMValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -827,12 +827,12 @@ void MM_VerifyLoadDumpParams_Test_LoadRAMValidateRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadRAMDataSizeErrorTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -862,12 +862,12 @@ void MM_VerifyLoadDumpParams_Test_LoadRAMDataSizeErrorTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadRAMDataSizeErrorTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = MM_MAX_LOAD_FILE_DATA_RAM + 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = MM_MAX_LOAD_FILE_DATA_RAM + 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -897,12 +897,12 @@ void MM_VerifyLoadDumpParams_Test_LoadRAMDataSizeErrorTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadEEPROMValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_EEPROM;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_EEPROM;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -935,12 +935,12 @@ void MM_VerifyLoadDumpParams_Test_LoadEEPROMValidateRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadEEPROMDataSizeErrorTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_EEPROM;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_EEPROM;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -970,12 +970,12 @@ void MM_VerifyLoadDumpParams_Test_LoadEEPROMDataSizeErrorTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadEEPROMDataSizeErrorTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_EEPROM;
-    uint32 SizeInBytes = MM_MAX_LOAD_FILE_DATA_EEPROM + 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_EEPROM;
+    uint32       SizeInBytes = MM_MAX_LOAD_FILE_DATA_EEPROM + 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1005,12 +1005,12 @@ void MM_VerifyLoadDumpParams_Test_LoadEEPROMDataSizeErrorTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM32ValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 4;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 4;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -1043,12 +1043,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32ValidateRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1078,12 +1078,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM32 + 4;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM32 + 4;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1113,12 +1113,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM32AlignmentError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 32 bit aligned: Addr = %%p Size = %%d");
@@ -1148,12 +1148,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32AlignmentError(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM16ValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 2;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 2;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -1186,12 +1186,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16ValidateRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1221,12 +1221,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM16 + 2;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM16 + 2;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1256,12 +1256,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM16AlignmentError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 16 bit aligned: Addr = %%p Size = %%d");
@@ -1291,12 +1291,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16AlignmentError(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM8ValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -1329,12 +1329,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM8ValidateRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM8DataSizeErrorTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1364,12 +1364,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM8DataSizeErrorTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM8DataSizeErrorTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM8 + 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM8 + 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1399,12 +1399,12 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM8DataSizeErrorTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadInvalidMemTypeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = 99;
-    uint32 SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM8 + 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = 99;
+    uint32       SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM8 + 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Invalid memory type specified: MemType = %%d");
 
@@ -1433,10 +1433,10 @@ void MM_VerifyLoadDumpParams_Test_LoadInvalidMemTypeError(void)
 
 void MM_VerifyLoadDumpParams_Test_LoadInvalidVerifyTypeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM8;
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = MM_MAX_LOAD_FILE_DATA_MEM8;
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, -1);
@@ -1457,10 +1457,10 @@ void MM_VerifyLoadDumpParams_Test_LoadInvalidVerifyTypeError(void)
 /* Dumping */
 void MM_VerifyLoadDumpParams_Test_DumpRAM(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = 1;
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = 1;
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
@@ -1481,10 +1481,10 @@ void MM_VerifyLoadDumpParams_Test_DumpRAM(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEEPROM(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_EEPROM;
-    uint32 SizeInBytes = 1;
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_EEPROM;
+    uint32       SizeInBytes = 1;
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_DUMP);
@@ -1505,10 +1505,10 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROM(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM32(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 4;
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 4;
 
     UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_MemValidateRange), CFE_PSP_SUCCESS);
 
@@ -1531,10 +1531,10 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM16(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 2;
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 2;
 
     UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_MemValidateRange), CFE_PSP_SUCCESS);
 
@@ -1557,10 +1557,10 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM8(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = 1;
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = 1;
 
     UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_MemValidateRange), CFE_PSP_SUCCESS);
 
@@ -1583,12 +1583,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpRAMRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -1622,12 +1622,12 @@ void MM_VerifyLoadDumpParams_Test_DumpRAMRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpRAMInvalidSizeTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1658,12 +1658,12 @@ void MM_VerifyLoadDumpParams_Test_DumpRAMInvalidSizeTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpRAMInvalidSizeTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = MM_MAX_DUMP_FILE_DATA_RAM + 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = MM_MAX_DUMP_FILE_DATA_RAM + 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1694,12 +1694,12 @@ void MM_VerifyLoadDumpParams_Test_DumpRAMInvalidSizeTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEEPROMRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_EEPROM;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_EEPROM;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -1733,12 +1733,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROMRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEEPROMInvalidSizeTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_EEPROM;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_EEPROM;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1769,12 +1769,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROMInvalidSizeTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEEPROMInvalidSizeTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_EEPROM;
-    uint32 SizeInBytes = MM_MAX_DUMP_FILE_DATA_EEPROM + 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_EEPROM;
+    uint32       SizeInBytes = MM_MAX_DUMP_FILE_DATA_EEPROM + 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1805,12 +1805,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROMInvalidSizeTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM32RangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 4;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 4;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -1844,12 +1844,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32RangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1880,12 +1880,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = MM_MAX_DUMP_FILE_DATA_MEM32 + 4;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = MM_MAX_DUMP_FILE_DATA_MEM32 + 4;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -1916,12 +1916,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM32AlignmentError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 3;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 3;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 32 bit aligned: Addr = %%p Size = %%d");
@@ -1952,12 +1952,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32AlignmentError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM16RangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 2;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 2;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -1991,12 +1991,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16RangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -2027,12 +2027,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = MM_MAX_DUMP_FILE_DATA_MEM16 + 2;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = MM_MAX_DUMP_FILE_DATA_MEM16 + 2;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -2063,12 +2063,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM16AlignmentError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 3;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 3;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 16 bit aligned: Addr = %%p Size = %%d");
@@ -2099,12 +2099,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16AlignmentError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM8RangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -2138,12 +2138,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8RangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM8InvalidSizeTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -2174,12 +2174,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8InvalidSizeTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM8InvalidSizeTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = MM_MAX_DUMP_FILE_DATA_MEM8 + 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = MM_MAX_DUMP_FILE_DATA_MEM8 + 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -2210,12 +2210,12 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8InvalidSizeTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpInvalidMemoryType(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = 99;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = 99;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Invalid memory type specified: MemType = %%d");
 
@@ -2250,10 +2250,10 @@ void MM_VerifyLoadDumpParams_Test_DumpInvalidMemoryType(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventRAM(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = 1;
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = 1;
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
@@ -2274,10 +2274,10 @@ void MM_VerifyLoadDumpParams_Test_DumpEventRAM(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventEEPROM(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_EEPROM;
-    uint32 SizeInBytes = 1;
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_EEPROM;
+    uint32       SizeInBytes = 1;
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
@@ -2298,10 +2298,10 @@ void MM_VerifyLoadDumpParams_Test_DumpEventEEPROM(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM32(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 4;
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 4;
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
@@ -2322,10 +2322,10 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM32(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM16(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 2;
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 2;
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
@@ -2346,10 +2346,10 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM16(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM8(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = 1;
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = 1;
 
     /* Execute the function being tested */
     Result = MM_VerifyLoadDumpParams(Address, MemType, SizeInBytes, MM_VERIFY_EVENT);
@@ -2370,12 +2370,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM8(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventInvalidDataSizeTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -2406,12 +2406,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventInvalidDataSizeTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventInvalidDataSizeTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = MM_MAX_DUMP_INEVENT_BYTES + 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = MM_MAX_DUMP_INEVENT_BYTES + 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -2442,12 +2442,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventInvalidDataSizeTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventRAMRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -2481,12 +2481,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventRAMRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventEEPROMRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_EEPROM;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_EEPROM;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -2520,12 +2520,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventEEPROMRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM32RangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 4;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 4;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -2559,12 +2559,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM32RangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM32AlignmentError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 3;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 3;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 32 bit aligned: Addr = %%p Size = %%d");
@@ -2595,12 +2595,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM32AlignmentError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM16RangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 2;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 2;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -2634,12 +2634,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM16RangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM16AlignmentError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 3;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 3;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 16 bit aligned: Addr = %%p Size = %%d");
@@ -2670,12 +2670,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM16AlignmentError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM8RangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -2709,12 +2709,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM8RangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_DumpEventInvalidMemType(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = 99;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = 99;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Invalid memory type specified: MemType = %%d");
 
@@ -2749,12 +2749,12 @@ void MM_VerifyLoadDumpParams_Test_DumpEventInvalidMemType(void)
 
 void MM_VerifyLoadDumpParams_Test_FillRAMValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 1;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 1;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -2787,12 +2787,12 @@ void MM_VerifyLoadDumpParams_Test_FillRAMValidateRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_FillRAMDataSizeErrorTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 1;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 1;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -2822,12 +2822,12 @@ void MM_VerifyLoadDumpParams_Test_FillRAMDataSizeErrorTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_FillRAMDataSizeErrorTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 1;
-    uint8  MemType     = MM_RAM;
-    uint32 SizeInBytes = MM_MAX_FILL_DATA_RAM + 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 1;
+    MM_MemType_t MemType     = MM_RAM;
+    uint32       SizeInBytes = MM_MAX_FILL_DATA_RAM + 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -2857,12 +2857,12 @@ void MM_VerifyLoadDumpParams_Test_FillRAMDataSizeErrorTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_FillEEPROMValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 1;
-    uint8  MemType     = MM_EEPROM;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 1;
+    MM_MemType_t MemType     = MM_EEPROM;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -2895,12 +2895,12 @@ void MM_VerifyLoadDumpParams_Test_FillEEPROMValidateRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 1;
-    uint8  MemType     = MM_EEPROM;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 1;
+    MM_MemType_t MemType     = MM_EEPROM;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -2930,12 +2930,12 @@ void MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 1;
-    uint8  MemType     = MM_EEPROM;
-    uint32 SizeInBytes = MM_MAX_FILL_DATA_EEPROM + 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 1;
+    MM_MemType_t MemType     = MM_EEPROM;
+    uint32       SizeInBytes = MM_MAX_FILL_DATA_EEPROM + 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -2965,12 +2965,12 @@ void MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_FillMEM32ValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 4;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 4;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -3003,12 +3003,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32ValidateRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -3038,12 +3038,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = MM_MAX_FILL_DATA_MEM32 + 4;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = MM_MAX_FILL_DATA_MEM32 + 4;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -3073,12 +3073,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_FillMEM32AlignmentError(void)
 {
-    bool   Result;
-    uint32 Address     = 1;
-    uint8  MemType     = MM_MEM32;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 1;
+    MM_MemType_t MemType     = MM_MEM32;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 32 bit aligned: Addr = %%p Size = %%d");
@@ -3108,12 +3108,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32AlignmentError(void)
 
 void MM_VerifyLoadDumpParams_Test_FillMEM16ValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 2;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 2;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -3146,12 +3146,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16ValidateRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -3181,12 +3181,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 0;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = MM_MAX_FILL_DATA_MEM16 + 2;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 0;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = MM_MAX_FILL_DATA_MEM16 + 2;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -3216,12 +3216,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_FillMEM16AlignmentError(void)
 {
-    bool   Result;
-    uint32 Address     = 1;
-    uint8  MemType     = MM_MEM16;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 1;
+    MM_MemType_t MemType     = MM_MEM16;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data and address not 16 bit aligned: Addr = %%p Size = %%d");
@@ -3251,12 +3251,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16AlignmentError(void)
 
 void MM_VerifyLoadDumpParams_Test_FillMEM8ValidateRangeError(void)
 {
-    bool   Result;
-    uint32 Address     = 1;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 1;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "CFE_PSP_MemValidateRange error received: RC = 0x%%08X Addr = %%p Size = %%d MemType = %%s");
@@ -3289,12 +3289,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM8ValidateRangeError(void)
 
 void MM_VerifyLoadDumpParams_Test_FillMEM8DataSizeErrorTooSmall(void)
 {
-    bool   Result;
-    uint32 Address     = 1;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = 0;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 1;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = 0;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -3324,12 +3324,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM8DataSizeErrorTooSmall(void)
 
 void MM_VerifyLoadDumpParams_Test_FillMEM8DataSizeErrorTooLarge(void)
 {
-    bool   Result;
-    uint32 Address     = 1;
-    uint8  MemType     = MM_MEM8;
-    uint32 SizeInBytes = MM_MAX_FILL_DATA_MEM8 + 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 1;
+    MM_MemType_t MemType     = MM_MEM8;
+    uint32       SizeInBytes = MM_MAX_FILL_DATA_MEM8 + 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "Data size in bytes invalid or exceeds limits: Data Size = %%d");
@@ -3359,12 +3359,12 @@ void MM_VerifyLoadDumpParams_Test_FillMEM8DataSizeErrorTooLarge(void)
 
 void MM_VerifyLoadDumpParams_Test_FillInvalidMemTypeError(void)
 {
-    bool   Result;
-    uint32 Address     = 1;
-    uint8  MemType     = 99;
-    uint32 SizeInBytes = 1;
-    int32  strCmpResult;
-    char   ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool         Result;
+    uint32       Address     = 1;
+    MM_MemType_t MemType     = 99;
+    uint32       SizeInBytes = 1;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Invalid memory type specified: MemType = %%d");
 

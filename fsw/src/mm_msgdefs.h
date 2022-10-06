@@ -43,19 +43,6 @@
 /**\}*/
 
 /**
- * \name MM Memory Types
- * \{
- */
-#define MM_NOMEMTYPE    0 /**< \brief Used to indicate that no memtype specified          */
-#define MM_RAM          1 /**< \brief Normal RAM, no special access required              */
-#define MM_EEPROM       2 /**< \brief EEPROM, requires special access for writes          */
-#define MM_MEM8         3 /**< \brief Optional memory type that is only 8-bit read/write  */
-#define MM_MEM16        4 /**< \brief Optional memory type that is only 16-bit read/write */
-#define MM_MEM32        5 /**< \brief Optional memory type that is only 32-bit read/write */
-#define MM_NUM_MEMTYPES 6 /**< \brief Number of memory types */
-/**\}*/
-
-/**
  * \name Misc Initialization Values
  * \{
  */

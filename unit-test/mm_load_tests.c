@@ -120,9 +120,9 @@ int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook3(void *UserObj, int32 StubRetcode, ui
     return true;
 } /* end UT_MM_LOAD_TEST_CFE_SymbolLookupHook3 */
 
-int8  UT_MM_CFE_OS_ReadHook1_MemType;
-int32 UT_MM_CFE_OS_ReadHook_RunCount;
-int32 UT_MM_CFE_OS_ReadHook1(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
+MM_MemType_t UT_MM_CFE_OS_ReadHook1_MemType;
+int32        UT_MM_CFE_OS_ReadHook_RunCount;
+int32        UT_MM_CFE_OS_ReadHook1(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
 {
     void *buffer = *(void **)Context->ArgPtr[1];
 
