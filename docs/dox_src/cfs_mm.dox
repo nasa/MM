@@ -128,7 +128,7 @@
   manipulations. That function is allocated to the CFS FM (File Manager) application.  
 
   MM is a command driven, single threaded application. It will pend indefinitely on the software bus
-  message queue until commands are recieved and then process them sequentially in the order they 
+  message queue until commands are received and then process them sequentially in the order they 
   arrived. Memory Manager segments loads and dumps in order to prevent CPU hogging. Despite this, 
   careful consideration should be made when loading and dumping large amounts of memory. See
   \ref cfsmmdg.
