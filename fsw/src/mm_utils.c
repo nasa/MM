@@ -51,15 +51,13 @@ extern MM_AppData_t MM_AppData;
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void MM_ResetHk(void)
 {
-
     MM_AppData.HkPacket.LastAction     = MM_NOACTION;
     MM_AppData.HkPacket.MemType        = MM_NOMEMTYPE;
     MM_AppData.HkPacket.Address        = MM_CLEAR_ADDR;
     MM_AppData.HkPacket.DataValue      = MM_CLEAR_PATTERN;
     MM_AppData.HkPacket.BytesProcessed = 0;
     MM_AppData.HkPacket.FileName[0]    = MM_CLEAR_FNAME;
-
-} /* end MM_ResetHk */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -82,8 +80,7 @@ void MM_SegmentBreak(void)
     ** Performance Log exit stamp
     */
     CFE_ES_PerfLogExit(MM_SEGBREAK_PERF_ID);
-
-} /* End of MM_SegmentBreak */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -104,7 +101,6 @@ bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
     CFE_MSG_GetSize(MsgPtr, &ActualLength);
     if (ExpectedLength != ActualLength)
     {
-
         CFE_MSG_GetMsgId(MsgPtr, &MessageID);
         CFE_MSG_GetFcnCode(MsgPtr, &CommandCode);
 
@@ -131,8 +127,7 @@ bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
     }
 
     return result;
-
-} /* End of MM_VerifyCmdLength */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -294,8 +289,7 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
     } /* end Valid == true if */
 
     return Valid;
-
-} /* end MM_VerifyPeekPokeParams */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -473,8 +467,7 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes,
     }
 
     return Valid;
-
-} /* end MM_VerifyFileLoadDumpParams */
+}
 
 /******************************************************************************/
 
@@ -591,9 +584,4 @@ int32 MM_ComputeCRCFromFile(osal_id_t FileHandle, uint32 *CrcPtr, uint32 TypeCRC
     }
 
     return OS_Status;
-
-} /* End MM_ComputeCRCFromFile */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}

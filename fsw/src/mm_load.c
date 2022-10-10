@@ -96,8 +96,7 @@ bool MM_PokeCmd(const CFE_SB_Buffer_t *BufPtr)
     } /* end MM_VerifyCmdLength if */
 
     return Valid;
-
-} /* end MM_PokeCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -182,8 +181,7 @@ bool MM_PokeMem(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
     }
 
     return ValidPoke;
-
-} /* end MM_PokeMem */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -284,8 +282,7 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
     CFE_ES_PerfLogExit(MM_EEPROM_POKE_PERF_ID);
 
     return ValidPoke;
-
-} /* end MM_PokeEeprom */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -322,7 +319,6 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
                 */
                 if (ComputedCRC == CmdPtr->Crc)
                 {
-
                     /* Load input data to input memory address */
                     memcpy((void *)DestAddress, CmdPtr->DataArray, CmdPtr->NumOfBytes);
 
@@ -356,8 +352,7 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
     } /* end MM_VerifyCmdLength if */
 
     return CmdResult;
-
-} /* end MM_LoadMemWIDCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -551,8 +546,7 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
     } /* end MM_VerifyCmdLength if */
 
     return Valid;
-
-} /* end LoadMemFromFileCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -622,8 +616,7 @@ bool MM_LoadMemFromFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
     }
 
     return Valid;
-
-} /* end MM_LoadMemFromFile */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -632,7 +625,6 @@ bool MM_LoadMemFromFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_VerifyLoadFileSize(const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader)
 {
-
     bool       Valid = true;
     int32      OS_Status;
     uint32     ExpectedSize;
@@ -675,8 +667,7 @@ bool MM_VerifyLoadFileSize(const char *FileName, const MM_LoadDumpFileHeader_t *
     }
 
     return Valid;
-
-} /* end MM_VerifyLoadFileSize */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -721,8 +712,7 @@ bool MM_ReadFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Heade
     } /* end CFE_FS_ReadHeader else */
 
     return Valid;
-
-} /* end MM_ReadFileHeaders */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -796,8 +786,7 @@ bool MM_FillMemCmd(const CFE_SB_Buffer_t *BufPtr)
     }
 
     return CmdResult;
-
-} /* end MM_FillMemCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -856,9 +845,4 @@ bool MM_FillMem(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
     MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
 
     return Valid;
-
-} /* End MM_FillMem */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}

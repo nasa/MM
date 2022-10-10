@@ -69,7 +69,7 @@ int32 UT_MM_LOAD_TEST_MM_FillMemHook1(void *UserObj, int32 StubRetcode, uint32 C
     MM_AppData.HkPacket.LastAction = MM_FILL;
 
     return true;
-} /* end UT_MM_LOAD_TEST_MM_FillMemHook1 */
+}
 
 int32 UT_MM_LOAD_TEST_MM_ComputeCrcHook1(void *UserObj, int32 StubRetcode, uint32 CallCount,
                                          const UT_StubContext_t *Context)
@@ -82,7 +82,7 @@ int32 UT_MM_LOAD_TEST_MM_ComputeCrcHook1(void *UserObj, int32 StubRetcode, uint3
     }
 
     return OS_SUCCESS;
-} /* end UT_MM_LOAD_TEST_MM_ComputeCrcHook1 */
+}
 
 int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook1(void *UserObj, int32 StubRetcode, uint32 CallCount,
                                             const UT_StubContext_t *Context)
@@ -95,7 +95,7 @@ int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook1(void *UserObj, int32 StubRetcode, ui
     *MMHeaderRestore = MMHeaderSave;
 
     return true;
-} /* end UT_MM_LOAD_TEST_CFE_SymbolLookupHook1 */
+}
 
 int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook2(void *UserObj, int32 StubRetcode, uint32 CallCount,
                                             const UT_StubContext_t *Context)
@@ -108,7 +108,7 @@ int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook2(void *UserObj, int32 StubRetcode, ui
     *MMHeaderRestore = MMHeaderSave;
 
     return false;
-} /* end UT_MM_LOAD_TEST_CFE_SymbolLookupHook2 */
+}
 
 int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook3(void *UserObj, int32 StubRetcode, uint32 CallCount,
                                             const UT_StubContext_t *Context)
@@ -118,7 +118,7 @@ int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook3(void *UserObj, int32 StubRetcode, ui
     *ResolvedAddress = (cpuaddr)DummyBuffer;
 
     return true;
-} /* end UT_MM_LOAD_TEST_CFE_SymbolLookupHook3 */
+}
 
 int8  UT_MM_CFE_OS_ReadHook1_MemType;
 int32 UT_MM_CFE_OS_ReadHook_RunCount;
@@ -150,7 +150,7 @@ int32 UT_MM_CFE_OS_ReadHook1(void *UserObj, int32 StubRetcode, uint32 CallCount,
     {
         return 0;
     }
-} /* end UT_MM_CFE_OS_ReadHook1 */
+}
 
 int32 UT_MM_CFE_OS_ReadHook2(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
 {
@@ -168,8 +168,7 @@ int32 UT_MM_CFE_OS_ReadHook2(void *UserObj, int32 StubRetcode, uint32 CallCount,
     MMHeaderSave    = *header;
 
     return sizeof(MM_LoadDumpFileHeader_t);
-
-} /* end UT_MM_CFE_OS_ReadHook2 */
+}
 
 int32 UT_MM_CFE_OS_ReadHook3(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
 {
@@ -187,8 +186,7 @@ int32 UT_MM_CFE_OS_ReadHook3(void *UserObj, int32 StubRetcode, uint32 CallCount,
     MMHeaderSave    = *header;
 
     return sizeof(MM_LoadDumpFileHeader_t);
-
-} /* end UT_MM_CFE_OS_ReadHook2 */
+}
 
 int32 UT_MM_LOAD_TEST_CFE_OS_StatHook1(void *UserObj, int32 StubRetcode, uint32 CallCount,
                                        const UT_StubContext_t *Context)
@@ -199,7 +197,7 @@ int32 UT_MM_LOAD_TEST_CFE_OS_StatHook1(void *UserObj, int32 StubRetcode, uint32 
     UT_SetDataBuffer(UT_KEY(OS_stat), &filestats, sizeof(filestats), true);
 
     return OS_SUCCESS;
-} /* end UT_MM_LOAD_TEST_CFE_OS_StatHook1 */
+}
 
 void MM_PokeCmd_Test_EEPROM(void)
 {
@@ -246,8 +244,7 @@ void MM_PokeCmd_Test_EEPROM(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeCmd_Test_EEPROM */
+}
 
 void MM_PokeCmd_Test_NonEEPROM(void)
 {
@@ -294,8 +291,7 @@ void MM_PokeCmd_Test_NonEEPROM(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeCmd_Test_NonEEPROM */
+}
 
 void MM_PokeCmd_Test_SymNameError(void)
 {
@@ -340,8 +336,7 @@ void MM_PokeCmd_Test_SymNameError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeCmd_Test_SymNameError */
+}
 
 void MM_PokeCmd_Test_NoVerifyCmdLength(void)
 {
@@ -362,8 +357,7 @@ void MM_PokeCmd_Test_NoVerifyCmdLength(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeCmd_Test_NoVerifyCmdLength */
+}
 
 void MM_PokeCmd_Test_NoVerifyPeekPokeParams(void)
 {
@@ -398,8 +392,7 @@ void MM_PokeCmd_Test_NoVerifyPeekPokeParams(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeCmd_Test_NoVerifyPeekPokeParams */
+}
 
 void MM_PokeMem_Test_NoDataSize(void)
 {
@@ -425,8 +418,7 @@ void MM_PokeMem_Test_NoDataSize(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeMem_Test_8bit */
+}
 
 void MM_PokeMem_Test_8bit(void)
 {
@@ -472,8 +464,7 @@ void MM_PokeMem_Test_8bit(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeMem_Test_8bit */
+}
 
 void MM_PokeMem_Test_8bitError(void)
 {
@@ -517,8 +508,7 @@ void MM_PokeMem_Test_8bitError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeMem_Test_8bitError */
+}
 
 void MM_PokeMem_Test_16bit(void)
 {
@@ -564,8 +554,7 @@ void MM_PokeMem_Test_16bit(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeMem_Test_16bit */
+}
 
 void MM_PokeMem_Test_16bitError(void)
 {
@@ -609,8 +598,7 @@ void MM_PokeMem_Test_16bitError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeMem_Test_16bitError */
+}
 
 void MM_PokeMem_Test_32bit(void)
 {
@@ -656,8 +644,7 @@ void MM_PokeMem_Test_32bit(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeMem_Test_32bit */
+}
 
 void MM_PokeMem_Test_32bitError(void)
 {
@@ -701,8 +688,7 @@ void MM_PokeMem_Test_32bitError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeMem_Test_32bitError */
+}
 
 void MM_PokeEeprom_Test_NoDataSize(void)
 {
@@ -729,8 +715,7 @@ void MM_PokeEeprom_Test_NoDataSize(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeMem_Test_8bit */
+}
 
 void MM_PokeEeprom_Test_8bit(void)
 {
@@ -776,8 +761,7 @@ void MM_PokeEeprom_Test_8bit(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeEeprom_Test_8bit */
+}
 
 void MM_PokeEeprom_Test_8bitError(void)
 {
@@ -821,8 +805,7 @@ void MM_PokeEeprom_Test_8bitError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeEeprom_Test_8bitError */
+}
 
 void MM_PokeEeprom_Test_16bit(void)
 {
@@ -868,8 +851,7 @@ void MM_PokeEeprom_Test_16bit(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeEeprom_Test_16bit */
+}
 
 void MM_PokeEeprom_Test_16bitError(void)
 {
@@ -913,8 +895,7 @@ void MM_PokeEeprom_Test_16bitError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeEeprom_Test_16bitError */
+}
 
 void MM_PokeEeprom_Test_32bit(void)
 {
@@ -960,8 +941,7 @@ void MM_PokeEeprom_Test_32bit(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeEeprom_Test_32bit */
+}
 
 void MM_PokeEeprom_Test_32bitError(void)
 {
@@ -1005,8 +985,7 @@ void MM_PokeEeprom_Test_32bitError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_PokeEeprom_Test_32bitError */
+}
 
 void MM_LoadMemWIDCmd_Test_Nominal(void)
 {
@@ -1061,8 +1040,7 @@ void MM_LoadMemWIDCmd_Test_Nominal(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemWIDCmd_Test_Nominal */
+}
 
 void MM_LoadMemWIDCmd_Test_NoVerifyCmdLength(void)
 {
@@ -1083,8 +1061,7 @@ void MM_LoadMemWIDCmd_Test_NoVerifyCmdLength(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemWIDCmd_Test_NoVerifyCmdLength */
+}
 
 void MM_LoadMemWIDCmd_Test_CRCError(void)
 {
@@ -1136,8 +1113,7 @@ void MM_LoadMemWIDCmd_Test_CRCError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemWIDCmd_Test_CRCError */
+}
 
 void MM_LoadMemWIDCmd_Test_SymNameErr(void)
 {
@@ -1189,8 +1165,7 @@ void MM_LoadMemWIDCmd_Test_SymNameErr(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemWIDCmd_Test_SymNameErr */
+}
 
 void MM_LoadMemWIDCmd_Test_NoVerifyLoadWIDParams(void)
 {
@@ -1230,8 +1205,7 @@ void MM_LoadMemWIDCmd_Test_NoVerifyLoadWIDParams(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadWIDParams_Test_Nominal */
+}
 
 void MM_LoadMemFromFileCmd_Test_RAM(void)
 {
@@ -1289,8 +1263,7 @@ void MM_LoadMemFromFileCmd_Test_RAM(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_RAM */
+}
 
 void MM_LoadMemFromFileCmd_Test_BadType(void)
 {
@@ -1333,8 +1306,7 @@ void MM_LoadMemFromFileCmd_Test_BadType(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_BadType */
+}
 
 void MM_LoadMemFromFileCmd_Test_EEPROM(void)
 {
@@ -1389,8 +1361,7 @@ void MM_LoadMemFromFileCmd_Test_EEPROM(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_EEPROM */
+}
 
 void MM_LoadMemFromFileCmd_Test_MEM32(void)
 {
@@ -1447,8 +1418,7 @@ void MM_LoadMemFromFileCmd_Test_MEM32(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_MEM32 */
+}
 
 void MM_LoadMemFromFileCmd_Test_MEM32Invalid(void)
 {
@@ -1493,8 +1463,7 @@ void MM_LoadMemFromFileCmd_Test_MEM32Invalid(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_MEM32 */
+}
 
 void MM_LoadMemFromFileCmd_Test_MEM16(void)
 {
@@ -1552,8 +1521,7 @@ void MM_LoadMemFromFileCmd_Test_MEM16(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_MEM16 */
+}
 
 void MM_LoadMemFromFileCmd_Test_MEM8(void)
 {
@@ -1609,8 +1577,7 @@ void MM_LoadMemFromFileCmd_Test_MEM8(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_MEM8 */
+}
 
 void MM_LoadMemFromFileCmd_Test_NoVerifyCmdLength(void)
 {
@@ -1632,8 +1599,7 @@ void MM_LoadMemFromFileCmd_Test_NoVerifyCmdLength(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_NoVerifyCmdLength */
+}
 
 void MM_LoadMemFromFileCmd_Test_NoReadFileHeaders(void)
 {
@@ -1689,8 +1655,7 @@ void MM_LoadMemFromFileCmd_Test_NoReadFileHeaders(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_NoReadFileHeaders */
+}
 
 void MM_LoadMemFromFileCmd_Test_NoVerifyLoadFileSize(void)
 {
@@ -1740,8 +1705,7 @@ void MM_LoadMemFromFileCmd_Test_NoVerifyLoadFileSize(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_NoVerifyLoadFileSize */
+}
 
 void MM_LoadMemFromFileCmd_Test_lseekError(void)
 {
@@ -1798,8 +1762,7 @@ void MM_LoadMemFromFileCmd_Test_lseekError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_NoValidMemType */
+}
 
 void MM_LoadMemFromFileCmd_Test_LoadParamsError(void)
 {
@@ -1854,8 +1817,7 @@ void MM_LoadMemFromFileCmd_Test_LoadParamsError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_LoadParamsError */
+}
 
 void MM_LoadMemFromFileCmd_Test_SymNameError(void)
 {
@@ -1911,8 +1873,7 @@ void MM_LoadMemFromFileCmd_Test_SymNameError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_SymNameError */
+}
 
 void MM_LoadMemFromFileCmd_Test_LoadFileCRCError(void)
 {
@@ -1972,8 +1933,7 @@ void MM_LoadMemFromFileCmd_Test_LoadFileCRCError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_LoadFileCRCError */
+}
 
 void MM_LoadMemFromFileCmd_Test_ComputeCRCError(void)
 {
@@ -2024,8 +1984,7 @@ void MM_LoadMemFromFileCmd_Test_ComputeCRCError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_ComputeCRCError */
+}
 
 void MM_LoadMemFromFileCmd_Test_CloseError(void)
 {
@@ -2082,8 +2041,7 @@ void MM_LoadMemFromFileCmd_Test_CloseError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_CloseError */
+}
 
 void MM_LoadMemFromFileCmd_Test_OpenError(void)
 {
@@ -2131,8 +2089,7 @@ void MM_LoadMemFromFileCmd_Test_OpenError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFileCmd_Test_OpenError */
+}
 
 void MM_LoadMemFromFile_Test_PreventCPUHogging(void)
 {
@@ -2167,8 +2124,7 @@ void MM_LoadMemFromFile_Test_PreventCPUHogging(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFile_Test_PreventCPUHogging */
+}
 
 void MM_LoadMemFromFile_Test_ReadError(void)
 {
@@ -2205,8 +2161,7 @@ void MM_LoadMemFromFile_Test_ReadError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFile_Test_ReadError */
+}
 
 void MM_LoadMemFromFile_Test_NotEepromMemType(void)
 {
@@ -2241,8 +2196,7 @@ void MM_LoadMemFromFile_Test_NotEepromMemType(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMemFromFile_Test_NotEepromMemType */
+}
 
 void MM_ReadFileHeaders_Test_ReadHeaderError(void)
 {
@@ -2279,8 +2233,7 @@ void MM_ReadFileHeaders_Test_ReadHeaderError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_ReadFileHeaders_Test_ReadHeaderError */
+}
 
 void MM_ReadFileHeaders_Test_ReadError(void)
 {
@@ -2317,8 +2270,7 @@ void MM_ReadFileHeaders_Test_ReadError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_ReadFileHeaders_Test_ReadError */
+}
 
 void MM_VerifyLoadFileSize_Test_StatError(void)
 {
@@ -2353,8 +2305,7 @@ void MM_VerifyLoadFileSize_Test_StatError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadFileSize_Test_StatError */
+}
 
 void MM_VerifyLoadFileSize_Test_SizeError(void)
 {
@@ -2391,8 +2342,7 @@ void MM_VerifyLoadFileSize_Test_SizeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadFileSize_Test_SizeError */
+}
 
 void MM_FillMemCmd_Test_RAM(void)
 {
@@ -2435,8 +2385,7 @@ void MM_FillMemCmd_Test_RAM(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMemCmd_Test_RAM */
+}
 
 void MM_FillMemCmd_Test_EEPROM(void)
 {
@@ -2479,8 +2428,7 @@ void MM_FillMemCmd_Test_EEPROM(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMemCmd_Test_EEPROM */
+}
 
 void MM_FillMemCmd_Test_MEM32(void)
 {
@@ -2525,8 +2473,7 @@ void MM_FillMemCmd_Test_MEM32(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMemCmd_Test_MEM32 */
+}
 
 void MM_FillMemCmd_Test_MEM16(void)
 {
@@ -2571,8 +2518,7 @@ void MM_FillMemCmd_Test_MEM16(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMemCmd_Test_MEM16 */
+}
 
 void MM_FillMemCmd_Test_MEM8(void)
 {
@@ -2615,8 +2561,7 @@ void MM_FillMemCmd_Test_MEM8(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMemCmd_Test_MEM8 */
+}
 
 void MM_FillMemCmd_Test_SymNameError(void)
 {
@@ -2655,8 +2600,7 @@ void MM_FillMemCmd_Test_SymNameError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMemCmd_Test_SymNameError */
+}
 
 void MM_FillMemCmd_Test_NoVerifyCmdLength(void)
 {
@@ -2680,8 +2624,7 @@ void MM_FillMemCmd_Test_NoVerifyCmdLength(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMemCmd_Test_NoVerifyCmdLength */
+}
 
 void MM_FillMemCmd_Test_NoLastActionFill(void)
 {
@@ -2709,8 +2652,7 @@ void MM_FillMemCmd_Test_NoLastActionFill(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMemCmd_Test_NoLastActionFill */
+}
 
 void MM_FillMemCmd_Test_NoVerifyLoadDump(void)
 {
@@ -2738,8 +2680,7 @@ void MM_FillMemCmd_Test_NoVerifyLoadDump(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMemCmd_Test_NoVerifyLoadDump */
+}
 
 void MM_FillMemCmd_Test_BadType(void)
 {
@@ -2766,8 +2707,7 @@ void MM_FillMemCmd_Test_BadType(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMemCmd_Test_RAM */
+}
 
 void MM_FillMem_Test_Nominal(void)
 {
@@ -2801,8 +2741,7 @@ void MM_FillMem_Test_Nominal(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMem_Test_Nominal */
+}
 
 void MM_FillMem_Test_MaxFillDataSegment(void)
 {
@@ -2837,8 +2776,7 @@ void MM_FillMem_Test_MaxFillDataSegment(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMem_Test_MaxFillDataSegment */
+}
 
 /*
  * Register the test cases to execute with the unit test tool
@@ -2935,9 +2873,4 @@ void UtTest_Setup(void)
     UtTest_Add(MM_FillMem_Test_Nominal, MM_Test_Setup, MM_Test_TearDown, "MM_FillMem_Test_Nominal");
     UtTest_Add(MM_FillMem_Test_MaxFillDataSegment, MM_Test_Setup, MM_Test_TearDown,
                "MM_FillMem_Test_MaxFillDataSegment");
-
-} /* end UtTest_Setup */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}

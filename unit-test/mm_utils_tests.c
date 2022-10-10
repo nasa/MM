@@ -84,8 +84,7 @@ void MM_ResetHk_Test(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_ResetHk_Test */
+}
 
 void MM_VerifyCmdLength_Test_Nominal(void)
 {
@@ -116,8 +115,7 @@ void MM_VerifyCmdLength_Test_Nominal(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyCmdLength_Test_Nominal */
+}
 
 void MM_VerifyCmdLength_Test_HKRequestLengthError(void)
 {
@@ -157,8 +155,7 @@ void MM_VerifyCmdLength_Test_HKRequestLengthError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyCmdLength_Test_HKRequestLengthError */
+}
 
 void MM_VerifyCmdLength_Test_LengthError(void)
 {
@@ -198,8 +195,7 @@ void MM_VerifyCmdLength_Test_LengthError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyCmdLength_Test_LengthError */
+}
 
 void MM_SegmentBreak_Test_Nominal(void)
 {
@@ -216,8 +212,7 @@ void MM_SegmentBreak_Test_Nominal(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_SegmentBreak_Test_Nominal */
+}
 
 void MM_VerifyPeekPokeParams_Test_ByteWidthRAM(void)
 {
@@ -240,8 +235,7 @@ void MM_VerifyPeekPokeParams_Test_ByteWidthRAM(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_ByteWidthRAM */
+}
 
 void MM_VerifyPeekPokeParams_Test_WordWidthMEM16(void)
 {
@@ -264,8 +258,7 @@ void MM_VerifyPeekPokeParams_Test_WordWidthMEM16(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_WordWidthMEM16 */
+}
 
 void MM_VerifyPeekPokeParams_Test_DWordWidthMEM32(void)
 {
@@ -288,8 +281,7 @@ void MM_VerifyPeekPokeParams_Test_DWordWidthMEM32(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_DWordWidthMEM32 */
+}
 
 void MM_VerifyPeekPokeParams_Test_WordWidthAlignmentError(void)
 {
@@ -324,8 +316,7 @@ void MM_VerifyPeekPokeParams_Test_WordWidthAlignmentError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_WordWidthAlignmentError */
+}
 
 void MM_VerifyPeekPokeParams_Test_DWordWidthAlignmentError(void)
 {
@@ -360,8 +351,7 @@ void MM_VerifyPeekPokeParams_Test_DWordWidthAlignmentError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_DWordWidthAlignmentError */
+}
 
 void MM_VerifyPeekPokeParams_Test_InvalidDataSize(void)
 {
@@ -396,8 +386,7 @@ void MM_VerifyPeekPokeParams_Test_InvalidDataSize(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_InvalidDataSize */
+}
 
 void MM_VerifyPeekPokeParams_Test_EEPROM(void)
 {
@@ -420,8 +409,7 @@ void MM_VerifyPeekPokeParams_Test_EEPROM(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_EEPROM */
+}
 
 void MM_VerifyPeekPokeParams_Test_MEM8(void)
 {
@@ -444,8 +432,7 @@ void MM_VerifyPeekPokeParams_Test_MEM8(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_MEM8 */
+}
 
 void MM_VerifyPeekPokeParams_Test_RAMValidateRangeError(void)
 {
@@ -483,8 +470,7 @@ void MM_VerifyPeekPokeParams_Test_RAMValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_RAMValidateRangeError */
+}
 
 void MM_VerifyPeekPokeParams_Test_EEPROMValidateRangeError(void)
 {
@@ -522,8 +508,7 @@ void MM_VerifyPeekPokeParams_Test_EEPROMValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_EEPROMValidateRangeError */
+}
 
 void MM_VerifyPeekPokeParams_Test_MEM32ValidateRangeError(void)
 {
@@ -561,8 +546,7 @@ void MM_VerifyPeekPokeParams_Test_MEM32ValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_MEM32ValidateRangeError */
+}
 
 void MM_VerifyPeekPokeParams_Test_MEM16ValidateRangeError(void)
 {
@@ -600,8 +584,7 @@ void MM_VerifyPeekPokeParams_Test_MEM16ValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_MEM16ValidateRangeError */
+}
 
 void MM_VerifyPeekPokeParams_Test_MEM8ValidateRangeError(void)
 {
@@ -639,8 +622,7 @@ void MM_VerifyPeekPokeParams_Test_MEM8ValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_MEM8ValidateRangeError */
+}
 
 void MM_VerifyPeekPokeParams_Test_MEM32InvalidDataSize(void)
 {
@@ -674,8 +656,7 @@ void MM_VerifyPeekPokeParams_Test_MEM32InvalidDataSize(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_MEM32InvalidDataSize */
+}
 
 void MM_VerifyPeekPokeParams_Test_MEM16InvalidDataSize(void)
 {
@@ -709,8 +690,7 @@ void MM_VerifyPeekPokeParams_Test_MEM16InvalidDataSize(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_MEM16InvalidDataSize */
+}
 
 void MM_VerifyPeekPokeParams_Test_MEM8InvalidDataSize(void)
 {
@@ -744,8 +724,7 @@ void MM_VerifyPeekPokeParams_Test_MEM8InvalidDataSize(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_MEM8InvalidDataSize */
+}
 
 void MM_VerifyPeekPokeParams_Test_InvalidMemType(void)
 {
@@ -779,8 +758,7 @@ void MM_VerifyPeekPokeParams_Test_InvalidMemType(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyPeekPokeParams_Test_InvalidMemType */
+}
 
 /*************************************/
 /* MM_VerifyLoadDumpParams Tests */
@@ -822,8 +800,7 @@ void MM_VerifyLoadDumpParams_Test_LoadRAMValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadRAMValidateRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadRAMDataSizeErrorTooSmall(void)
 {
@@ -857,8 +834,7 @@ void MM_VerifyLoadDumpParams_Test_LoadRAMDataSizeErrorTooSmall(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadRAMDataSizeErrorTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadRAMDataSizeErrorTooLarge(void)
 {
@@ -892,8 +868,7 @@ void MM_VerifyLoadDumpParams_Test_LoadRAMDataSizeErrorTooLarge(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadRAMDataSizeErrorTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadEEPROMValidateRangeError(void)
 {
@@ -930,8 +905,7 @@ void MM_VerifyLoadDumpParams_Test_LoadEEPROMValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadEEPROMValidateRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadEEPROMDataSizeErrorTooSmall(void)
 {
@@ -965,8 +939,7 @@ void MM_VerifyLoadDumpParams_Test_LoadEEPROMDataSizeErrorTooSmall(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadEEPROMDataSizeErrorTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadEEPROMDataSizeErrorTooLarge(void)
 {
@@ -1000,8 +973,7 @@ void MM_VerifyLoadDumpParams_Test_LoadEEPROMDataSizeErrorTooLarge(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadEEPROMDataSizeErrorTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM32ValidateRangeError(void)
 {
@@ -1038,8 +1010,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32ValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadMEM32ValidateRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooSmall(void)
 {
@@ -1073,8 +1044,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooSmall(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooLarge(void)
 {
@@ -1108,8 +1078,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooLarge(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadMEM32DataSizeErrorTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM32AlignmentError(void)
 {
@@ -1143,8 +1112,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM32AlignmentError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadMEM32AlignmentError */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM16ValidateRangeError(void)
 {
@@ -1181,8 +1149,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16ValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_MEM16ValidateRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooSmall(void)
 {
@@ -1216,8 +1183,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooSmall(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooLarge(void)
 {
@@ -1251,8 +1217,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooLarge(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadMEM16DataSizeErrorTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM16AlignmentError(void)
 {
@@ -1286,8 +1251,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM16AlignmentError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadMEM16AlignmentError */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM8ValidateRangeError(void)
 {
@@ -1324,8 +1288,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM8ValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadMEM8ValidateRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM8DataSizeErrorTooSmall(void)
 {
@@ -1359,8 +1322,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM8DataSizeErrorTooSmall(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadMEM8DataSizeErrorTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadMEM8DataSizeErrorTooLarge(void)
 {
@@ -1394,8 +1356,7 @@ void MM_VerifyLoadDumpParams_Test_LoadMEM8DataSizeErrorTooLarge(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadMEM8DataSizeErrorTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadInvalidMemTypeError(void)
 {
@@ -1428,8 +1389,7 @@ void MM_VerifyLoadDumpParams_Test_LoadInvalidMemTypeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadInvalidMemTypeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_LoadInvalidVerifyTypeError(void)
 {
@@ -1451,8 +1411,7 @@ void MM_VerifyLoadDumpParams_Test_LoadInvalidVerifyTypeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_LoadInvalidVerifyTypeError */
+}
 
 /* Dumping */
 void MM_VerifyLoadDumpParams_Test_DumpRAM(void)
@@ -1476,8 +1435,7 @@ void MM_VerifyLoadDumpParams_Test_DumpRAM(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpRAM */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEEPROM(void)
 {
@@ -1500,8 +1458,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROM(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEEPROM */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM32(void)
 {
@@ -1526,8 +1483,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM32 */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM16(void)
 {
@@ -1552,8 +1508,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM16 */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM8(void)
 {
@@ -1578,8 +1533,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM8 */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpRAMRangeError(void)
 {
@@ -1617,8 +1571,7 @@ void MM_VerifyLoadDumpParams_Test_DumpRAMRangeError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpRAMRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpRAMInvalidSizeTooSmall(void)
 {
@@ -1653,8 +1606,7 @@ void MM_VerifyLoadDumpParams_Test_DumpRAMInvalidSizeTooSmall(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpRAMInvalidSizeTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpRAMInvalidSizeTooLarge(void)
 {
@@ -1689,8 +1641,7 @@ void MM_VerifyLoadDumpParams_Test_DumpRAMInvalidSizeTooLarge(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpRAMInvalidSizeTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEEPROMRangeError(void)
 {
@@ -1728,8 +1679,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROMRangeError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEEPROMRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEEPROMInvalidSizeTooSmall(void)
 {
@@ -1764,8 +1714,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROMInvalidSizeTooSmall(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEEPROMInvalidSizeTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEEPROMInvalidSizeTooLarge(void)
 {
@@ -1800,8 +1749,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEEPROMInvalidSizeTooLarge(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEEPROMInvalidSizeTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM32RangeError(void)
 {
@@ -1839,8 +1787,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32RangeError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM32RangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooSmall(void)
 {
@@ -1875,8 +1822,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooSmall(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooLarge(void)
 {
@@ -1911,8 +1857,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooLarge(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM32InvalidSizeTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM32AlignmentError(void)
 {
@@ -1947,8 +1892,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM32AlignmentError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM32AlignmentError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM16RangeError(void)
 {
@@ -1986,8 +1930,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16RangeError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM16RangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooSmall(void)
 {
@@ -2022,8 +1965,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooSmall(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooLarge(void)
 {
@@ -2058,8 +2000,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooLarge(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM16InvalidSizeTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM16AlignmentError(void)
 {
@@ -2094,8 +2035,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM16AlignmentError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM16AlignmentError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM8RangeError(void)
 {
@@ -2133,8 +2073,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8RangeError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM8RangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM8InvalidSizeTooSmall(void)
 {
@@ -2169,8 +2108,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8InvalidSizeTooSmall(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM8InvalidSizeTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpMEM8InvalidSizeTooLarge(void)
 {
@@ -2205,8 +2143,7 @@ void MM_VerifyLoadDumpParams_Test_DumpMEM8InvalidSizeTooLarge(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpMEM8InvalidSizeTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpInvalidMemoryType(void)
 {
@@ -2243,8 +2180,7 @@ void MM_VerifyLoadDumpParams_Test_DumpInvalidMemoryType(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpInvalidMemoryType */
+}
 
 /* Dump in event */
 
@@ -2269,8 +2205,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventRAM(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventRAM */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventEEPROM(void)
 {
@@ -2293,8 +2228,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventEEPROM(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventEEPROM */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM32(void)
 {
@@ -2317,8 +2251,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM32(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventMEM32 */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM16(void)
 {
@@ -2341,8 +2274,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM16(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventMEM16 */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM8(void)
 {
@@ -2365,8 +2297,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM8(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventMEM8 */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventInvalidDataSizeTooSmall(void)
 {
@@ -2401,8 +2332,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventInvalidDataSizeTooSmall(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventInvalidDataSizeTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventInvalidDataSizeTooLarge(void)
 {
@@ -2437,8 +2367,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventInvalidDataSizeTooLarge(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventInvalidDataSizeTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventRAMRangeError(void)
 {
@@ -2476,8 +2405,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventRAMRangeError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventRAMRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventEEPROMRangeError(void)
 {
@@ -2515,8 +2443,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventEEPROMRangeError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventEEPROMRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM32RangeError(void)
 {
@@ -2554,8 +2481,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM32RangeError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventMEM32RangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM32AlignmentError(void)
 {
@@ -2590,8 +2516,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM32AlignmentError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventMEM32AlignmentError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM16RangeError(void)
 {
@@ -2629,8 +2554,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM16RangeError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventMEM16RangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM16AlignmentError(void)
 {
@@ -2665,8 +2589,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM16AlignmentError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventMEM16AlignmentError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventMEM8RangeError(void)
 {
@@ -2704,8 +2627,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventMEM8RangeError(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventMEM32RangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_DumpEventInvalidMemType(void)
 {
@@ -2742,8 +2664,7 @@ void MM_VerifyLoadDumpParams_Test_DumpEventInvalidMemType(void)
     /* no command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_DumpEventInvalidMemType */
+}
 
 /* Fill */
 
@@ -2782,8 +2703,7 @@ void MM_VerifyLoadDumpParams_Test_FillRAMValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillRAMValidateRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillRAMDataSizeErrorTooSmall(void)
 {
@@ -2817,8 +2737,7 @@ void MM_VerifyLoadDumpParams_Test_FillRAMDataSizeErrorTooSmall(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillRAMDataSizeErrorTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillRAMDataSizeErrorTooLarge(void)
 {
@@ -2852,8 +2771,7 @@ void MM_VerifyLoadDumpParams_Test_FillRAMDataSizeErrorTooLarge(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillRAMDataSizeErrorTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillEEPROMValidateRangeError(void)
 {
@@ -2890,8 +2808,7 @@ void MM_VerifyLoadDumpParams_Test_FillEEPROMValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillEEPROMValidateRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooSmall(void)
 {
@@ -2925,8 +2842,7 @@ void MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooSmall(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooLarge(void)
 {
@@ -2960,8 +2876,7 @@ void MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooLarge(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillEEPROMDataSizeErrorTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillMEM32ValidateRangeError(void)
 {
@@ -2998,8 +2913,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32ValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillMEM32ValidateRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooSmall(void)
 {
@@ -3033,8 +2947,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooSmall(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooLarge(void)
 {
@@ -3068,8 +2981,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooLarge(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillMEM32DataSizeErrorTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillMEM32AlignmentError(void)
 {
@@ -3103,8 +3015,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM32AlignmentError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillMEM32AlignmentError */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillMEM16ValidateRangeError(void)
 {
@@ -3141,8 +3052,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16ValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillMEM16ValidateRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooSmall(void)
 {
@@ -3176,8 +3086,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooSmall(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooLarge(void)
 {
@@ -3211,8 +3120,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooLarge(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillMEM16DataSizeErrorTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillMEM16AlignmentError(void)
 {
@@ -3246,8 +3154,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM16AlignmentError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillMEM16AlignmentError */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillMEM8ValidateRangeError(void)
 {
@@ -3284,8 +3191,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM8ValidateRangeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillMEM8ValidateRangeError */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillMEM8DataSizeErrorTooSmall(void)
 {
@@ -3319,8 +3225,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM8DataSizeErrorTooSmall(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillMEM8DataSizeErrorTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillMEM8DataSizeErrorTooLarge(void)
 {
@@ -3354,8 +3259,7 @@ void MM_VerifyLoadDumpParams_Test_FillMEM8DataSizeErrorTooLarge(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillMEM8DataSizeErrorTooLarge */
+}
 
 void MM_VerifyLoadDumpParams_Test_FillInvalidMemTypeError(void)
 {
@@ -3388,8 +3292,7 @@ void MM_VerifyLoadDumpParams_Test_FillInvalidMemTypeError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_FillMEM8InvalidMemTypeError */
+}
 
 /* WID */
 void MM_VerifyLoadDumpParams_Test_WIDNominal(void)
@@ -3411,8 +3314,7 @@ void MM_VerifyLoadDumpParams_Test_WIDNominal(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_WIDNominal */
+}
 
 void MM_VerifyLoadDumpParams_Test_WIDMemValidateError(void)
 {
@@ -3449,8 +3351,7 @@ void MM_VerifyLoadDumpParams_Test_WIDMemValidateError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_WIDMemValidateError */
+}
 
 void MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooSmall(void)
 {
@@ -3484,8 +3385,7 @@ void MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooSmall(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooSmall */
+}
 
 void MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooLarge(void)
 {
@@ -3519,8 +3419,7 @@ void MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooLarge(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_VerifyLoadDumpParams_Test_WIDDataSizeErrorTooLarge */
+}
 
 void MM_Verify32Aligned_Test(void)
 {
@@ -3554,8 +3453,7 @@ void MM_Verify32Aligned_Test(void)
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
-
-} /* end MM_Verify32Aligned_Test */
+}
 
 void MM_Verify16Aligned_Test(void)
 {
@@ -3589,8 +3487,7 @@ void MM_Verify16Aligned_Test(void)
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
-
-} /* end MM_Verify16Aligned_Test */
+}
 
 void MM_ResolveSymAddr_Test(void)
 {
@@ -3893,9 +3790,4 @@ void UtTest_Setup(void)
     UtTest_Add(MM_ResolveSymAddr_Test, MM_Test_Setup, MM_Test_TearDown, "MM_ResolveSymAddr_Test");
 
     UtTest_Add(MM_ComputeCRCFromFile_Test, MM_Test_Setup, MM_Test_TearDown, "MM_ComputeCRCFromFile_Test");
-
-} /* end UtTest_Setup */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}

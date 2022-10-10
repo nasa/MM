@@ -124,8 +124,7 @@ bool MM_LoadMem32FromFile(osal_id_t FileHandle, const char *FileName, const MM_L
     }
 
     return Valid;
-
-} /* end MM_LoadMem32FromFile */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -212,8 +211,7 @@ bool MM_DumpMem32ToFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
     }
 
     return Valid;
-
-} /* end MM_DumpMem32ToFile */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -297,11 +295,6 @@ bool MM_FillMem32(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
     }
 
     return Result;
-
-} /* End MM_FillMem32 */
+}
 
 #endif /* MM_OPT_CODE_MEM32_MEMTYPE */
-
-/************************/
-/*  End of File Comment */
-/************************/

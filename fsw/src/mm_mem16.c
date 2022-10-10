@@ -124,8 +124,7 @@ bool MM_LoadMem16FromFile(osal_id_t FileHandle, const char *FileName, const MM_L
     }
 
     return Valid;
-
-} /* end MM_LoadMem16FromFile */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -211,8 +210,7 @@ bool MM_DumpMem16ToFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
     }
 
     return Valid;
-
-} /* end MM_DumpMem16ToFile */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -296,11 +294,6 @@ bool MM_FillMem16(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
     }
 
     return Result;
-
-} /* End MM_FillMem16 */
+}
 
 #endif /* MM_OPT_CODE_MEM16_MEMTYPE */
-
-/************************/
-/*  End of File Comment */
-/************************/

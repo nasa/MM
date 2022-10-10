@@ -120,8 +120,7 @@ void MM_AppMain(void)
     ** Exit the application
     */
     CFE_ES_ExitApp(MM_AppData.RunStatus);
-
-} /* end MM_AppMain */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -219,8 +218,7 @@ int32 MM_AppInit(void)
                       MM_MAJOR_VERSION, MM_MINOR_VERSION, MM_REVISION, MM_MISSION_REV);
 
     return CFE_SUCCESS;
-
-} /* end MM_AppInit */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -337,8 +335,7 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
             break;
 
     } /* end switch */
-
-} /* End MM_AppPipe */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -354,7 +351,6 @@ void MM_HousekeepingCmd(const CFE_SB_Buffer_t *BufPtr)
     */
     if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
     {
-
         /*
         ** Send housekeeping telemetry packet
         */
@@ -366,8 +362,7 @@ void MM_HousekeepingCmd(const CFE_SB_Buffer_t *BufPtr)
         */
 
     } /* end if */
-
-} /* end MM_HousekeepingCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -391,8 +386,7 @@ bool MM_NoopCmd(const CFE_SB_Buffer_t *BufPtr)
     }
 
     return Result;
-
-} /* end MM_NoopCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -417,8 +411,7 @@ bool MM_ResetCmd(const CFE_SB_Buffer_t *BufPtr)
     }
 
     return Result;
-
-} /* end MM_ResetCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -482,8 +475,7 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
     } /* end MM_VerifyCmdLength if */
 
     return Result;
-
-} /* end MM_LookupSymbolCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -543,8 +535,7 @@ bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
     } /* end MM_VerifyCmdLength if */
 
     return Result;
-
-} /* end MM_SymTblToFileCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -590,8 +581,7 @@ bool MM_EepromWriteEnaCmd(const CFE_SB_Buffer_t *BufPtr)
     } /* end MM_VerifyCmdLength if */
 
     return Result;
-
-} /* end MM_EepromWriteEnaCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -636,9 +626,4 @@ bool MM_EepromWriteDisCmd(const CFE_SB_Buffer_t *BufPtr)
     } /* end MM_VerifyCmdLength if */
 
     return Result;
-
-} /* end MM_EepromWriteDisCmd */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}

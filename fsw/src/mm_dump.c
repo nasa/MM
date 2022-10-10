@@ -86,8 +86,7 @@ bool MM_PeekCmd(const CFE_SB_Buffer_t *BufPtr)
     } /* end MM_VerifyCmdLength if */
 
     return Result;
-
-} /* end MM_PeekCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -178,8 +177,7 @@ bool MM_PeekMem(const MM_PeekCmd_t *CmdPtr, cpuaddr SrcAddress)
     }
 
     return ValidPeek;
-
-} /* end MM_PeekMem */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -364,8 +362,7 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
     } /* end MM_VerifyCmdLength if */
 
     return Valid;
-
-} /* end MM_DumpMemoryToFileCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -425,8 +422,7 @@ bool MM_DumpMemToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadD
     }
 
     return ValidDump;
-
-} /* end MM_DumpMemToFile */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -471,8 +467,7 @@ bool MM_WriteFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Head
     } /* end CFE_FS_WriteHeader else */
 
     return Valid;
-
-} /* end MM_WriteFileHeaders */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -563,8 +558,7 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
     } /* end MM_VerifyCmdLength if */
 
     return Valid;
-
-} /* end MM_DumpWordsInEventCmd */
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -670,9 +664,4 @@ bool MM_FillDumpInEventBuffer(cpuaddr SrcAddress, const MM_DumpInEventCmd_t *Cmd
     } /* end CmdPtr->MemType switch */
 
     return Valid;
-
-} /* end FillDumpInEventBuffer */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}
