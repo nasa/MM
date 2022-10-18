@@ -87,8 +87,7 @@ void MM_LoadMem16FromFile_Test_Nominal(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMem16FromFile_Test_Nominal */
+}
 
 void MM_LoadMem16FromFile_Test_CPUHogging(void)
 {
@@ -124,8 +123,7 @@ void MM_LoadMem16FromFile_Test_CPUHogging(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMem16FromFile_Test_CPUHogging */
+}
 
 void MM_LoadMem16FromFile_Test_ReadError(void)
 {
@@ -165,8 +163,7 @@ void MM_LoadMem16FromFile_Test_ReadError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMem16FromFile_Test_ReadError */
+}
 
 void MM_LoadMem16FromFile_Test_WriteError(void)
 {
@@ -212,8 +209,7 @@ void MM_LoadMem16FromFile_Test_WriteError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_LoadMem16FromFile_Test_WriteError */
+}
 
 void MM_DumpMem16ToFile_Test_Nominal(void)
 {
@@ -248,8 +244,7 @@ void MM_DumpMem16ToFile_Test_Nominal(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_DumpMem16ToFile_Test_Nominal */
+}
 
 void MM_DumpMem16ToFile_Test_CPUHogging(void)
 {
@@ -284,8 +279,7 @@ void MM_DumpMem16ToFile_Test_CPUHogging(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_DumpMem16ToFile_Test_CPUHogging */
+}
 
 void MM_DumpMem16ToFile_Test_ReadError(void)
 {
@@ -326,8 +320,7 @@ void MM_DumpMem16ToFile_Test_ReadError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_DumpMem16ToFile_Test_ReadError */
+}
 
 void MM_DumpMem16ToFile_Test_WriteError(void)
 {
@@ -368,8 +361,7 @@ void MM_DumpMem16ToFile_Test_WriteError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_DumpMem16ToFile_Test_WriteError */
+}
 
 void MM_FillMem16_Test_Nominal(void)
 {
@@ -400,8 +392,7 @@ void MM_FillMem16_Test_Nominal(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMem16_Test_Nominal */
+}
 
 void MM_FillMem16_Test_CPUHogging(void)
 {
@@ -433,8 +424,7 @@ void MM_FillMem16_Test_CPUHogging(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMem16_Test_CPUHogging */
+}
 
 void MM_FillMem16_Test_WriteError(void)
 {
@@ -474,8 +464,7 @@ void MM_FillMem16_Test_WriteError(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMem16_Test_WriteError */
+}
 
 void MM_FillMem16_Test_Align(void)
 {
@@ -511,8 +500,7 @@ void MM_FillMem16_Test_Align(void)
     /* No command-handling function should be updating the cmd or err counter itself */
     UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
-
-} /* end MM_FillMem16_Test_Align */
+}
 
 /*
  * Register the test cases to execute with the unit test tool
@@ -536,8 +524,4 @@ void UtTest_Setup(void)
     UtTest_Add(MM_FillMem16_Test_CPUHogging, MM_Test_Setup, MM_Test_TearDown, "MM_FillMem16_Test_CPUHogging");
     UtTest_Add(MM_FillMem16_Test_WriteError, MM_Test_Setup, MM_Test_TearDown, "MM_FillMem16_Test_WriteError");
     UtTest_Add(MM_FillMem16_Test_Align, MM_Test_Setup, MM_Test_TearDown, "MM_FillMem16_Test_Align");
-} /* end UtTest_Setup */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}
