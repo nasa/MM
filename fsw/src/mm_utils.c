@@ -134,7 +134,7 @@ bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 /* Verify peek and poke command parameters                         */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
+bool MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_t MemType, uint8 SizeInBits)
 {
     bool  Valid = true;
     uint8 SizeInBytes;
@@ -296,7 +296,7 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
 /* Verify load/dump memory parameters                              */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes, uint8 VerifyType)
+bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, uint32 SizeInBytes, uint8 VerifyType)
 {
     bool   Valid = true;
     int32  PSP_Status;

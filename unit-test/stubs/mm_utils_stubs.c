@@ -55,7 +55,7 @@ bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
     return UT_DEFAULT_IMPL(MM_VerifyCmdLength);
 }
 
-bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
+bool MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_t MemType, uint8 SizeInBits)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_VerifyPeekPokeParams), Address);
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_VerifyPeekPokeParams), MemType);
@@ -63,7 +63,7 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits)
     return UT_DEFAULT_IMPL(MM_VerifyPeekPokeParams);
 }
 
-bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes, uint8 VerifyType)
+bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, uint32 SizeInBytes, uint8 VerifyType)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_VerifyLoadDumpParams), Address);
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_VerifyLoadDumpParams), MemType);

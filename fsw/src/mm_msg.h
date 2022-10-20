@@ -41,6 +41,19 @@
  ************************************************************************/
 
 /**
+ *  \brief Memory Types
+ */
+typedef enum
+{
+    MM_NOMEMTYPE = 0, /**< \brief Used to indicate that no memtype specified          */
+    MM_RAM       = 1, /**< \brief Normal RAM, no special access required              */
+    MM_EEPROM    = 2, /**< \brief EEPROM, requires special access for writes          */
+    MM_MEM8      = 3, /**< \brief Optional memory type that is only 8-bit read/write  */
+    MM_MEM16     = 4, /**< \brief Optional memory type that is only 16-bit read/write */
+    MM_MEM32     = 5  /**< \brief Optional memory type that is only 32-bit read/write */
+} MM_MemType_t;
+
+/**
  * \defgroup cfsmmcmdstructs CFS Memory Manager Command Structures
  * \{
  */
@@ -75,7 +88,7 @@ typedef struct
     CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 
     uint8        DataSize;      /**< \brief Size of the data to be read     */
-    uint8        MemType;       /**< \brief Memory type to peek data from   */
+    MM_MemType_t MemType;       /**< \brief Memory type to peek data from   */
     uint8        Padding[2];    /**< \brief Structure padding               */
     MM_SymAddr_t SrcSymAddress; /**< \brief Symbolic source peek address    */
 } MM_PeekCmd_t;
@@ -90,7 +103,7 @@ typedef struct
     CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 
     uint8        DataSize;       /**< \brief Size of the data to be written     */
-    uint8        MemType;        /**< \brief Memory type to poke data to        */
+    MM_MemType_t MemType;        /**< \brief Memory type to poke data to        */
     uint8        Padding[2];     /**< \brief Structure padding                  */
     uint32       Data;           /**< \brief Data to be written                 */
     MM_SymAddr_t DestSymAddress; /**< \brief Symbolic destination poke address  */
@@ -121,7 +134,7 @@ typedef struct
 {
     CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 
-    uint8        MemType;       /**< \brief Memory dump type             */
+    MM_MemType_t MemType;       /**< \brief Memory dump type             */
     uint8        NumOfBytes;    /**< \brief Number of bytes to be dumped */
     uint16       Padding;       /**< \brief Structure padding            */
     MM_SymAddr_t SrcSymAddress; /**< \brief Symbolic source address      */
@@ -148,7 +161,7 @@ typedef struct
 {
     CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 
-    uint8        MemType;                   /**< \brief Memory dump type */
+    MM_MemType_t MemType;                   /**< \brief Memory dump type */
     uint8        Padding[3];                /**< \brief Structure padding */
     uint32       NumOfBytes;                /**< \brief Number of bytes to be dumped */
     MM_SymAddr_t SrcSymAddress;             /**< \brief Symbol plus optional offset  */
@@ -164,7 +177,7 @@ typedef struct
 {
     CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 
-    uint8        MemType;        /**< \brief Memory type                  */
+    MM_MemType_t MemType;        /**< \brief Memory type                  */
     uint8        Padding[3];     /**< \brief Structure padding            */
     uint32       NumOfBytes;     /**< \brief Number of bytes to fill      */
     uint32       FillPattern;    /**< \brief Fill pattern to use          */
@@ -233,14 +246,14 @@ typedef struct
 {
     CFE_MSG_TelemetryHeader_t TlmHeader; /**< \brief Telemetry header */
 
-    uint8   CmdCounter;                /**< \brief MM Application Command Counter */
-    uint8   ErrCounter;                /**< \brief MM Application Command Error Counter */
-    uint8   LastAction;                /**< \brief Last command action executed */
-    uint8   MemType;                   /**< \brief Memory type for last command */
-    cpuaddr Address;                   /**< \brief Fully resolved address used for last command */
-    uint32  DataValue;                 /**< \brief Last command data (fill pattern or peek/poke value) */
-    uint32  BytesProcessed;            /**< \brief Bytes processed for last command */
-    char    FileName[OS_MAX_PATH_LEN]; /**< \brief Name of the data file used for last command, where applicable */
+    uint8        CmdCounter;                /**< \brief MM Application Command Counter */
+    uint8        ErrCounter;                /**< \brief MM Application Command Error Counter */
+    uint8        LastAction;                /**< \brief Last command action executed */
+    MM_MemType_t MemType;                   /**< \brief Memory type for last command */
+    cpuaddr      Address;                   /**< \brief Fully resolved address used for last command */
+    uint32       DataValue;                 /**< \brief Last command data (fill pattern or peek/poke value) */
+    uint32       BytesProcessed;            /**< \brief Bytes processed for last command */
+    char         FileName[OS_MAX_PATH_LEN]; /**< \brief Name of the data file used for last command, where applicable */
 } MM_HkPacket_t;
 
 /**\}*/

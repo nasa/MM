@@ -105,7 +105,7 @@ bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
  *  \retval true  Validation passed
  *  \retval false Validation failed
  */
-bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits);
+bool MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_t MemType, uint8 SizeInBits);
 
 /**
  * \brief Verify memory load and dump parameters
@@ -130,7 +130,7 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, uint8 MemType, uint8 SizeInBits);
  *  \retval true  Validation passed
  *  \retval false Validation failed
  */
-bool MM_VerifyLoadDumpParams(cpuaddr Address, uint8 MemType, uint32 SizeInBytes, uint8 VerifyType);
+bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, uint32 SizeInBytes, uint8 VerifyType);
 
 /**
  * \brief Verify 32 bit alignment
