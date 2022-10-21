@@ -180,7 +180,7 @@ void MM_VerifyCmdLength_Test_LengthError(void)
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_LEN_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_CMD_LEN_ERR_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
     strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
