@@ -829,6 +829,12 @@ bool MM_FillMem(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
         TargetPointer += SegmentSize;
         BytesProcessed += SegmentSize;
         BytesRemaining -= SegmentSize;
+
+        /* Prevent CPU hogging between load segments */
+        if (BytesRemaining != 0)
+        {
+            MM_SegmentBreak();
+        }
     }
 
     /* Stop EEPROM performance monitor */
