@@ -51,8 +51,8 @@ extern MM_AppData_t MM_AppData;
 bool MM_LoadMem8FromFile(osal_id_t FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader,
                          cpuaddr DestAddress)
 {
-    uint32 i              = 0;
-    int32  ReadLength     = 0;
+    uint32 i;
+    int32  ReadLength;
     int32  PSP_Status     = CFE_PSP_SUCCESS;
     int32  BytesProcessed = 0;
     int32  BytesRemaining = FileHeader->NumOfBytes;
@@ -134,10 +134,10 @@ bool MM_LoadMem8FromFile(osal_id_t FileHandle, const char *FileName, const MM_Lo
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_DumpMem8ToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader)
 {
-    bool   Valid          = true;
-    int32  OS_Status      = OS_ERROR;
-    int32  PSP_Status     = CFE_PSP_SUCCESS;
-    uint32 i              = 0;
+    bool   Valid = true;
+    int32  OS_Status;
+    int32  PSP_Status = CFE_PSP_SUCCESS;
+    uint32 i;
     uint32 BytesProcessed = 0;
     uint32 BytesRemaining = FileHeader->NumOfBytes;
     uint8 *DataPointer8   = (uint8 *)(FileHeader->SymAddress.Offset);
@@ -220,7 +220,7 @@ bool MM_DumpMem8ToFile(osal_id_t FileHandle, const char *FileName, const MM_Load
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_FillMem8(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
 {
-    uint32 i              = 0;
+    uint32 i;
     int32  PSP_Status     = CFE_PSP_SUCCESS;
     uint32 BytesProcessed = 0;
     uint32 BytesRemaining = CmdPtr->NumOfBytes;

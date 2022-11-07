@@ -51,8 +51,8 @@ extern MM_AppData_t MM_AppData;
 bool MM_LoadMem32FromFile(osal_id_t FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader,
                           cpuaddr DestAddress)
 {
-    uint32  i              = 0;
-    int32   ReadLength     = 0;
+    uint32  i;
+    int32   ReadLength;
     int32   PSP_Status     = CFE_PSP_SUCCESS;
     int32   BytesProcessed = 0;
     int32   BytesRemaining = FileHeader->NumOfBytes;
@@ -134,10 +134,10 @@ bool MM_LoadMem32FromFile(osal_id_t FileHandle, const char *FileName, const MM_L
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_DumpMem32ToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader)
 {
-    bool    Valid          = true;
-    int32   OS_Status      = OS_ERROR;
-    int32   PSP_Status     = CFE_PSP_SUCCESS;
-    uint32  i              = 0;
+    bool    Valid = true;
+    int32   OS_Status;
+    int32   PSP_Status = CFE_PSP_SUCCESS;
+    uint32  i;
     uint32  BytesProcessed = 0;
     uint32  BytesRemaining = FileHeader->NumOfBytes;
     uint32 *DataPointer32  = (uint32 *)(FileHeader->SymAddress.Offset);
@@ -221,15 +221,15 @@ bool MM_DumpMem32ToFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_FillMem32(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
 {
-    uint32  i                 = 0;
-    int32   PSP_Status        = CFE_PSP_SUCCESS;
-    uint32  BytesProcessed    = 0;
-    uint32  BytesRemaining    = CmdPtr->NumOfBytes;
-    uint32  NewBytesRemaining = 0;
-    uint32  FillPattern32     = CmdPtr->FillPattern;
-    uint32 *DataPointer32     = (uint32 *)(DestAddress);
-    uint32  SegmentSize       = MM_MAX_FILL_DATA_SEG;
-    bool    Result            = true;
+    uint32  i;
+    int32   PSP_Status     = CFE_PSP_SUCCESS;
+    uint32  BytesProcessed = 0;
+    uint32  BytesRemaining = CmdPtr->NumOfBytes;
+    uint32  NewBytesRemaining;
+    uint32  FillPattern32 = CmdPtr->FillPattern;
+    uint32 *DataPointer32 = (uint32 *)(DestAddress);
+    uint32  SegmentSize   = MM_MAX_FILL_DATA_SEG;
+    bool    Result        = true;
 
     /* Check fill size and warn if not a multiple of 4 */
     if ((BytesRemaining % 4) != 0)
