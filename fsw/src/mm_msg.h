@@ -88,8 +88,8 @@ typedef struct
     CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 
     uint8        DataSize;      /**< \brief Size of the data to be read     */
+    uint8        Padding[3];    /**< \brief Structure padding               */
     MM_MemType_t MemType;       /**< \brief Memory type to peek data from   */
-    uint8        Padding[2];    /**< \brief Structure padding               */
     MM_SymAddr_t SrcSymAddress; /**< \brief Symbolic source peek address    */
 } MM_PeekCmd_t;
 
@@ -103,9 +103,10 @@ typedef struct
     CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 
     uint8        DataSize;       /**< \brief Size of the data to be written     */
+    uint8        Padding1[3];    /**< \brief Structure padding                  */
     MM_MemType_t MemType;        /**< \brief Memory type to poke data to        */
-    uint8        Padding[2];     /**< \brief Structure padding                  */
     uint32       Data;           /**< \brief Data to be written                 */
+    uint8        Padding2[4];    /**< \brief Structure padding                  */
     MM_SymAddr_t DestSymAddress; /**< \brief Symbolic destination poke address  */
 } MM_PokeCmd_t;
 
@@ -136,7 +137,7 @@ typedef struct
 
     MM_MemType_t MemType;       /**< \brief Memory dump type             */
     uint8        NumOfBytes;    /**< \brief Number of bytes to be dumped */
-    uint16       Padding;       /**< \brief Structure padding            */
+    uint8        Padding[3];    /**< \brief Structure padding            */
     MM_SymAddr_t SrcSymAddress; /**< \brief Symbolic source address      */
 } MM_DumpInEventCmd_t;
 
@@ -162,7 +163,6 @@ typedef struct
     CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 
     MM_MemType_t MemType;                   /**< \brief Memory dump type */
-    uint8        Padding[3];                /**< \brief Structure padding */
     uint32       NumOfBytes;                /**< \brief Number of bytes to be dumped */
     MM_SymAddr_t SrcSymAddress;             /**< \brief Symbol plus optional offset  */
     char         FileName[OS_MAX_PATH_LEN]; /**< \brief Name of memory dump file */
@@ -178,9 +178,9 @@ typedef struct
     CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 
     MM_MemType_t MemType;        /**< \brief Memory type                  */
-    uint8        Padding[3];     /**< \brief Structure padding            */
     uint32       NumOfBytes;     /**< \brief Number of bytes to fill      */
     uint32       FillPattern;    /**< \brief Fill pattern to use          */
+    uint8        Padding[4];     /**< \brief Structure padding            */
     MM_SymAddr_t DestSymAddress; /**< \brief Symbol plus optional offset  */
 } MM_FillMemCmd_t;
 
@@ -249,6 +249,7 @@ typedef struct
     uint8        CmdCounter;                /**< \brief MM Application Command Counter */
     uint8        ErrCounter;                /**< \brief MM Application Command Error Counter */
     uint8        LastAction;                /**< \brief Last command action executed */
+    uint8        Padding;                   /**< \brief Last command action executed */
     MM_MemType_t MemType;                   /**< \brief Memory type for last command */
     cpuaddr      Address;                   /**< \brief Fully resolved address used for last command */
     uint32       DataValue;                 /**< \brief Last command data (fill pattern or peek/poke value) */
