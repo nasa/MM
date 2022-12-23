@@ -1,9 +1,5 @@
 project(CFS_MM C)
 
-include_directories(fsw/src)
-include_directories(fsw/mission_inc)
-include_directories(fsw/platform_inc)
-
 set(APP_SRC_FILES
   fsw/src/mm_mem32.c
   fsw/src/mm_app.c
@@ -16,6 +12,9 @@ set(APP_SRC_FILES
 
 # Create the app module
 add_cfe_app(mm ${APP_SRC_FILES})
+
+# This permits direct access to public headers in the fsw/inc directory
+target_include_directories(mm PUBLIC fsw/inc)
 
 # If UT is enabled, then add the tests from the subdirectory
 # Note that this is an app, and therefore does not provide
