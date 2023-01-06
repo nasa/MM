@@ -32,9 +32,9 @@
 /************************************************************************
  * Includes
  ************************************************************************/
-#include "mm_platform_cfg.h"
-#include "cfe.h"
-#include "mm_msgdefs.h"
+#include <mm_platform_cfg.h>
+#include <cfe.h>
+#include <mm_msgdefs.h>
 
 /************************************************************************
  * Type Definitions

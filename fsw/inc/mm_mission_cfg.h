@@ -28,7 +28,7 @@
 /************************************************************************
  * Includes
  ************************************************************************/
-#include "cfe_mission_cfg.h"
+#include <cfe_mission_cfg.h>
 
 /**
  * \defgroup cfsmmmissioncfg CFS Memory Manager Mission Configuration
