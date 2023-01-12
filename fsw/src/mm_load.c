@@ -293,7 +293,7 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
 bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
 {
     MM_LoadMemWIDCmd_t *CmdPtr;
-    uint32              ComputedCRC    = 0;
+    uint32              ComputedCRC;
     cpuaddr             DestAddress    = 0;
     uint16              ExpectedLength = sizeof(MM_LoadMemWIDCmd_t);
     bool                CmdResult      = false;
@@ -361,9 +361,9 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    bool                     Valid       = false;
-    osal_id_t                FileHandle  = OS_OBJECT_ID_UNDEFINED;
-    int32                    OS_Status   = OS_SUCCESS;
+    bool                     Valid      = false;
+    osal_id_t                FileHandle = OS_OBJECT_ID_UNDEFINED;
+    int32                    OS_Status;
     cpuaddr                  DestAddress = 0;
     MM_LoadMemFromFileCmd_t *CmdPtr;
     CFE_FS_Header_t          CFEFileHeader;
