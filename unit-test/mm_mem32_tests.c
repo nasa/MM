@@ -135,7 +135,7 @@ void MM_LoadMem32FromFile_Test_ReadError(void)
     char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "OS_read error received: RC = 0x%%08X Expected = %%d File = '%%s'");
+             "OS_read error received: RC = 0x%%08X Expected = %%u File = '%%s'");
 
     FileHeader.NumOfBytes = 4;
 
@@ -335,7 +335,7 @@ void MM_DumpMem32ToFile_Test_WriteError(void)
     memset(&FileHeader, 0, sizeof(FileHeader));
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "OS_write error received: RC = 0x%%08X Expected = %%d File = '%%s'");
+             "OS_write error received: RC = 0x%%08X Expected = %%u File = '%%s'");
 
     FileHeader.NumOfBytes = 4;
 

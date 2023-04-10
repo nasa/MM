@@ -87,8 +87,7 @@ typedef struct
 {
     CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 
-    uint8        DataSize;      /**< \brief Size of the data to be read     */
-    uint8        Padding[3];    /**< \brief Structure padding               */
+    size_t       DataSize;      /**< \brief Size of the data to be read     */
     MM_MemType_t MemType;       /**< \brief Memory type to peek data from   */
     MM_SymAddr_t SrcSymAddress; /**< \brief Symbolic source peek address    */
 } MM_PeekCmd_t;
@@ -102,8 +101,7 @@ typedef struct
 {
     CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 
-    uint8        DataSize;       /**< \brief Size of the data to be written     */
-    uint8        Padding1[3];    /**< \brief Structure padding                  */
+    size_t       DataSize;       /**< \brief Size of the data to be written     */
     MM_MemType_t MemType;        /**< \brief Memory type to poke data to        */
     uint32       Data;           /**< \brief Data to be written                 */
     uint8        Padding2[4];    /**< \brief Structure padding                  */
@@ -253,7 +251,7 @@ typedef struct
     MM_MemType_t MemType;                   /**< \brief Memory type for last command */
     cpuaddr      Address;                   /**< \brief Fully resolved address used for last command */
     uint32       DataValue;                 /**< \brief Last command data (fill pattern or peek/poke value) */
-    uint32       BytesProcessed;            /**< \brief Bytes processed for last command */
+    size_t       BytesProcessed;            /**< \brief Bytes processed for last command */
     char         FileName[OS_MAX_PATH_LEN]; /**< \brief Name of the data file used for last command, where applicable */
 } MM_HkPacket_t;
 
