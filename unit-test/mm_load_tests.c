@@ -57,7 +57,7 @@ MM_LoadDumpFileHeader_t MMHeaderSave;
 
 MM_LoadDumpFileHeader_t *MMHeaderRestore;
 
-uint8 DummyBuffer[MM_MAX_FILL_DATA_SEG * 2];
+uint8 Buffer[MM_MAX_FILL_DATA_SEG * 2];
 
 /*
  * Function Definitions
@@ -90,7 +90,7 @@ int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook1(void *UserObj, int32 StubRetcode, ui
     uint32 * SymbolAddress   = (uint32 *)Context->ArgPtr[0];
     cpuaddr *ResolvedAddress = (cpuaddr *)Context->ArgPtr[1];
 
-    *ResolvedAddress = (cpuaddr)DummyBuffer;
+    *ResolvedAddress = (cpuaddr)Buffer;
     *SymbolAddress   = 0;
     *MMHeaderRestore = MMHeaderSave;
 
@@ -103,7 +103,7 @@ int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook2(void *UserObj, int32 StubRetcode, ui
     uint32 * SymbolAddress   = (uint32 *)Context->ArgPtr[0];
     cpuaddr *ResolvedAddress = (cpuaddr *)Context->ArgPtr[1];
 
-    *ResolvedAddress = (cpuaddr)DummyBuffer;
+    *ResolvedAddress = (cpuaddr)Buffer;
     *SymbolAddress   = 0;
     *MMHeaderRestore = MMHeaderSave;
 
@@ -115,7 +115,7 @@ int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook3(void *UserObj, int32 StubRetcode, ui
 {
     cpuaddr *ResolvedAddress = (cpuaddr *)Context->ArgPtr[1];
 
-    *ResolvedAddress = (cpuaddr)DummyBuffer;
+    *ResolvedAddress = (cpuaddr)Buffer;
 
     return true;
 }
@@ -2104,14 +2104,14 @@ void MM_LoadMemFromFile_Test_PreventCPUHogging(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_read), MM_MAX_LOAD_DATA_SEG);
 
     /* Execute the function being tested */
-    Result = MM_LoadMemFromFile(MM_UT_OBJID_1, FileName, &FileHeader, (cpuaddr)&DummyBuffer[0]);
+    Result = MM_LoadMemFromFile(MM_UT_OBJID_1, FileName, &FileHeader, (cpuaddr)&Buffer[0]);
 
     /* Verify results */
     UtAssert_True(Result == true, "Result == true");
     UtAssert_True(MM_AppData.HkPacket.LastAction == MM_LOAD_FROM_FILE,
                   "MM_AppData.HkPacket.LastAction == MM_LOAD_FROM_FILE");
     UtAssert_True(MM_AppData.HkPacket.MemType == MM_EEPROM, "MM_AppData.HkPacket.MemType == MM_EEPROM");
-    UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)(&DummyBuffer[0]), "MM_AppData.HkPacket.Address == 0");
+    UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)(&Buffer[0]), "MM_AppData.HkPacket.Address == 0");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 2 * MM_MAX_LOAD_DATA_SEG,
                   "MM_AppData.HkPacket.BytesProcessed == 2*MM_MAX_LOAD_DATA_SEG");
     UtAssert_STRINGBUF_EQ(MM_AppData.HkPacket.FileName, sizeof(MM_AppData.HkPacket.FileName), FileName,
@@ -2142,7 +2142,7 @@ void MM_LoadMemFromFile_Test_ReadError(void)
     UT_SetDeferredRetcode(UT_KEY(OS_read), 1, 0);
 
     /* Execute the function being tested */
-    Result = MM_LoadMemFromFile(MM_UT_OBJID_1, (char *)"filename", &FileHeader, (cpuaddr)&DummyBuffer[0]);
+    Result = MM_LoadMemFromFile(MM_UT_OBJID_1, (char *)"filename", &FileHeader, (cpuaddr)&Buffer[0]);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
@@ -2176,14 +2176,14 @@ void MM_LoadMemFromFile_Test_NotEepromMemType(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_read), MM_MAX_LOAD_DATA_SEG);
 
     /* Execute the function being tested */
-    Result = MM_LoadMemFromFile(MM_UT_OBJID_1, FileName, &FileHeader, (cpuaddr)&DummyBuffer[0]);
+    Result = MM_LoadMemFromFile(MM_UT_OBJID_1, FileName, &FileHeader, (cpuaddr)&Buffer[0]);
 
     /* Verify results */
     UtAssert_True(Result == true, "Result == true");
     UtAssert_True(MM_AppData.HkPacket.LastAction == MM_LOAD_FROM_FILE,
                   "MM_AppData.HkPacket.LastAction == MM_LOAD_FROM_FILE");
     UtAssert_True(MM_AppData.HkPacket.MemType == MM_MEM8, "MM_AppData.HkPacket.MemType == MM_MEM8");
-    UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)(&DummyBuffer[0]), "MM_AppData.HkPacket.Address == 0");
+    UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)(&Buffer[0]), "MM_AppData.HkPacket.Address == 0");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 2 * MM_MAX_LOAD_DATA_SEG,
                   "MM_AppData.HkPacket.BytesProcessed == 2*MM_MAX_LOAD_DATA_SEG");
     UtAssert_STRINGBUF_EQ(MM_AppData.HkPacket.FileName, sizeof(MM_AppData.HkPacket.FileName), FileName,
@@ -2718,18 +2718,17 @@ void MM_FillMem_Test_Nominal(void)
 
     CmdPacket.MemType    = MM_EEPROM;
     CmdPacket.NumOfBytes = 2;
-    memset(DummyBuffer, 1, (MM_MAX_FILL_DATA_SEG * 2));
+    memset(Buffer, 1, (MM_MAX_FILL_DATA_SEG * 2));
 
     /* Execute the function being tested */
-    Result = MM_FillMem((cpuaddr)DummyBuffer, &CmdPacket);
+    Result = MM_FillMem((cpuaddr)Buffer, &CmdPacket);
 
     /* Verify results */
     UtAssert_True(Result == true, "Result == true");
 
     UtAssert_True(MM_AppData.HkPacket.LastAction == MM_FILL, "MM_AppData.HkPacket.LastAction == MM_FILL");
     UtAssert_True(MM_AppData.HkPacket.MemType == CmdPacket.MemType, "MM_AppData.HkPacket.MemType == CmdPacket.MemType");
-    UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)DummyBuffer,
-                  "MM_AppData.HkPacket.Address == (cpuaddr)DummyBuffer");
+    UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)Buffer, "MM_AppData.HkPacket.Address == (cpuaddr)Buffer");
     UtAssert_True(MM_AppData.HkPacket.DataValue == CmdPacket.FillPattern,
                   "MM_AppData.HkPacket.DataValue == CmdPacket.FillPattern");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 2, "MM_AppData.HkPacket.BytesProcessed == 2");
@@ -2753,17 +2752,16 @@ void MM_FillMem_Test_MaxFillDataSegment(void)
     CmdPacket.MemType    = MM_EEPROM;
     CmdPacket.NumOfBytes = MM_MAX_FILL_DATA_SEG + 1;
 
-    memset(DummyBuffer, 1, (MM_MAX_FILL_DATA_SEG * 2));
+    memset(Buffer, 1, (MM_MAX_FILL_DATA_SEG * 2));
     /* Execute the function being tested */
-    Result = MM_FillMem((cpuaddr)DummyBuffer, &CmdPacket);
+    Result = MM_FillMem((cpuaddr)Buffer, &CmdPacket);
 
     /* Verify results */
     UtAssert_True(Result == true, "Result == true");
 
     UtAssert_True(MM_AppData.HkPacket.LastAction == MM_FILL, "MM_AppData.HkPacket.LastAction == MM_FILL");
     UtAssert_True(MM_AppData.HkPacket.MemType == CmdPacket.MemType, "MM_AppData.HkPacket.MemType == CmdPacket.MemType");
-    UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)DummyBuffer,
-                  "MM_AppData.HkPacket.Address == (cpuaddr)DummyBuffer");
+    UtAssert_True(MM_AppData.HkPacket.Address == (cpuaddr)Buffer, "MM_AppData.HkPacket.Address == (cpuaddr)Buffer");
     UtAssert_True(MM_AppData.HkPacket.DataValue == CmdPacket.FillPattern,
                   "MM_AppData.HkPacket.DataValue == CmdPacket.FillPattern");
     UtAssert_True(MM_AppData.HkPacket.BytesProcessed == MM_MAX_FILL_DATA_SEG + 1,

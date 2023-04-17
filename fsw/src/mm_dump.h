@@ -99,7 +99,7 @@ bool MM_PeekMem(const MM_PeekCmd_t *CmdPtr, cpuaddr SrcAddress);
 bool MM_DumpMemToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader);
 
 /**
- * \brief Write the cFE primary and and MM secondary file headers
+ * \brief Write the cFE primary and MM secondary file headers
  *
  *  \par Description
  *       Support function for #MM_DumpMemToFileCmd. This routine will

@@ -132,7 +132,7 @@ bool MM_LoadMemFromFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
 bool MM_VerifyLoadFileSize(const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader);
 
 /**
- * \brief Read the cFE primary and and MM secondary file headers
+ * \brief Read the cFE primary and MM secondary file headers
  *
  *  \par Description
  *       Support function for #MM_LoadMemFromFileCmd. This routine will
