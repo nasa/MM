@@ -479,10 +479,12 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
     bool                 Valid = false;
     MM_DumpInEventCmd_t *CmdPtr;
     uint32               i;
-    cpuaddr              SrcAddress     = 0;
-    uint16               ExpectedLength = sizeof(MM_DumpInEventCmd_t);
+    int32                EventStringTotalLength = 0;
+    cpuaddr              SrcAddress             = 0;
+    uint16               ExpectedLength         = sizeof(MM_DumpInEventCmd_t);
     uint8 *              BytePtr;
     char                 TempString[MM_DUMPINEVENT_TEMP_CHARS];
+    const char           HeaderString[] = "Memory Dump: ";
     static char          EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     /*
@@ -516,7 +518,9 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
                     ** Prepare event message string header
                     ** 13 characters, not counting NUL terminator
                     */
-                    strncpy(EventString, "Memory Dump: ", CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
+                    CFE_SB_MessageStringGet(&EventString[EventStringTotalLength], HeaderString, NULL,
+                                            sizeof(EventString) - EventStringTotalLength, sizeof(HeaderString));
+                    EventStringTotalLength = strlen(EventString);
 
                     /*
                     ** Build dump data string
@@ -527,7 +531,9 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
                     for (i = 0; i < CmdPtr->NumOfBytes; i++)
                     {
                         snprintf(TempString, MM_DUMPINEVENT_TEMP_CHARS, "0x%02X ", *BytePtr);
-                        strncat(EventString, TempString, MM_DUMPINEVENT_TEMP_CHARS);
+                        CFE_SB_MessageStringGet(&EventString[EventStringTotalLength], TempString, NULL,
+                                                sizeof(EventString) - EventStringTotalLength, sizeof(TempString));
+                        EventStringTotalLength = strlen(EventString);
                         BytePtr++;
                     }
 
@@ -536,7 +542,8 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
                     ** This adds up to 33 characters depending on pointer representation including the NUL terminator
                     */
                     snprintf(TempString, MM_DUMPINEVENT_TEMP_CHARS, "from address: %p", (void *)SrcAddress);
-                    strncat(EventString, TempString, MM_DUMPINEVENT_TEMP_CHARS);
+                    CFE_SB_MessageStringGet(&EventString[EventStringTotalLength], TempString, NULL,
+                                            sizeof(EventString) - EventStringTotalLength, sizeof(TempString));
 
                     /* Send it out */
                     CFE_EVS_SendEvent(MM_DUMP_INEVENT_INF_EID, CFE_EVS_EventType_INFORMATION, "%s", EventString);
