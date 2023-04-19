@@ -49,18 +49,21 @@ extern MM_AppData_t MM_AppData;
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_PokeCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    bool          Valid       = false;
-    cpuaddr       DestAddress = 0;
-    MM_PokeCmd_t *CmdPtr;
-    uint16        ExpectedLength = sizeof(MM_PokeCmd_t);
+    bool                Valid       = false;
+    cpuaddr             DestAddress = 0;
+    const MM_PokeCmd_t *CmdPtr;
+    uint16              ExpectedLength = sizeof(MM_PokeCmd_t);
+    MM_SymAddr_t        DestSymAddress;
 
     /* Verify command packet length */
     if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
     {
         CmdPtr = ((MM_PokeCmd_t *)BufPtr);
 
+        DestSymAddress = CmdPtr->DestSymAddress;
+
         /* Resolve the symbolic address in command message */
-        Valid = MM_ResolveSymAddr(&(CmdPtr->DestSymAddress), &DestAddress);
+        Valid = MM_ResolveSymAddr(&(DestSymAddress), &DestAddress);
 
         if (Valid == true)
         {
@@ -90,7 +93,7 @@ bool MM_PokeCmd(const CFE_SB_Buffer_t *BufPtr)
         else
         {
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Symbolic address can't be resolved: Name = '%s'", CmdPtr->DestSymAddress.SymName);
+                              "Symbolic address can't be resolved: Name = '%s'", DestSymAddress.SymName);
         }
 
     } /* end MM_VerifyCmdLength if */
@@ -292,19 +295,22 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    MM_LoadMemWIDCmd_t *CmdPtr;
-    uint32              ComputedCRC;
-    cpuaddr             DestAddress    = 0;
-    uint16              ExpectedLength = sizeof(MM_LoadMemWIDCmd_t);
-    bool                CmdResult      = false;
+    const MM_LoadMemWIDCmd_t *CmdPtr;
+    uint32                    ComputedCRC;
+    cpuaddr                   DestAddress    = 0;
+    uint16                    ExpectedLength = sizeof(MM_LoadMemWIDCmd_t);
+    bool                      CmdResult      = false;
+    MM_SymAddr_t              DestSymAddress;
 
     /* Verify command packet length */
     if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
     {
         CmdPtr = ((MM_LoadMemWIDCmd_t *)BufPtr);
 
+        DestSymAddress = CmdPtr->DestSymAddress;
+
         /* Resolve the symbolic address in command message */
-        if (MM_ResolveSymAddr(&(CmdPtr->DestSymAddress), &DestAddress) == true)
+        if (MM_ResolveSymAddr(&(DestSymAddress), &DestAddress) == true)
         {
             /*
             ** Run some necessary checks on command parameters
@@ -346,7 +352,7 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
         else
         {
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Symbolic address can't be resolved: Name = '%s'", CmdPtr->DestSymAddress.SymName);
+                              "Symbolic address can't be resolved: Name = '%s'", DestSymAddress.SymName);
         }
 
     } /* end MM_VerifyCmdLength if */
@@ -361,15 +367,16 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    bool                     Valid      = false;
-    osal_id_t                FileHandle = OS_OBJECT_ID_UNDEFINED;
-    int32                    OS_Status;
-    cpuaddr                  DestAddress = 0;
-    MM_LoadMemFromFileCmd_t *CmdPtr;
-    CFE_FS_Header_t          CFEFileHeader;
-    MM_LoadDumpFileHeader_t  MMFileHeader;
-    uint32                   ComputedCRC;
-    uint16                   ExpectedLength = sizeof(MM_LoadMemFromFileCmd_t);
+    bool                           Valid      = false;
+    osal_id_t                      FileHandle = OS_OBJECT_ID_UNDEFINED;
+    int32                          OS_Status;
+    cpuaddr                        DestAddress = 0;
+    char                           FileName[OS_MAX_PATH_LEN];
+    const MM_LoadMemFromFileCmd_t *CmdPtr;
+    CFE_FS_Header_t                CFEFileHeader;
+    MM_LoadDumpFileHeader_t        MMFileHeader;
+    uint32                         ComputedCRC;
+    uint16                         ExpectedLength = sizeof(MM_LoadMemFromFileCmd_t);
 
     memset(&MMFileHeader, 0, sizeof(MMFileHeader));
 
@@ -378,22 +385,19 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
     {
         CmdPtr = ((MM_LoadMemFromFileCmd_t *)BufPtr);
 
-        /*
-        ** NUL terminate the very end of the file name string array as a
-        ** safety measure
-        */
-        CmdPtr->FileName[OS_MAX_PATH_LEN - 1] = '\0';
+        /* Make sure string is null terminated before attempting to process it */
+        CFE_SB_MessageStringGet(FileName, CmdPtr->FileName, NULL, sizeof(FileName), sizeof(CmdPtr->FileName));
 
         /* Open load file for reading */
-        OS_Status = OS_OpenCreate(&FileHandle, CmdPtr->FileName, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+        OS_Status = OS_OpenCreate(&FileHandle, FileName, OS_FILE_FLAG_NONE, OS_READ_ONLY);
         if (OS_Status == OS_SUCCESS)
         {
             /* Read in the file headers */
-            Valid = MM_ReadFileHeaders(CmdPtr->FileName, FileHandle, &CFEFileHeader, &MMFileHeader);
+            Valid = MM_ReadFileHeaders(FileName, FileHandle, &CFEFileHeader, &MMFileHeader);
             if (Valid == true)
             {
                 /* Verify the file size is correct */
-                Valid = MM_VerifyLoadFileSize(CmdPtr->FileName, &MMFileHeader);
+                Valid = MM_VerifyLoadFileSize(FileName, &MMFileHeader);
                 if (Valid == true)
                 {
                     /* Verify data integrity check value */
@@ -428,28 +432,28 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
                                     {
                                         case MM_RAM:
                                         case MM_EEPROM:
-                                            Valid = MM_LoadMemFromFile(FileHandle, CmdPtr->FileName, &MMFileHeader,
-                                                                       DestAddress);
+                                            Valid =
+                                                MM_LoadMemFromFile(FileHandle, FileName, &MMFileHeader, DestAddress);
                                             break;
 
 #ifdef MM_OPT_CODE_MEM32_MEMTYPE
                                         case MM_MEM32:
-                                            Valid = MM_LoadMem32FromFile(FileHandle, CmdPtr->FileName, &MMFileHeader,
-                                                                         DestAddress);
+                                            Valid =
+                                                MM_LoadMem32FromFile(FileHandle, FileName, &MMFileHeader, DestAddress);
                                             break;
 #endif /* MM_OPT_CODE_MEM32_MEMTYPE */
 
 #ifdef MM_OPT_CODE_MEM16_MEMTYPE
                                         case MM_MEM16:
-                                            Valid = MM_LoadMem16FromFile(FileHandle, CmdPtr->FileName, &MMFileHeader,
-                                                                         DestAddress);
+                                            Valid =
+                                                MM_LoadMem16FromFile(FileHandle, FileName, &MMFileHeader, DestAddress);
                                             break;
 #endif /* MM_OPT_CODE_MEM16_MEMTYPE */
 
 #ifdef MM_OPT_CODE_MEM8_MEMTYPE
                                         case MM_MEM8:
-                                            Valid = MM_LoadMem8FromFile(FileHandle, CmdPtr->FileName, &MMFileHeader,
-                                                                        DestAddress);
+                                            Valid =
+                                                MM_LoadMem8FromFile(FileHandle, FileName, &MMFileHeader, DestAddress);
                                             break;
 #endif /* MM_OPT_CODE_MEM8_MEMTYPE */
 
@@ -468,7 +472,7 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
                                                           "Load Memory From File Command: Loaded %d bytes to "
                                                           "address %p from file '%s'",
                                                           (int)MM_AppData.HkPacket.BytesProcessed, (void *)DestAddress,
-                                                          CmdPtr->FileName);
+                                                          FileName);
                                     }
 
                                 } /* end MM_VerifyFileLoadParams if */
@@ -480,8 +484,7 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
                                     ** We send this event as a supplemental message with the filename attached.
                                     */
                                     CFE_EVS_SendEvent(MM_FILE_LOAD_PARAMS_ERR_EID, CFE_EVS_EventType_ERROR,
-                                                      "Load file failed parameters check: File = '%s'",
-                                                      CmdPtr->FileName);
+                                                      "Load file failed parameters check: File = '%s'", FileName);
                                 }
 
                             } /* end MM_ResolveSymAddr if */
@@ -498,8 +501,7 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
                             Valid = false;
                             CFE_EVS_SendEvent(MM_LOAD_FILE_CRC_ERR_EID, CFE_EVS_EventType_ERROR,
                                               "Load file CRC failure: Expected = 0x%X Calculated = 0x%X File = '%s'",
-                                              (unsigned int)MMFileHeader.Crc, (unsigned int)ComputedCRC,
-                                              CmdPtr->FileName);
+                                              (unsigned int)MMFileHeader.Crc, (unsigned int)ComputedCRC, FileName);
                         }
 
                     } /* end MM_ComputeCRCFromFile if */
@@ -508,7 +510,7 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
                         Valid = false;
                         CFE_EVS_SendEvent(MM_COMPUTECRCFROMFILE_ERR_EID, CFE_EVS_EventType_ERROR,
                                           "MM_ComputeCRCFromFile error received: RC = 0x%08X File = '%s'",
-                                          (unsigned int)OS_Status, CmdPtr->FileName);
+                                          (unsigned int)OS_Status, FileName);
                     }
 
                 } /* end MM_VerifyLoadFileSize */
@@ -532,7 +534,7 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
                 Valid = false;
                 CFE_EVS_SendEvent(MM_OS_CLOSE_ERR_EID, CFE_EVS_EventType_ERROR,
                                   "OS_close error received: RC = 0x%08X File = '%s'", (unsigned int)OS_Status,
-                                  CmdPtr->FileName);
+                                  FileName);
             }
 
         } /* end OS_OpenCreate if */
@@ -721,16 +723,17 @@ bool MM_ReadFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Heade
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_FillMemCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    cpuaddr          DestAddress    = 0;
-    MM_FillMemCmd_t *CmdPtr         = (MM_FillMemCmd_t *)BufPtr;
-    uint16           ExpectedLength = sizeof(MM_FillMemCmd_t);
-    bool             CmdResult      = false;
+    cpuaddr                DestAddress    = 0;
+    const MM_FillMemCmd_t *CmdPtr         = (MM_FillMemCmd_t *)BufPtr;
+    uint16                 ExpectedLength = sizeof(MM_FillMemCmd_t);
+    bool                   CmdResult      = false;
+    MM_SymAddr_t           DestSymAddress = CmdPtr->DestSymAddress;
 
     /* Verify command packet length */
     if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
     {
         /* Resolve symbolic address */
-        if (MM_ResolveSymAddr(&(CmdPtr->DestSymAddress), &DestAddress) == true)
+        if (MM_ResolveSymAddr(&(DestSymAddress), &DestAddress) == true)
         {
             /* Run necessary checks on command parameters */
             if (MM_VerifyLoadDumpParams(DestAddress, CmdPtr->MemType, CmdPtr->NumOfBytes, MM_VERIFY_FILL) == true)
@@ -781,7 +784,7 @@ bool MM_FillMemCmd(const CFE_SB_Buffer_t *BufPtr)
         else
         {
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Symbolic address can't be resolved: Name = '%s'", CmdPtr->DestSymAddress.SymName);
+                              "Symbolic address can't be resolved: Name = '%s'", DestSymAddress.SymName);
         }
     }
 

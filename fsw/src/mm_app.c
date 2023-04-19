@@ -420,11 +420,12 @@ bool MM_ResetCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    int32              OS_Status = OS_ERROR; /* Set to error instead of success since we explicitly test for success */
-    cpuaddr            ResolvedAddr   = 0;
-    MM_LookupSymCmd_t *CmdPtr         = NULL;
-    size_t             ExpectedLength = sizeof(MM_LookupSymCmd_t);
-    bool               Result         = false;
+    int32   OS_Status    = OS_ERROR; /* Set to error instead of success since we explicitly test for success */
+    cpuaddr ResolvedAddr = 0;
+    const MM_LookupSymCmd_t *CmdPtr         = NULL;
+    size_t                   ExpectedLength = sizeof(MM_LookupSymCmd_t);
+    bool                     Result         = false;
+    char                     SymName[OS_MAX_SYM_LEN];
 
     /*
     ** Verify command packet length
@@ -433,16 +434,13 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
     {
         CmdPtr = ((MM_LookupSymCmd_t *)BufPtr);
 
-        /*
-        ** NUL terminate the very end of the symbol name string as a
-        ** safety measure
-        */
-        CmdPtr->SymName[OS_MAX_SYM_LEN - 1] = '\0';
+        /* Make sure string is null terminated before attempting to process it */
+        CFE_SB_MessageStringGet(SymName, CmdPtr->SymName, NULL, sizeof(SymName), sizeof(CmdPtr->SymName));
 
         /*
         ** Check if the symbol name string is a nul string
         */
-        if (strlen(CmdPtr->SymName) == 0)
+        if (strlen(SymName) == 0)
         {
             CFE_EVS_SendEvent(MM_SYMNAME_NUL_ERR_EID, CFE_EVS_EventType_ERROR,
                               "NUL (empty) string specified as symbol name");
@@ -452,7 +450,7 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
             /*
             ** If symbol name is not an empty string look it up using the OSAL API
             */
-            OS_Status = OS_SymbolLookup(&ResolvedAddr, CmdPtr->SymName);
+            OS_Status = OS_SymbolLookup(&ResolvedAddr, SymName);
             if (OS_Status == OS_SUCCESS)
             {
                 /* Update telemetry */
@@ -460,14 +458,13 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
                 MM_AppData.HkPacket.Address    = ResolvedAddr;
 
                 CFE_EVS_SendEvent(MM_SYM_LOOKUP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                  "Symbol Lookup Command: Name = '%s' Addr = %p", CmdPtr->SymName,
-                                  (void *)ResolvedAddr);
+                                  "Symbol Lookup Command: Name = '%s' Addr = %p", SymName, (void *)ResolvedAddr);
                 Result = true;
             }
             else
             {
                 CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Symbolic address can't be resolved: Name = '%s'", CmdPtr->SymName);
+                                  "Symbolic address can't be resolved: Name = '%s'", SymName);
             }
 
         } /* end strlen(CmdPtr->SymName) == 0 else */
@@ -484,10 +481,11 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    int32 OS_Status              = OS_ERROR; /* Set to error instead of success since we explicitly test for success */
-    MM_SymTblToFileCmd_t *CmdPtr = NULL;
-    size_t                ExpectedLength = sizeof(MM_SymTblToFileCmd_t);
-    bool                  Result         = false;
+    int32 OS_Status = OS_ERROR; /* Set to error instead of success since we explicitly test for success */
+    char  FileName[OS_MAX_PATH_LEN];
+    const MM_SymTblToFileCmd_t *CmdPtr         = NULL;
+    size_t                      ExpectedLength = sizeof(MM_SymTblToFileCmd_t);
+    bool                        Result         = false;
 
     /*
     ** Verify command packet length
@@ -496,41 +494,38 @@ bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
     {
         CmdPtr = ((MM_SymTblToFileCmd_t *)BufPtr);
 
-        /*
-        ** NUL terminate the very end of the filename string as a
-        ** safety measure
-        */
-        CmdPtr->FileName[OS_MAX_PATH_LEN - 1] = '\0';
+        /* Make sure string is null terminated before attempting to process it */
+        CFE_SB_MessageStringGet(FileName, CmdPtr->FileName, NULL, sizeof(FileName), sizeof(CmdPtr->FileName));
 
         /*
         ** Check if the filename string is a nul string
         */
-        if (strlen(CmdPtr->FileName) == 0)
+        if (strlen(FileName) == 0)
         {
             CFE_EVS_SendEvent(MM_SYMFILENAME_NUL_ERR_EID, CFE_EVS_EventType_ERROR,
                               "NUL (empty) string specified as symbol dump file name");
         }
         else
         {
-            OS_Status = OS_SymbolTableDump(CmdPtr->FileName, MM_MAX_DUMP_FILE_DATA_SYMTBL);
+            OS_Status = OS_SymbolTableDump(FileName, MM_MAX_DUMP_FILE_DATA_SYMTBL);
             if (OS_Status == OS_SUCCESS)
             {
                 /* Update telemetry */
                 MM_AppData.HkPacket.LastAction = MM_SYMTBL_SAVE;
-                strncpy(MM_AppData.HkPacket.FileName, CmdPtr->FileName, OS_MAX_PATH_LEN);
+                strncpy(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN);
 
                 CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                  "Symbol Table Dump to File Started: Name = '%s'", CmdPtr->FileName);
+                                  "Symbol Table Dump to File Started: Name = '%s'", FileName);
                 Result = true;
             }
             else
             {
                 CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_FAIL_ERR_EID, CFE_EVS_EventType_ERROR,
                                   "Error dumping symbol table, OS_Status= 0x%X, File='%s'", (unsigned int)OS_Status,
-                                  CmdPtr->FileName);
+                                  FileName);
             }
 
-        } /* end strlen(CmdPtr->FileName) == 0 else */
+        } /* end strlen(FileName) == 0 else */
 
     } /* end MM_VerifyCmdLength if */
 

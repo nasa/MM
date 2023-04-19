@@ -47,19 +47,22 @@ extern MM_AppData_t MM_AppData;
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_PeekCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    bool          Valid;
-    MM_PeekCmd_t *CmdPtr;
-    cpuaddr       SrcAddress     = 0;
-    uint16        ExpectedLength = sizeof(MM_PeekCmd_t);
-    bool          Result         = false;
+    bool                Valid;
+    const MM_PeekCmd_t *CmdPtr;
+    cpuaddr             SrcAddress     = 0;
+    uint16              ExpectedLength = sizeof(MM_PeekCmd_t);
+    bool                Result         = false;
+    MM_SymAddr_t        SrcSymAddress;
 
     /* Verify command packet length */
     if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
     {
         CmdPtr = ((MM_PeekCmd_t *)BufPtr);
 
+        SrcSymAddress = CmdPtr->SrcSymAddress;
+
         /* Resolve the symbolic address in command message */
-        Valid = MM_ResolveSymAddr(&(CmdPtr->SrcSymAddress), &SrcAddress);
+        Valid = MM_ResolveSymAddr(&(SrcSymAddress), &SrcAddress);
 
         if (Valid == true)
         {
@@ -186,28 +189,29 @@ bool MM_PeekMem(const MM_PeekCmd_t *CmdPtr, cpuaddr SrcAddress)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    bool                    Valid = false;
-    int32                   OS_Status;
-    osal_id_t               FileHandle = OS_OBJECT_ID_UNDEFINED;
-    cpuaddr                 SrcAddress = 0;
-    MM_DumpMemToFileCmd_t * CmdPtr;
-    CFE_FS_Header_t         CFEFileHeader;
-    MM_LoadDumpFileHeader_t MMFileHeader;
-    uint16                  ExpectedLength = sizeof(MM_DumpMemToFileCmd_t);
+    bool                         Valid = false;
+    int32                        OS_Status;
+    osal_id_t                    FileHandle = OS_OBJECT_ID_UNDEFINED;
+    cpuaddr                      SrcAddress = 0;
+    char                         FileName[OS_MAX_PATH_LEN];
+    MM_SymAddr_t                 SrcSymAddress;
+    const MM_DumpMemToFileCmd_t *CmdPtr;
+    CFE_FS_Header_t              CFEFileHeader;
+    MM_LoadDumpFileHeader_t      MMFileHeader;
+    uint16                       ExpectedLength = sizeof(MM_DumpMemToFileCmd_t);
 
     /* Verify command packet length */
     if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
     {
         CmdPtr = ((MM_DumpMemToFileCmd_t *)BufPtr);
 
-        /*
-        ** NUL terminate the very end of the file name string array as a
-        ** safety measure
-        */
-        CmdPtr->FileName[OS_MAX_PATH_LEN - 1] = '\0';
+        SrcSymAddress = CmdPtr->SrcSymAddress;
+
+        /* Make sure strings are null terminated before attempting to process them */
+        CFE_SB_MessageStringGet(FileName, CmdPtr->FileName, NULL, sizeof(FileName), sizeof(CmdPtr->FileName));
 
         /* Resolve the symbolic address in command message */
-        Valid = MM_ResolveSymAddr(&(CmdPtr->SrcSymAddress), &SrcAddress);
+        Valid = MM_ResolveSymAddr(&(SrcSymAddress), &SrcAddress);
 
         if (Valid == true)
         {
@@ -237,36 +241,36 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                 /*
                 ** Create and open dump file
                 */
-                OS_Status = OS_OpenCreate(&FileHandle, CmdPtr->FileName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE,
-                                          OS_READ_WRITE);
+                OS_Status =
+                    OS_OpenCreate(&FileHandle, FileName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_READ_WRITE);
                 if (OS_Status == OS_SUCCESS)
                 {
                     /* Write the file headers */
-                    Valid = MM_WriteFileHeaders(CmdPtr->FileName, FileHandle, &CFEFileHeader, &MMFileHeader);
+                    Valid = MM_WriteFileHeaders(FileName, FileHandle, &CFEFileHeader, &MMFileHeader);
                     if (Valid == true)
                     {
                         switch (MMFileHeader.MemType)
                         {
                             case MM_RAM:
                             case MM_EEPROM:
-                                Valid = MM_DumpMemToFile(FileHandle, CmdPtr->FileName, &MMFileHeader);
+                                Valid = MM_DumpMemToFile(FileHandle, FileName, &MMFileHeader);
                                 break;
 
 #ifdef MM_OPT_CODE_MEM32_MEMTYPE
                             case MM_MEM32:
-                                Valid = MM_DumpMem32ToFile(FileHandle, CmdPtr->FileName, &MMFileHeader);
+                                Valid = MM_DumpMem32ToFile(FileHandle, FileName, &MMFileHeader);
                                 break;
 #endif /* MM_OPT_CODE_MEM32_MEMTYPE */
 
 #ifdef MM_OPT_CODE_MEM16_MEMTYPE
                             case MM_MEM16:
-                                Valid = MM_DumpMem16ToFile(FileHandle, CmdPtr->FileName, &MMFileHeader);
+                                Valid = MM_DumpMem16ToFile(FileHandle, FileName, &MMFileHeader);
                                 break;
 #endif /* MM_OPT_CODE_MEM16_MEMTYPE */
 
 #ifdef MM_OPT_CODE_MEM8_MEMTYPE
                             case MM_MEM8:
-                                Valid = MM_DumpMem8ToFile(FileHandle, CmdPtr->FileName, &MMFileHeader);
+                                Valid = MM_DumpMem8ToFile(FileHandle, FileName, &MMFileHeader);
                                 break;
 #endif /* MM_OPT_CODE_MEM8_MEMTYPE */
                             default:
@@ -298,8 +302,7 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                                     ** the file pointer to the beginning of the file so we don't need to do it
                                     ** here.
                                     */
-                                    Valid = MM_WriteFileHeaders(CmdPtr->FileName, FileHandle, &CFEFileHeader,
-                                                                &MMFileHeader);
+                                    Valid = MM_WriteFileHeaders(FileName, FileHandle, &CFEFileHeader, &MMFileHeader);
 
                                 } /* end MM_ComputeCRCFromFile if */
                                 else
@@ -307,7 +310,7 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                                     Valid = false;
                                     CFE_EVS_SendEvent(MM_COMPUTECRCFROMFILE_ERR_EID, CFE_EVS_EventType_ERROR,
                                                       "MM_ComputeCRCFromFile error received: RC = 0x%08X File = '%s'",
-                                                      (unsigned int)OS_Status, CmdPtr->FileName);
+                                                      (unsigned int)OS_Status, FileName);
                                 }
                             }
 
@@ -318,12 +321,12 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                             CFE_EVS_SendEvent(
                                 MM_DMP_MEM_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
                                 "Dump Memory To File Command: Dumped %d bytes from address %p to file '%s'",
-                                (int)MM_AppData.HkPacket.BytesProcessed, (void *)SrcAddress, CmdPtr->FileName);
+                                (int)MM_AppData.HkPacket.BytesProcessed, (void *)SrcAddress, FileName);
                             /*
                             ** Update last action statistics
                             */
                             MM_AppData.HkPacket.LastAction = MM_DUMP_TO_FILE;
-                            strncpy(MM_AppData.HkPacket.FileName, CmdPtr->FileName, OS_MAX_PATH_LEN);
+                            strncpy(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN);
                             MM_AppData.HkPacket.MemType        = CmdPtr->MemType;
                             MM_AppData.HkPacket.Address        = SrcAddress;
                             MM_AppData.HkPacket.BytesProcessed = CmdPtr->NumOfBytes;
@@ -337,7 +340,7 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                         Valid = false;
                         CFE_EVS_SendEvent(MM_OS_CLOSE_ERR_EID, CFE_EVS_EventType_ERROR,
                                           "OS_close error received: RC = 0x%08X File = '%s'", (unsigned int)OS_Status,
-                                          CmdPtr->FileName);
+                                          FileName);
                     }
 
                 } /* end OS_OpenCreate if */
@@ -345,8 +348,7 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                 {
                     Valid = false;
                     CFE_EVS_SendEvent(MM_OS_CREAT_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "OS_OpenCreate error received: RC = %d File = '%s'", (int)OS_Status,
-                                      CmdPtr->FileName);
+                                      "OS_OpenCreate error received: RC = %d File = '%s'", (int)OS_Status, FileName);
                 }
 
             } /* end MM_VerifyFileLoadDumpParams if */
@@ -356,7 +358,7 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
         {
             Valid = false;
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Symbolic address can't be resolved: Name = '%s'", CmdPtr->SrcSymAddress.SymName);
+                              "Symbolic address can't be resolved: Name = '%s'", SrcSymAddress.SymName);
         }
 
     } /* end MM_VerifyCmdLength if */
@@ -476,16 +478,17 @@ bool MM_WriteFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Head
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    bool                 Valid = false;
-    MM_DumpInEventCmd_t *CmdPtr;
-    uint32               i;
-    int32                EventStringTotalLength = 0;
-    cpuaddr              SrcAddress             = 0;
-    uint16               ExpectedLength         = sizeof(MM_DumpInEventCmd_t);
-    uint8 *              BytePtr;
-    char                 TempString[MM_DUMPINEVENT_TEMP_CHARS];
-    const char           HeaderString[] = "Memory Dump: ";
-    static char          EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    bool                       Valid = false;
+    const MM_DumpInEventCmd_t *CmdPtr;
+    uint32                     i;
+    int32                      EventStringTotalLength = 0;
+    cpuaddr                    SrcAddress             = 0;
+    uint16                     ExpectedLength         = sizeof(MM_DumpInEventCmd_t);
+    uint8 *                    BytePtr;
+    char                       TempString[MM_DUMPINEVENT_TEMP_CHARS];
+    const char                 HeaderString[] = "Memory Dump: ";
+    static char                EventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    MM_SymAddr_t               SrcSymAddress;
 
     /*
     ** Allocate a dump buffer. It's declared this way to ensure it stays
@@ -499,8 +502,10 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
     {
         CmdPtr = ((MM_DumpInEventCmd_t *)BufPtr);
 
+        SrcSymAddress = CmdPtr->SrcSymAddress;
+
         /* Resolve the symbolic source address in the command message */
-        Valid = MM_ResolveSymAddr(&(CmdPtr->SrcSymAddress), &SrcAddress);
+        Valid = MM_ResolveSymAddr(&(SrcSymAddress), &SrcAddress);
 
         if (Valid == true)
         {
@@ -559,7 +564,7 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
         else
         {
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Symbolic address can't be resolved: Name = '%s'", CmdPtr->SrcSymAddress.SymName);
+                              "Symbolic address can't be resolved: Name = '%s'", SrcSymAddress.SymName);
         }
 
     } /* end MM_VerifyCmdLength if */
