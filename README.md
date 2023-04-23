@@ -1,4 +1,4 @@
-#core Flight System (cFS) Memory Manager Application (MM)
+# core Flight System (cFS) Memory Manager Application (MM)
 
 ## Introduction
 

@@ -51,7 +51,7 @@ MM_AppData_t MM_AppData;
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void MM_AppMain(void)
 {
-    int32            Status = CFE_SUCCESS;
+    CFE_Status_t     Status = CFE_SUCCESS;
     CFE_SB_Buffer_t *BufPtr = NULL;
 
     /*
@@ -127,9 +127,9 @@ void MM_AppMain(void)
 /* MM initialization                                               */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-int32 MM_AppInit(void)
+CFE_Status_t MM_AppInit(void)
 {
-    int32 Status = CFE_SUCCESS;
+    CFE_Status_t Status = CFE_SUCCESS;
 
     /*
     ** MM doesn't use the critical data store and
@@ -544,7 +544,7 @@ bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_EepromWriteEnaCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    int32                   cFE_Status     = CFE_PSP_ERROR; /* Set to error since we explicitly test for success */
+    CFE_Status_t            cFE_Status     = CFE_PSP_ERROR; /* Set to error since we explicitly test for success */
     MM_EepromWriteEnaCmd_t *CmdPtr         = NULL;
     size_t                  ExpectedLength = sizeof(MM_EepromWriteEnaCmd_t);
     bool                    Result         = false;
@@ -590,7 +590,7 @@ bool MM_EepromWriteEnaCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_EepromWriteDisCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    int32                   cFE_Status     = CFE_PSP_ERROR; /* Set to error since we explicitly test for success */
+    CFE_Status_t            cFE_Status     = CFE_PSP_ERROR; /* Set to error since we explicitly test for success */
     MM_EepromWriteDisCmd_t *CmdPtr         = NULL;
     size_t                  ExpectedLength = sizeof(MM_EepromWriteDisCmd_t);
     bool                    Result         = false;
