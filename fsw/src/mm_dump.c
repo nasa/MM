@@ -428,7 +428,7 @@ bool MM_DumpMemToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadD
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
-/* Write the cFE primary and and MM secondary file headers         */
+/* Write the cFE primary and MM secondary file headers         */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_WriteFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Header_t *CFEHeader,

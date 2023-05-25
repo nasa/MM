@@ -53,7 +53,7 @@
 /* mm_dump_tests globals */
 uint8 call_count_CFE_EVS_SendEvent;
 
-uint8 DummyBuffer[MM_MAX_FILL_DATA_SEG * 2];
+uint8 Buffer[MM_MAX_FILL_DATA_SEG * 2];
 
 /*
  * Function Definitions
@@ -64,7 +64,7 @@ int32 UT_MM_LOAD_TEST_CFE_SymbolLookupHook1(void *UserObj, int32 StubRetcode, ui
 {
     cpuaddr *ResolvedAddress = (cpuaddr *)Context->ArgPtr[1];
 
-    *ResolvedAddress = (cpuaddr)DummyBuffer;
+    *ResolvedAddress = (cpuaddr)Buffer;
 
     return true;
 }
@@ -75,7 +75,7 @@ int32 UT_MM_LOAD_TEST_OS_WriteHook1(void *UserObj, int32 StubRetcode, uint32 Cal
 
     cpuaddr *ResolvedAddress = (cpuaddr *)&header->SymAddress.Offset;
 
-    *ResolvedAddress = (cpuaddr)DummyBuffer;
+    *ResolvedAddress = (cpuaddr)Buffer;
 
     return sizeof(MM_LoadDumpFileHeader_t);
 }
@@ -523,7 +523,7 @@ void MM_DumpMemToFileCmd_Test_RAM(void)
 
     strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
             sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
-    UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = (cpuaddr)&DummyBuffer[0];
+    UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = (cpuaddr)&Buffer[0];
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_RAM;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
@@ -594,7 +594,7 @@ void MM_DumpMemToFileCmd_Test_BadType(void)
 
     strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
             sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
-    UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = (cpuaddr)&DummyBuffer[0];
+    UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = (cpuaddr)&Buffer[0];
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = 99;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
@@ -651,7 +651,7 @@ void MM_DumpMemToFileCmd_Test_EEPROM(void)
 
     strncpy(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName, "SymName",
             sizeof(UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.SymName) - 1);
-    UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = (cpuaddr)&DummyBuffer[0];
+    UT_CmdBuf.DumpMemToFileCmd.SrcSymAddress.Offset = (cpuaddr)&Buffer[0];
 
     UT_CmdBuf.DumpMemToFileCmd.MemType    = MM_EEPROM;
     UT_CmdBuf.DumpMemToFileCmd.NumOfBytes = 1;
@@ -1724,7 +1724,7 @@ void MM_DumpInEventCmd_Test_Nominal(void)
 
     UT_CmdBuf.DumpInEventCmd.MemType              = MM_RAM;
     UT_CmdBuf.DumpInEventCmd.NumOfBytes           = 1;
-    UT_CmdBuf.DumpInEventCmd.SrcSymAddress.Offset = (cpuaddr)&DummyBuffer[0];
+    UT_CmdBuf.DumpInEventCmd.SrcSymAddress.Offset = (cpuaddr)&Buffer[0];
 
     UT_CmdBuf.DumpInEventCmd.SrcSymAddress.SymName[0] = '\0';
 
@@ -1904,7 +1904,7 @@ void MM_DumpInEventCmd_Test_FillDumpInvalid(void)
 
     UT_CmdBuf.DumpInEventCmd.MemType              = MM_MEM8;
     UT_CmdBuf.DumpInEventCmd.NumOfBytes           = 1;
-    UT_CmdBuf.DumpInEventCmd.SrcSymAddress.Offset = (cpuaddr)&DummyBuffer[0];
+    UT_CmdBuf.DumpInEventCmd.SrcSymAddress.Offset = (cpuaddr)&Buffer[0];
 
     UT_CmdBuf.DumpInEventCmd.SrcSymAddress.SymName[0] = '\0';
 
