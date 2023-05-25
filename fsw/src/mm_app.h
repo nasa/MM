@@ -113,7 +113,7 @@ void MM_AppMain(void);
  *  \return Execution status, see \ref CFEReturnCodes
  *  \retval #CFE_SUCCESS \copybrief CFE_SUCCESS
  */
-int32 MM_AppInit(void);
+CFE_Status_t MM_AppInit(void);
 
 /**
  * \brief Process a command pipe message

@@ -298,11 +298,11 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_t MemType, uint8 SizeIn
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, uint32 SizeInBytes, uint8 VerifyType)
 {
-    bool   Valid = true;
-    int32  PSP_Status;
-    uint32 MaxSize     = 0;
-    uint32 PSP_MemType = 0;
-    char   MemTypeStr[MM_MAX_MEM_TYPE_STR_LEN];
+    bool         Valid = true;
+    CFE_Status_t PSP_Status;
+    uint32       MaxSize     = 0;
+    uint32       PSP_MemType = 0;
+    char         MemTypeStr[MM_MAX_MEM_TYPE_STR_LEN];
 
     if ((VerifyType != MM_VERIFY_LOAD) && (VerifyType != MM_VERIFY_DUMP) && (VerifyType != MM_VERIFY_EVENT) &&
         (VerifyType != MM_VERIFY_FILL) && (VerifyType != MM_VERIFY_WID))

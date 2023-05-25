@@ -55,7 +55,8 @@ uint8 call_count_CFE_EVS_SendEvent;
  * Function Definitions
  */
 
-int32 MM_APP_TEST_CFE_SB_RcvMsgHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
+CFE_Status_t MM_APP_TEST_CFE_SB_RcvMsgHook(void *UserObj, int32 StubRetcode, uint32 CallCount,
+                                           const UT_StubContext_t *Context)
 {
     return CFE_SUCCESS;
 }
@@ -217,9 +218,9 @@ void MM_AppMain_Test_SBTimeout(void)
 
 void MM_AppInit_Test_Nominal(void)
 {
-    int32 Result;
-    int32 strCmpResult;
-    char  ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    CFE_Status_t Result;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "MM Initialized. Version %%d.%%d.%%d.%%d");
 
@@ -252,9 +253,9 @@ void MM_AppInit_Test_Nominal(void)
 
 void MM_AppInit_Test_EVSRegisterError(void)
 {
-    int32 Result;
-    int32 strCmpResult;
-    char  ExpectedSysLogString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    CFE_Status_t Result;
+    int32        strCmpResult;
+    char         ExpectedSysLogString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedSysLogString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
              "MM App: Error Registering For Event Services, RC = 0x%%08X\n");
@@ -287,9 +288,9 @@ void MM_AppInit_Test_EVSRegisterError(void)
 
 void MM_AppInit_Test_SBCreatePipeError(void)
 {
-    int32 Result;
-    int32 strCmpResult;
-    char  ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    CFE_Status_t Result;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Error Creating SB Pipe, RC = 0x%%08X");
 
@@ -321,9 +322,9 @@ void MM_AppInit_Test_SBCreatePipeError(void)
 
 void MM_AppInit_Test_SBSubscribeHKError(void)
 {
-    int32 Result;
-    int32 strCmpResult;
-    char  ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    CFE_Status_t Result;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Error Subscribing to HK Request, RC = 0x%%08X");
 
@@ -355,9 +356,9 @@ void MM_AppInit_Test_SBSubscribeHKError(void)
 
 void MM_AppInit_Test_SBSubscribeMMError(void)
 {
-    int32 Result;
-    int32 strCmpResult;
-    char  ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    CFE_Status_t Result;
+    int32        strCmpResult;
+    char         ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "Error Subscribing to MM Command, RC = 0x%%08X");
 

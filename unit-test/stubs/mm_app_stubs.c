@@ -50,7 +50,7 @@ void MM_AppMain(void)
     UT_DEFAULT_IMPL(MM_AppMain);
 }
 
-int32 MM_AppInit(void)
+CFE_Status_t MM_AppInit(void)
 {
     return UT_DEFAULT_IMPL(MM_AppInit);
 }

@@ -108,14 +108,14 @@ bool MM_PokeCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_PokeMem(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
 {
-    uint8  ByteValue;
-    uint16 WordValue;
-    int32  PSP_Status     = CFE_PSP_SUCCESS;
-    uint32 DataValue      = 0;
-    uint32 BytesProcessed = 0;
-    bool   ValidPoke      = false;
-    uint8  DataSize       = 0; /* only used for giving MEM type/size in events */
-    uint32 EventID        = 0;
+    uint8        ByteValue;
+    uint16       WordValue;
+    CFE_Status_t PSP_Status     = CFE_PSP_SUCCESS;
+    uint32       DataValue      = 0;
+    uint32       BytesProcessed = 0;
+    bool         ValidPoke      = false;
+    uint8        DataSize       = 0; /* only used for giving MEM type/size in events */
+    uint32       EventID        = 0;
 
     /* Write input number of bits to destination address */
     switch (CmdPtr->DataSize)
@@ -193,12 +193,12 @@ bool MM_PokeMem(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
 {
-    uint8  ByteValue;
-    uint16 WordValue;
-    int32  PSP_Status;
-    uint32 DataValue      = 0;
-    uint32 BytesProcessed = 0;
-    bool   ValidPoke      = false;
+    uint8        ByteValue;
+    uint16       WordValue;
+    CFE_Status_t PSP_Status;
+    uint32       DataValue      = 0;
+    uint32       BytesProcessed = 0;
+    bool         ValidPoke      = false;
 
     CFE_ES_PerfLogEntry(MM_EEPROM_POKE_PERF_ID);
 
