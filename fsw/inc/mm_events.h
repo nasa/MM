@@ -19,7 +19,7 @@
 
 /**
  * @file
- *   Specification for the CFS Memory Manger event identifers.
+ *   Specification for the CFS Memory Manger event identifiers.
  */
 #ifndef MM_EVENTS_H
 #define MM_EVENTS_H
@@ -560,7 +560,7 @@
  *
  *  \par Cause:
  *
- *  This event message is issued when an symbol lookup command has been
+ *  This event message is issued when a symbol lookup command has been
  *  successfully executed.
  */
 #define MM_SYM_LOOKUP_INF_EID 45
