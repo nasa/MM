@@ -54,11 +54,11 @@ bool MM_LoadMem16FromFile(osal_id_t FileHandle, const char *FileName, const MM_L
     uint32       i;
     int32        ReadLength;
     CFE_Status_t PSP_Status     = CFE_PSP_SUCCESS;
-    int32        BytesProcessed = 0;
+    size_t       BytesProcessed = 0;
     int32        BytesRemaining = FileHeader->NumOfBytes;
     uint16 *     DataPointer16  = (uint16 *)DestAddress;
     uint16 *     ioBuffer16     = (uint16 *)&MM_AppData.LoadBuffer[0];
-    uint32       SegmentSize    = MM_MAX_LOAD_DATA_SEG;
+    size_t       SegmentSize    = MM_MAX_LOAD_DATA_SEG;
     bool         Valid          = false;
 
     while (BytesRemaining != 0)
@@ -73,8 +73,8 @@ bool MM_LoadMem16FromFile(osal_id_t FileHandle, const char *FileName, const MM_L
         {
             BytesRemaining = 0;
             CFE_EVS_SendEvent(MM_OS_READ_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "OS_read error received: RC = 0x%08X Expected = %d File = '%s'", (unsigned int)ReadLength,
-                              (int)SegmentSize, FileName);
+                              "OS_read error received: RC = 0x%08X Expected = %u File = '%s'", (unsigned int)ReadLength,
+                              (unsigned int)SegmentSize, FileName);
         }
         else
         {
@@ -138,11 +138,11 @@ bool MM_DumpMem16ToFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
     int32        OS_Status;
     CFE_Status_t PSP_Status = CFE_PSP_SUCCESS;
     uint32       i;
-    uint32       BytesProcessed = 0;
+    size_t       BytesProcessed = 0;
     uint32       BytesRemaining = FileHeader->NumOfBytes;
     uint16 *     DataPointer16  = (uint16 *)(FileHeader->SymAddress.Offset);
     uint16 *     ioBuffer16     = (uint16 *)&MM_AppData.DumpBuffer[0];
-    uint32       SegmentSize    = MM_MAX_DUMP_DATA_SEG;
+    size_t       SegmentSize    = MM_MAX_DUMP_DATA_SEG;
 
     while (BytesRemaining != 0)
     {
@@ -193,8 +193,8 @@ bool MM_DumpMem16ToFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
                 Valid          = false;
                 BytesRemaining = 0;
                 CFE_EVS_SendEvent(MM_OS_WRITE_EXP_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "OS_write error received: RC = 0x%08X Expected = %d File = '%s'",
-                                  (unsigned int)OS_Status, (int)SegmentSize, FileName);
+                                  "OS_write error received: RC = 0x%08X Expected = %u File = '%s'",
+                                  (unsigned int)OS_Status, (unsigned int)SegmentSize, FileName);
             }
         }
     }
@@ -222,12 +222,12 @@ bool MM_FillMem16(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
 {
     uint32       i;
     CFE_Status_t PSP_Status     = CFE_PSP_SUCCESS;
-    uint32       BytesProcessed = 0;
+    size_t       BytesProcessed = 0;
     uint32       BytesRemaining = CmdPtr->NumOfBytes;
     uint32       NewBytesRemaining;
     uint16       FillPattern16 = (uint16)CmdPtr->FillPattern;
     uint16 *     DataPointer16 = (uint16 *)DestAddress;
-    uint32       SegmentSize   = MM_MAX_FILL_DATA_SEG;
+    size_t       SegmentSize   = MM_MAX_FILL_DATA_SEG;
     bool         Result        = true;
 
     /* Check fill size and warn if not a multiple of 2 */

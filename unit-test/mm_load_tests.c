@@ -255,7 +255,7 @@ void MM_PokeCmd_Test_NonEEPROM(void)
     bool              Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Poke Command: Addr = %%p, Size = %%d bits, Data = 0x%%08X");
+             "Poke Command: Addr = %%p, Size = %%u bits, Data = 0x%%08X");
 
     TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
     FcnCode   = MM_POKE_CC;
@@ -429,7 +429,7 @@ void MM_PokeMem_Test_8bit(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Poke Command: Addr = %%p, Size = %%d bits, Data = 0x%%08X");
+             "Poke Command: Addr = %%p, Size = %%u bits, Data = 0x%%08X");
 
     CmdPacket.MemType  = MM_RAM;
     CmdPacket.DataSize = MM_BYTE_BIT_WIDTH;
@@ -475,7 +475,7 @@ void MM_PokeMem_Test_8bitError(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "PSP write memory error: RC=0x%%08X, Address=%%p, MemType=MEM%%d");
+             "PSP write memory error: RC=0x%%08X, Address=%%p, MemType=MEM%%u");
 
     CmdPacket.MemType  = MM_RAM;
     CmdPacket.DataSize = MM_BYTE_BIT_WIDTH;
@@ -519,7 +519,7 @@ void MM_PokeMem_Test_16bit(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Poke Command: Addr = %%p, Size = %%d bits, Data = 0x%%08X");
+             "Poke Command: Addr = %%p, Size = %%u bits, Data = 0x%%08X");
 
     CmdPacket.MemType  = MM_RAM;
     CmdPacket.DataSize = MM_WORD_BIT_WIDTH;
@@ -565,7 +565,7 @@ void MM_PokeMem_Test_16bitError(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "PSP write memory error: RC=0x%%08X, Address=%%p, MemType=MEM%%d");
+             "PSP write memory error: RC=0x%%08X, Address=%%p, MemType=MEM%%u");
 
     CmdPacket.MemType  = MM_RAM;
     CmdPacket.DataSize = MM_WORD_BIT_WIDTH;
@@ -609,7 +609,7 @@ void MM_PokeMem_Test_32bit(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Poke Command: Addr = %%p, Size = %%d bits, Data = 0x%%08X");
+             "Poke Command: Addr = %%p, Size = %%u bits, Data = 0x%%08X");
 
     CmdPacket.MemType  = MM_RAM;
     CmdPacket.DataSize = MM_DWORD_BIT_WIDTH;
@@ -655,7 +655,7 @@ void MM_PokeMem_Test_32bitError(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "PSP write memory error: RC=0x%%08X, Address=%%p, MemType=MEM%%d");
+             "PSP write memory error: RC=0x%%08X, Address=%%p, MemType=MEM%%u");
 
     CmdPacket.MemType  = MM_RAM;
     CmdPacket.DataSize = MM_DWORD_BIT_WIDTH;
@@ -1664,7 +1664,7 @@ void MM_LoadMemFromFileCmd_Test_NoVerifyLoadFileSize(void)
     bool  Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Load file size error: Reported by OS = %%d Expected = %%d File = '%%s'");
+             "Load file size error: Reported by OS = %%d Expected = %%u File = '%%s'");
 
     strncpy(UT_CmdBuf.LoadMemFromFileCmd.FileName, "name", sizeof(UT_CmdBuf.LoadMemFromFileCmd.FileName) - 1);
 
@@ -2136,7 +2136,7 @@ void MM_LoadMemFromFile_Test_ReadError(void)
     char  ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "OS_read error received: RC = 0x%%08X Expected = %%d File = '%%s'");
+             "OS_read error received: RC = 0x%%08X Expected = %%u File = '%%s'");
 
     /* Set to generate error message MM_OS_READ_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(OS_read), 1, 0);
@@ -2315,7 +2315,7 @@ void MM_VerifyLoadFileSize_Test_SizeError(void)
     char                    ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Load file size error: Reported by OS = %%d Expected = %%d File = '%%s'");
+             "Load file size error: Reported by OS = %%d Expected = %%u File = '%%s'");
 
     FileHeader.NumOfBytes = 99;
 

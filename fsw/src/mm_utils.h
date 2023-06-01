@@ -105,7 +105,7 @@ bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
  *  \retval true  Validation passed
  *  \retval false Validation failed
  */
-bool MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_t MemType, uint8 SizeInBits);
+bool MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_t MemType, size_t SizeInBits);
 
 /**
  * \brief Verify memory load and dump parameters
@@ -130,7 +130,7 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_t MemType, uint8 SizeIn
  *  \retval true  Validation passed
  *  \retval false Validation failed
  */
-bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, uint32 SizeInBytes, uint8 VerifyType);
+bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, size_t SizeInBytes, uint8 VerifyType);
 
 /**
  * \brief Verify 32 bit alignment
@@ -153,7 +153,7 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, uint32 SizeI
  *
  *  \sa #MM_Verify16Aligned
  */
-bool MM_Verify32Aligned(cpuaddr Address, uint32 Size);
+bool MM_Verify32Aligned(cpuaddr Address, size_t Size);
 
 /**
  * \brief Verify 16 bit alignment
@@ -175,7 +175,7 @@ bool MM_Verify32Aligned(cpuaddr Address, uint32 Size);
  *
  *  \sa #MM_Verify32Aligned
  */
-bool MM_Verify16Aligned(cpuaddr Address, uint32 Size);
+bool MM_Verify16Aligned(cpuaddr Address, size_t Size);
 
 /**
  * \brief Resolve symbolic address

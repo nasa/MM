@@ -55,7 +55,7 @@ bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
     return UT_DEFAULT_IMPL(MM_VerifyCmdLength);
 }
 
-bool MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_t MemType, uint8 SizeInBits)
+bool MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_t MemType, size_t SizeInBits)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_VerifyPeekPokeParams), Address);
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_VerifyPeekPokeParams), MemType);
@@ -63,7 +63,7 @@ bool MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_t MemType, uint8 SizeIn
     return UT_DEFAULT_IMPL(MM_VerifyPeekPokeParams);
 }
 
-bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, uint32 SizeInBytes, uint8 VerifyType)
+bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, size_t SizeInBytes, uint8 VerifyType)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_VerifyLoadDumpParams), Address);
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_VerifyLoadDumpParams), MemType);
@@ -72,14 +72,14 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, uint32 SizeI
     return UT_DEFAULT_IMPL(MM_VerifyLoadDumpParams);
 }
 
-bool MM_Verify32Aligned(cpuaddr Address, uint32 Size)
+bool MM_Verify32Aligned(cpuaddr Address, size_t Size)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_Verify32Aligned), Address);
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_Verify32Aligned), Size);
     return UT_DEFAULT_IMPL(MM_Verify32Aligned) != 0;
 }
 
-bool MM_Verify16Aligned(cpuaddr Address, uint32 Size)
+bool MM_Verify16Aligned(cpuaddr Address, size_t Size)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_Verify16Aligned), Address);
     UT_Stub_RegisterContextGenericArg(UT_KEY(MM_Verify16Aligned), Size);

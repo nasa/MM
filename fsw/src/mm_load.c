@@ -52,7 +52,7 @@ bool MM_PokeCmd(const CFE_SB_Buffer_t *BufPtr)
     bool                Valid       = false;
     cpuaddr             DestAddress = 0;
     const MM_PokeCmd_t *CmdPtr;
-    uint16              ExpectedLength = sizeof(MM_PokeCmd_t);
+    size_t              ExpectedLength = sizeof(MM_PokeCmd_t);
     MM_SymAddr_t        DestSymAddress;
 
     /* Verify command packet length */
@@ -112,9 +112,9 @@ bool MM_PokeMem(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
     uint16       WordValue;
     CFE_Status_t PSP_Status     = CFE_PSP_SUCCESS;
     uint32       DataValue      = 0;
-    uint32       BytesProcessed = 0;
+    size_t       BytesProcessed = 0;
     bool         ValidPoke      = false;
-    uint8        DataSize       = 0; /* only used for giving MEM type/size in events */
+    size_t       DataSize       = 0; /* only used for giving MEM type/size in events */
     uint32       EventID        = 0;
 
     /* Write input number of bits to destination address */
@@ -173,14 +173,14 @@ bool MM_PokeMem(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
         MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
 
         CFE_EVS_SendEvent(EventID, CFE_EVS_EventType_INFORMATION,
-                          "Poke Command: Addr = %p, Size = %d bits, Data = 0x%08X", (void *)DestAddress, DataSize,
-                          (unsigned int)DataValue);
+                          "Poke Command: Addr = %p, Size = %u bits, Data = 0x%08X", (void *)DestAddress,
+                          (unsigned int)DataSize, (unsigned int)DataValue);
     }
     else
     {
         CFE_EVS_SendEvent(MM_PSP_WRITE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "PSP write memory error: RC=0x%08X, Address=%p, MemType=MEM%d", (unsigned int)PSP_Status,
-                          (void *)DestAddress, DataSize);
+                          "PSP write memory error: RC=0x%08X, Address=%p, MemType=MEM%u", (unsigned int)PSP_Status,
+                          (void *)DestAddress, (unsigned int)DataSize);
     }
 
     return ValidPoke;
@@ -197,7 +197,7 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
     uint16       WordValue;
     CFE_Status_t PSP_Status;
     uint32       DataValue      = 0;
-    uint32       BytesProcessed = 0;
+    size_t       BytesProcessed = 0;
     bool         ValidPoke      = false;
 
     CFE_ES_PerfLogEntry(MM_EEPROM_POKE_PERF_ID);
@@ -298,7 +298,7 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
     const MM_LoadMemWIDCmd_t *CmdPtr;
     uint32                    ComputedCRC;
     cpuaddr                   DestAddress    = 0;
-    uint16                    ExpectedLength = sizeof(MM_LoadMemWIDCmd_t);
+    size_t                    ExpectedLength = sizeof(MM_LoadMemWIDCmd_t);
     bool                      CmdResult      = false;
     MM_SymAddr_t              DestSymAddress;
 
@@ -376,7 +376,7 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
     CFE_FS_Header_t                CFEFileHeader;
     MM_LoadDumpFileHeader_t        MMFileHeader;
     uint32                         ComputedCRC;
-    uint16                         ExpectedLength = sizeof(MM_LoadMemFromFileCmd_t);
+    size_t                         ExpectedLength = sizeof(MM_LoadMemFromFileCmd_t);
 
     memset(&MMFileHeader, 0, sizeof(MMFileHeader));
 
@@ -560,9 +560,9 @@ bool MM_LoadMemFromFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
 {
     bool   Valid          = false;
     int32  BytesRemaining = FileHeader->NumOfBytes;
-    int32  BytesProcessed = 0;
+    size_t BytesProcessed = 0;
     int32  ReadLength;
-    uint32 SegmentSize   = MM_MAX_LOAD_DATA_SEG;
+    size_t SegmentSize   = MM_MAX_LOAD_DATA_SEG;
     uint8 *ioBuffer      = (uint8 *)&MM_AppData.LoadBuffer[0];
     uint8 *TargetPointer = (uint8 *)DestAddress;
 
@@ -595,8 +595,8 @@ bool MM_LoadMemFromFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
         else
         {
             CFE_EVS_SendEvent(MM_OS_READ_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "OS_read error received: RC = 0x%08X Expected = %d File = '%s'", (unsigned int)ReadLength,
-                              (int)SegmentSize, FileName);
+                              "OS_read error received: RC = 0x%08X Expected = %u File = '%s'", (unsigned int)ReadLength,
+                              (unsigned int)SegmentSize, FileName);
             BytesRemaining = 0;
         }
     }
@@ -629,7 +629,7 @@ bool MM_VerifyLoadFileSize(const char *FileName, const MM_LoadDumpFileHeader_t *
 {
     bool       Valid = true;
     int32      OS_Status;
-    uint32     ExpectedSize;
+    size_t     ExpectedSize;
     int32      ActualSize; /* The size returned by OS_stat is signed */
     os_fstat_t FileStats;
 
@@ -663,8 +663,8 @@ bool MM_VerifyLoadFileSize(const char *FileName, const MM_LoadDumpFileHeader_t *
             ** the variable ActualSize to this function.
             */
             CFE_EVS_SendEvent(MM_LD_FILE_SIZE_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Load file size error: Reported by OS = %d Expected = %d File = '%s'", (int)ActualSize,
-                              (int)ExpectedSize, FileName);
+                              "Load file size error: Reported by OS = %d Expected = %u File = '%s'", (int)ActualSize,
+                              (unsigned int)ExpectedSize, FileName);
         }
     }
 
@@ -725,7 +725,7 @@ bool MM_FillMemCmd(const CFE_SB_Buffer_t *BufPtr)
 {
     cpuaddr                DestAddress    = 0;
     const MM_FillMemCmd_t *CmdPtr         = (MM_FillMemCmd_t *)BufPtr;
-    uint16                 ExpectedLength = sizeof(MM_FillMemCmd_t);
+    size_t                 ExpectedLength = sizeof(MM_FillMemCmd_t);
     bool                   CmdResult      = false;
     MM_SymAddr_t           DestSymAddress = CmdPtr->DestSymAddress;
 
@@ -800,7 +800,7 @@ bool MM_FillMem(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
 {
     uint16 i;
     bool   Valid          = true;
-    uint32 BytesProcessed = 0;
+    size_t BytesProcessed = 0;
     uint32 BytesRemaining = CmdPtr->NumOfBytes;
     uint32 SegmentSize    = MM_MAX_FILL_DATA_SEG;
     uint8 *TargetPointer  = (uint8 *)DestAddress;

@@ -89,7 +89,7 @@ void MM_PeekCmd_Test_Nominal(void)
     bool              Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Peek Command: Addr = %%p Size = %%d bits Data = 0x%%08X");
+             "Peek Command: Addr = %%p Size = %%u bits Data = 0x%%08X");
 
     UT_CmdBuf.PeekCmd.MemType  = MM_RAM;
     UT_CmdBuf.PeekCmd.DataSize = 32;
@@ -224,7 +224,7 @@ void MM_PeekMem_Test_Byte(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Peek Command: Addr = %%p Size = %%d bits Data = 0x%%08X");
+             "Peek Command: Addr = %%p Size = %%u bits Data = 0x%%08X");
 
     CmdPacket.DataSize = MM_BYTE_BIT_WIDTH;
     CmdPacket.MemType  = MM_RAM;
@@ -267,7 +267,7 @@ void MM_PeekMem_Test_ByteError(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "PSP read memory error: RC=%%d, Address=%%p, MemType=MEM%%d");
+             "PSP read memory error: RC=%%d, Address=%%p, MemType=MEM%%u");
 
     CmdPacket.DataSize = MM_BYTE_BIT_WIDTH;
 
@@ -305,7 +305,7 @@ void MM_PeekMem_Test_Word(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Peek Command: Addr = %%p Size = %%d bits Data = 0x%%08X");
+             "Peek Command: Addr = %%p Size = %%u bits Data = 0x%%08X");
 
     CmdPacket.DataSize = MM_WORD_BIT_WIDTH;
     CmdPacket.MemType  = MM_RAM;
@@ -348,7 +348,7 @@ void MM_PeekMem_Test_WordError(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "PSP read memory error: RC=%%d, Address=%%p, MemType=MEM%%d");
+             "PSP read memory error: RC=%%d, Address=%%p, MemType=MEM%%u");
 
     CmdPacket.DataSize = MM_WORD_BIT_WIDTH;
 
@@ -387,7 +387,7 @@ void MM_PeekMem_Test_DWord(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "Peek Command: Addr = %%p Size = %%d bits Data = 0x%%08X");
+             "Peek Command: Addr = %%p Size = %%u bits Data = 0x%%08X");
 
     CmdPacket.DataSize = MM_DWORD_BIT_WIDTH;
     CmdPacket.MemType  = MM_RAM;
@@ -430,7 +430,7 @@ void MM_PeekMem_Test_DWordError(void)
     bool         Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "PSP read memory error: RC=%%d, Address=%%p, MemType=MEM%%d");
+             "PSP read memory error: RC=%%d, Address=%%p, MemType=MEM%%u");
 
     CmdPacket.DataSize = MM_DWORD_BIT_WIDTH;
 
@@ -1543,7 +1543,7 @@ void MM_DumpMemToFile_Test_WriteError(void)
     bool                    Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "OS_write error received: RC = %%d, Expected = %%d, File = '%%s'");
+             "OS_write error received: RC = %%d, Expected = %%u, File = '%%s'");
 
     strncpy(FileName, "filename", sizeof(FileName) - 1);
     FileName[sizeof(FileName) - 1] = '\0';
@@ -1669,7 +1669,7 @@ void MM_WriteFileHeaders_Test_WriteError(void)
     bool                    Result;
 
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "OS_write error received: RC = %%d Expected = %%d File = '%%s'");
+             "OS_write error received: RC = %%d Expected = %%u File = '%%s'");
 
     strncpy(FileName, "filename", sizeof(FileName) - 1);
     FileName[sizeof(FileName) - 1] = '\0';
