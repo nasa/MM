@@ -484,27 +484,6 @@ void MM_PeekMem_Test_DefaultSwitch(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 }
 
-void MM_PeekMem_Test_NoLengthVerify(void)
-{
-    bool Result;
-
-    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, false);
-
-    /* Execute the function being tested */
-    Result = MM_PeekCmd(&UT_CmdBuf.Buf);
-
-    /* Verify results */
-    UtAssert_True(Result == false, "Result == false");
-
-    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
-    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
-                  call_count_CFE_EVS_SendEvent);
-
-    /* No command-handling function should be updating the cmd or err counter itself */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
-}
-
 void MM_DumpMemToFileCmd_Test_RAM(void)
 {
     CFE_SB_MsgId_t    TestMsgId;
@@ -1365,28 +1344,6 @@ void MM_DumpMemToFileCmd_Test_NoVerifyDumpParams(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 }
 
-void MM_DumpMemToFileCmd_Test_NoLengthVerify(void)
-{
-    bool Result;
-
-    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), false);
-
-    /* Execute the function being tested */
-    Result = MM_DumpMemToFileCmd(&UT_CmdBuf.Buf);
-
-    /* Verify results */
-    UtAssert_True(Result == false, "Result == false");
-
-    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
-
-    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
-                  call_count_CFE_EVS_SendEvent);
-
-    /* no command-handling function should be updating the cmd or err counter itself */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
-}
-
 void MM_DumpMemToFileCmd_Test_NoWriteHeaders(void)
 {
     CFE_SB_MsgId_t    TestMsgId;
@@ -1828,30 +1785,6 @@ void MM_DumpInEventCmd_Test_SymNameError(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 }
 
-void MM_DumpInEventCmd_Test_NoLengthVerify(void)
-{
-    bool Result;
-
-    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), false);
-
-    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyLoadDumpParams), true);
-
-    /* Execute the function being tested */
-    Result = MM_DumpInEventCmd(&UT_CmdBuf.Buf);
-
-    /* Verify results */
-    UtAssert_True(Result == false, "Result == false");
-
-    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
-
-    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
-                  call_count_CFE_EVS_SendEvent);
-
-    /* no command-handling function should be updating the cmd or err counter itself */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
-}
-
 void MM_DumpInEventCmd_Test_NoVerifyDumpParams(void)
 {
     CFE_SB_MsgId_t    TestMsgId;
@@ -2240,7 +2173,6 @@ void UtTest_Setup(void)
     UtTest_Add(MM_PeekMem_Test_DWord, MM_Test_Setup, MM_Test_TearDown, "MM_PeekMem_Test_DWord");
     UtTest_Add(MM_PeekMem_Test_DWordError, MM_Test_Setup, MM_Test_TearDown, "MM_PeekMem_Test_DWordError");
     UtTest_Add(MM_PeekMem_Test_DefaultSwitch, MM_Test_Setup, MM_Test_TearDown, "MM_PeekMem_Test_DefaultSwitch");
-    UtTest_Add(MM_PeekMem_Test_NoLengthVerify, MM_Test_Setup, MM_Test_TearDown, "MM_PeekMem_Test_NoLengthVerify");
 
     UtTest_Add(MM_DumpMemToFileCmd_Test_RAM, MM_Test_Setup, MM_Test_TearDown, "MM_DumpMemToFileCmd_Test_RAM");
     UtTest_Add(MM_DumpMemToFileCmd_Test_BadType, MM_Test_Setup, MM_Test_TearDown, "MM_DumpMemToFileCmd_Test_BadType");
@@ -2263,8 +2195,6 @@ void UtTest_Setup(void)
                "MM_DumpMemToFileCmd_Test_SymNameError");
     UtTest_Add(MM_DumpMemToFileCmd_Test_NoVerifyDumpParams, MM_Test_Setup, MM_Test_TearDown,
                "MM_DumpMemToFileCmd_Test_NoVerifyDumpParams");
-    UtTest_Add(MM_DumpMemToFileCmd_Test_NoLengthVerify, MM_Test_Setup, MM_Test_TearDown,
-               "MM_DumpMemToFileCmd_Test_NoLengthVerify");
     UtTest_Add(MM_DumpMemToFileCmd_Test_NoWriteHeaders, MM_Test_Setup, MM_Test_TearDown,
                "MM_DumpMemToFileCmd_Test_NoWriteHeaders");
 
@@ -2281,8 +2211,6 @@ void UtTest_Setup(void)
     UtTest_Add(MM_DumpInEventCmd_Test_Nominal, MM_Test_Setup, MM_Test_TearDown, "MM_DumpInEventCmd_Test_Nominal");
     UtTest_Add(MM_DumpInEventCmd_Test_SymNameError, MM_Test_Setup, MM_Test_TearDown,
                "MM_DumpInEventCmd_Test_SymNameError");
-    UtTest_Add(MM_DumpInEventCmd_Test_NoLengthVerify, MM_Test_Setup, MM_Test_TearDown,
-               "MM_DumpInEventCmd_Test_NoLengthVerify");
     UtTest_Add(MM_DumpInEventCmd_Test_NoVerifyDumpParams, MM_Test_Setup, MM_Test_TearDown,
                "MM_DumpInEventCmd_Test_NoVerifyDumpParams");
     UtTest_Add(MM_DumpInEventCmd_Test_FillDumpInvalid, MM_Test_Setup, MM_Test_TearDown,

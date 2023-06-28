@@ -50,13 +50,9 @@ bool MM_PeekCmd(const CFE_SB_Buffer_t *BufPtr)
     bool                Valid;
     const MM_PeekCmd_t *CmdPtr;
     cpuaddr             SrcAddress     = 0;
-    size_t              ExpectedLength = sizeof(MM_PeekCmd_t);
     bool                Result         = false;
     MM_SymAddr_t        SrcSymAddress;
 
-    /* Verify command packet length */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         CmdPtr = ((MM_PeekCmd_t *)BufPtr);
 
         SrcSymAddress = CmdPtr->Payload.SrcSymAddress;
@@ -85,8 +81,6 @@ bool MM_PeekCmd(const CFE_SB_Buffer_t *BufPtr)
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Symbolic address can't be resolved: Name = '%s'", CmdPtr->Payload.SrcSymAddress.SymName);
         }
-
-    } /* end MM_VerifyCmdLength if */
 
     return Result;
 }
@@ -198,11 +192,7 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
     const MM_DumpMemToFileCmd_t *CmdPtr;
     CFE_FS_Header_t              CFEFileHeader;
     MM_LoadDumpFileHeader_t      MMFileHeader;
-    size_t                       ExpectedLength = sizeof(MM_DumpMemToFileCmd_t);
 
-    /* Verify command packet length */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         CmdPtr = ((MM_DumpMemToFileCmd_t *)BufPtr);
 
         SrcSymAddress = CmdPtr->Payload.SrcSymAddress;
@@ -361,8 +351,6 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                               "Symbolic address can't be resolved: Name = '%s'", SrcSymAddress.SymName);
         }
 
-    } /* end MM_VerifyCmdLength if */
-
     return Valid;
 }
 
@@ -483,7 +471,6 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
     uint32                     i;
     int32                      EventStringTotalLength = 0;
     cpuaddr                    SrcAddress             = 0;
-    size_t                     ExpectedLength         = sizeof(MM_DumpInEventCmd_t);
     uint8 *                    BytePtr;
     char                       TempString[MM_DUMPINEVENT_TEMP_CHARS];
     const char                 HeaderString[] = "Memory Dump: ";
@@ -497,9 +484,6 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
     */
     uint32 DumpBuffer[(MM_MAX_DUMP_INEVENT_BYTES + 3) / 4];
 
-    /* Verify command packet length */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         CmdPtr = ((MM_DumpInEventCmd_t *)BufPtr);
 
         SrcSymAddress = CmdPtr->Payload.SrcSymAddress;
@@ -566,8 +550,6 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Symbolic address can't be resolved: Name = '%s'", SrcSymAddress.SymName);
         }
-
-    } /* end MM_VerifyCmdLength if */
 
     return Valid;
 }

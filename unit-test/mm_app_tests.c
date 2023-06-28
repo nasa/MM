@@ -388,7 +388,7 @@ void MM_AppInit_Test_SBSubscribeMMError(void)
                   call_count_CFE_EVS_SendEvent);
 }
 
-void MM_AppPipe_Test_SendHK(void)
+void MM_AppPipe_Test_SendHKSuccess(void)
 {
     CFE_SB_MsgId_t TestMsgId = CFE_SB_ValueToMsgId(MM_SEND_HK_MID);
 
@@ -396,6 +396,27 @@ void MM_AppPipe_Test_SendHK(void)
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
+
+    /* Execute the function being tested */
+    MM_AppPipe(&UT_CmdBuf.Buf);
+
+    /* Verify results */
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
+
+    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
+    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
+                  call_count_CFE_EVS_SendEvent);
+}
+
+void MM_AppPipe_Test_SendHKFail(void)
+{
+    CFE_SB_MsgId_t TestMsgId = CFE_SB_ValueToMsgId(MM_SEND_HK_MID);
+
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+
+    /* ignore dummy message length check */
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), false);
 
     /* Execute the function being tested */
     MM_AppPipe(&UT_CmdBuf.Buf);
@@ -546,11 +567,10 @@ void MM_AppPipe_Test_PeekSuccess(void)
 {
     CFE_SB_MsgId_t    TestMsgId             = CFE_SB_ValueToMsgId(MM_CMD_MID);
     CFE_MSG_FcnCode_t FcnCode               = MM_PEEK_CC;
-    uint8             call_count_MM_PeekCmd = 0;
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
     UT_SetDefaultReturnValue(UT_KEY(MM_PeekCmd), true);
 
     /* Execute the function being tested */
@@ -560,20 +580,17 @@ void MM_AppPipe_Test_PeekSuccess(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    call_count_MM_PeekCmd = UT_GetStubCount(UT_KEY(MM_PeekCmd));
-    UtAssert_INT32_EQ(call_count_MM_PeekCmd, 1);
+    UtAssert_STUB_COUNT(MM_PeekCmd, 1);
 }
 
 void MM_AppPipe_Test_PeekFail(void)
 {
     CFE_SB_MsgId_t    TestMsgId             = CFE_SB_ValueToMsgId(MM_CMD_MID);
     CFE_MSG_FcnCode_t FcnCode               = MM_PEEK_CC;
-    uint8             call_count_MM_PeekCmd = 0;
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-
-    UT_SetDefaultReturnValue(UT_KEY(MM_PeekCmd), false);
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, false);
 
     /* Execute the function being tested */
     MM_AppPipe(&UT_CmdBuf.Buf);
@@ -582,8 +599,7 @@ void MM_AppPipe_Test_PeekFail(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
-    call_count_MM_PeekCmd = UT_GetStubCount(UT_KEY(MM_PeekCmd));
-    UtAssert_INT32_EQ(call_count_MM_PeekCmd, 1);
+    UtAssert_STUB_COUNT(MM_PeekCmd, 0);
 }
 
 void MM_AppPipe_Test_PokeSuccess(void)
@@ -594,6 +610,7 @@ void MM_AppPipe_Test_PokeSuccess(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
     UT_SetDefaultReturnValue(UT_KEY(MM_PokeCmd), true);
 
     /* Execute the function being tested */
@@ -603,9 +620,7 @@ void MM_AppPipe_Test_PokeSuccess(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    uint8 call_count_MM_PokeCmd = 0;
-    call_count_MM_PokeCmd       = UT_GetStubCount(UT_KEY(MM_PokeCmd));
-    UtAssert_INT32_EQ(call_count_MM_PokeCmd, 1);
+    UtAssert_STUB_COUNT(MM_PokeCmd, 1);
 }
 
 void MM_AppPipe_Test_PokeFail(void)
@@ -616,6 +631,7 @@ void MM_AppPipe_Test_PokeFail(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, false);
     UT_SetDefaultReturnValue(UT_KEY(MM_PokeCmd), false);
 
     /* Execute the function being tested */
@@ -625,9 +641,7 @@ void MM_AppPipe_Test_PokeFail(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
-    uint8 call_count_MM_PokeCmd = 0;
-    call_count_MM_PokeCmd       = UT_GetStubCount(UT_KEY(MM_PokeCmd));
-    UtAssert_INT32_EQ(call_count_MM_PokeCmd, 1);
+    UtAssert_STUB_COUNT(MM_PokeCmd, 0);
 }
 
 void MM_AppPipe_Test_LoadMemWIDSuccess(void)
@@ -638,6 +652,7 @@ void MM_AppPipe_Test_LoadMemWIDSuccess(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
     UT_SetDefaultReturnValue(UT_KEY(MM_LoadMemWIDCmd), true);
 
     /* Execute the function being tested */
@@ -647,9 +662,7 @@ void MM_AppPipe_Test_LoadMemWIDSuccess(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    uint8 call_count_MM_LoadMemWID = 0;
-    call_count_MM_LoadMemWID       = UT_GetStubCount(UT_KEY(MM_LoadMemWIDCmd));
-    UtAssert_INT32_EQ(call_count_MM_LoadMemWID, 1);
+    UtAssert_STUB_COUNT(MM_LoadMemWIDCmd, 1);
 }
 
 void MM_AppPipe_Test_LoadMemWIDFail(void)
@@ -660,6 +673,7 @@ void MM_AppPipe_Test_LoadMemWIDFail(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, false);
     UT_SetDefaultReturnValue(UT_KEY(MM_LoadMemWIDCmd), false);
 
     /* Execute the function being tested */
@@ -669,9 +683,7 @@ void MM_AppPipe_Test_LoadMemWIDFail(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
-    uint8 call_count_MM_LoadMemWID = 0;
-    call_count_MM_LoadMemWID       = UT_GetStubCount(UT_KEY(MM_LoadMemWIDCmd));
-    UtAssert_INT32_EQ(call_count_MM_LoadMemWID, 1);
+    UtAssert_STUB_COUNT(MM_LoadMemWIDCmd, 0);
 }
 
 void MM_AppPipe_Test_LoadMemFromFileSuccess(void)
@@ -682,6 +694,7 @@ void MM_AppPipe_Test_LoadMemFromFileSuccess(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
     UT_SetDefaultReturnValue(UT_KEY(MM_LoadMemFromFileCmd), true);
 
     /* Execute the function being tested */
@@ -691,9 +704,7 @@ void MM_AppPipe_Test_LoadMemFromFileSuccess(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    uint8 call_count_MM_LoadMemFromFile = 0;
-    call_count_MM_LoadMemFromFile       = UT_GetStubCount(UT_KEY(MM_LoadMemFromFileCmd));
-    UtAssert_INT32_EQ(call_count_MM_LoadMemFromFile, 1);
+    UtAssert_STUB_COUNT(MM_LoadMemFromFileCmd, 1);
 }
 
 void MM_AppPipe_Test_LoadMemFromFileFail(void)
@@ -704,6 +715,7 @@ void MM_AppPipe_Test_LoadMemFromFileFail(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, false);
     UT_SetDefaultReturnValue(UT_KEY(MM_LoadMemFromFileCmd), false);
 
     /* Execute the function being tested */
@@ -713,9 +725,7 @@ void MM_AppPipe_Test_LoadMemFromFileFail(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
-    uint8 call_count_MM_LoadMemFromFile = 0;
-    call_count_MM_LoadMemFromFile       = UT_GetStubCount(UT_KEY(MM_LoadMemFromFileCmd));
-    UtAssert_INT32_EQ(call_count_MM_LoadMemFromFile, 1);
+    UtAssert_STUB_COUNT(MM_LoadMemFromFileCmd, 0);
 }
 
 void MM_AppPipe_Test_DumpMemToFileSuccess(void)
@@ -726,6 +736,7 @@ void MM_AppPipe_Test_DumpMemToFileSuccess(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
     UT_SetDefaultReturnValue(UT_KEY(MM_DumpMemToFileCmd), true);
 
     /* Execute the function being tested */
@@ -735,9 +746,7 @@ void MM_AppPipe_Test_DumpMemToFileSuccess(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    uint8 call_count_MM_DumpMemToFile = 0;
-    call_count_MM_DumpMemToFile       = UT_GetStubCount(UT_KEY(MM_DumpMemToFileCmd));
-    UtAssert_INT32_EQ(call_count_MM_DumpMemToFile, 1);
+    UtAssert_STUB_COUNT(MM_DumpMemToFileCmd, 1);
 }
 
 void MM_AppPipe_Test_DumpMemToFileFail(void)
@@ -748,6 +757,7 @@ void MM_AppPipe_Test_DumpMemToFileFail(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, false);
     UT_SetDefaultReturnValue(UT_KEY(MM_DumpMemToFileCmd), false);
 
     /* Execute the function being tested */
@@ -757,9 +767,7 @@ void MM_AppPipe_Test_DumpMemToFileFail(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
-    uint8 call_count_MM_DumpMemToFile = 0;
-    call_count_MM_DumpMemToFile       = UT_GetStubCount(UT_KEY(MM_DumpMemToFileCmd));
-    UtAssert_INT32_EQ(call_count_MM_DumpMemToFile, 1);
+    UtAssert_STUB_COUNT(MM_DumpMemToFileCmd, 0);
 }
 
 void MM_AppPipe_Test_DumpInEventSuccess(void)
@@ -770,6 +778,7 @@ void MM_AppPipe_Test_DumpInEventSuccess(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
     UT_SetDefaultReturnValue(UT_KEY(MM_DumpInEventCmd), true);
 
     /* Execute the function being tested */
@@ -779,9 +788,7 @@ void MM_AppPipe_Test_DumpInEventSuccess(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    uint8 call_count_MM_DumpInEvent = 0;
-    call_count_MM_DumpInEvent       = UT_GetStubCount(UT_KEY(MM_DumpInEventCmd));
-    UtAssert_INT32_EQ(call_count_MM_DumpInEvent, 1);
+    UtAssert_STUB_COUNT(MM_DumpInEventCmd, 1);
 }
 
 void MM_AppPipe_Test_DumpInEventFail(void)
@@ -792,6 +799,7 @@ void MM_AppPipe_Test_DumpInEventFail(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, false);
     UT_SetDefaultReturnValue(UT_KEY(MM_DumpInEventCmd), false);
 
     /* Execute the function being tested */
@@ -801,9 +809,7 @@ void MM_AppPipe_Test_DumpInEventFail(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
-    uint8 call_count_MM_DumpInEvent = 0;
-    call_count_MM_DumpInEvent       = UT_GetStubCount(UT_KEY(MM_DumpInEventCmd));
-    UtAssert_INT32_EQ(call_count_MM_DumpInEvent, 1);
+    UtAssert_STUB_COUNT(MM_DumpInEventCmd, 0);
 }
 
 void MM_AppPipe_Test_FillMemSuccess(void)
@@ -814,6 +820,7 @@ void MM_AppPipe_Test_FillMemSuccess(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, true);
     UT_SetDefaultReturnValue(UT_KEY(MM_FillMemCmd), true);
 
     /* Execute the function being tested */
@@ -823,9 +830,7 @@ void MM_AppPipe_Test_FillMemSuccess(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    uint8 call_count_MM_FillMem = 0;
-    call_count_MM_FillMem       = UT_GetStubCount(UT_KEY(MM_FillMemCmd));
-    UtAssert_INT32_EQ(call_count_MM_FillMem, 1);
+    UtAssert_STUB_COUNT(MM_FillMemCmd, 1);
 }
 
 void MM_AppPipe_Test_FillMemFail(void)
@@ -836,6 +841,7 @@ void MM_AppPipe_Test_FillMemFail(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
 
+    UT_SetDeferredRetcode(UT_KEY(MM_VerifyCmdLength), 1, false);
     UT_SetDefaultReturnValue(UT_KEY(MM_FillMemCmd), false);
 
     /* Execute the function being tested */
@@ -845,9 +851,7 @@ void MM_AppPipe_Test_FillMemFail(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
-    uint8 call_count_MM_FillMem = 0;
-    call_count_MM_FillMem       = UT_GetStubCount(UT_KEY(MM_FillMemCmd));
-    UtAssert_INT32_EQ(call_count_MM_FillMem, 1);
+    UtAssert_STUB_COUNT(MM_FillMemCmd, 0);
 }
 
 void MM_AppPipe_Test_LookupSymbolSuccess(void)
@@ -1167,9 +1171,6 @@ void MM_HousekeepingCmd_Test(void)
 
     strncpy(MM_AppData.HkPacket.Payload.FileName, "name", sizeof(MM_AppData.HkPacket.Payload.FileName) - 1);
 
-    /* ignore dummy message length check */
-    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
-
     /* Execute the function being tested */
     MM_HousekeepingCmd(&UT_CmdBuf.Buf);
 
@@ -1184,38 +1185,6 @@ void MM_HousekeepingCmd_Test(void)
 
     UtAssert_True(strncmp(MM_AppData.HkPacket.Payload.FileName, MM_AppData.HkPacket.Payload.FileName, OS_MAX_PATH_LEN) == 0,
                   "strncmp(MM_AppData.HkPacket.Payload.FileName, MM_AppData.HkPacket.Payload.FileName, OS_MAX_PATH_LEN) == 0");
-
-    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
-
-    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
-                  call_count_CFE_EVS_SendEvent);
-}
-
-void MM_HousekeepingCmd_Test_NoLengthVerify(void)
-{
-    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), false);
-
-    /* Execute the function being tested */
-    MM_HousekeepingCmd(&UT_CmdBuf.Buf);
-
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
-
-    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
-
-    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
-                  call_count_CFE_EVS_SendEvent);
-}
-
-void MM_ResetCmd_Test_NoLengthVerify(void)
-{
-    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), false);
-
-    /* Execute the function being tested */
-    MM_ResetCmd(&UT_CmdBuf.Buf);
-
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1349,22 +1318,6 @@ void MM_LookupSymbolCmd_Test_SymbolLookupError(void)
                   call_count_CFE_EVS_SendEvent);
 }
 
-void MM_LookupSymbolCmd_Test_NoLengthVerify(void)
-{
-    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), false);
-
-    /* Execute the function being tested */
-    MM_LookupSymbolCmd(&UT_CmdBuf.Buf);
-
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
-
-    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
-
-    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
-                  call_count_CFE_EVS_SendEvent);
-}
-
 void MM_SymTblToFileCmd_Test_Nominal(void)
 {
     CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
@@ -1494,22 +1447,6 @@ void MM_SymTblToFileCmd_Test_SymbolTableDumpError(void)
                   call_count_CFE_EVS_SendEvent);
 }
 
-void MM_SymTblToFileCmd_Test_NoLengthVerify(void)
-{
-    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), false);
-
-    /* Execute the function being tested */
-    MM_SymTblToFileCmd(&UT_CmdBuf.Buf);
-
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
-
-    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
-
-    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
-                  call_count_CFE_EVS_SendEvent);
-}
-
 void MM_EepromWriteEnaCmd_Test_Nominal(void)
 {
     CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
@@ -1596,22 +1533,6 @@ void MM_EepromWriteEnaCmd_Test_Error(void)
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
-                  call_count_CFE_EVS_SendEvent);
-}
-
-void MM_EepromWriteEnaCmd_Test_NoLengthVerify(void)
-{
-    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), false);
-
-    /* Execute the function being tested */
-    MM_EepromWriteEnaCmd(&UT_CmdBuf.Buf);
-
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
-
-    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
-
-    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
                   call_count_CFE_EVS_SendEvent);
 }
 
@@ -1704,22 +1625,6 @@ void MM_EepromWriteDisCmd_Test_Error(void)
                   call_count_CFE_EVS_SendEvent);
 }
 
-void MM_EepromWriteDisCmd_Test_NoLengthVerify(void)
-{
-    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), false);
-
-    /* Execute the function being tested */
-    MM_EepromWriteDisCmd(&UT_CmdBuf.Buf);
-
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
-
-    call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
-
-    UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
-                  call_count_CFE_EVS_SendEvent);
-}
-
 /*
  * Register the test cases to execute with the unit test tool
  */
@@ -1736,7 +1641,8 @@ void UtTest_Setup(void)
                "MM_AppInit_Test_SBSubscribeHKError");
     UtTest_Add(MM_AppInit_Test_SBSubscribeMMError, MM_Test_Setup, MM_Test_TearDown,
                "MM_AppInit_Test_SBSubscribeMMError");
-    UtTest_Add(MM_AppPipe_Test_SendHK, MM_Test_Setup, MM_Test_TearDown, "MM_AppPipe_Test_SendHk");
+    UtTest_Add(MM_AppPipe_Test_SendHKSuccess, MM_Test_Setup, MM_Test_TearDown, "MM_AppPipe_Test_SendHkSuccess");
+    UtTest_Add(MM_AppPipe_Test_SendHKFail, MM_Test_Setup, MM_Test_TearDown, "MM_AppPipe_Test_SendHkFail");
     UtTest_Add(MM_AppPipe_Test_NoopSuccess, MM_Test_Setup, MM_Test_TearDown, "MM_AppPipe_Test_NoopSuccess");
     UtTest_Add(MM_AppPipe_Test_NoopFail, MM_Test_Setup, MM_Test_TearDown, "MM_AppPipe_Test_NoopFail");
     UtTest_Add(MM_AppPipe_Test_ResetSuccess, MM_Test_Setup, MM_Test_TearDown, "MM_AppPipe_Test_ResetSuccess");
@@ -1777,34 +1683,22 @@ void UtTest_Setup(void)
                "MM_AppPipe_Test_InvalidCommandPipeMessageID");
 
     UtTest_Add(MM_HousekeepingCmd_Test, MM_Test_Setup, MM_Test_TearDown, "MM_HousekeepingCmd_Test");
-    UtTest_Add(MM_HousekeepingCmd_Test_NoLengthVerify, MM_Test_Setup, MM_Test_TearDown,
-               "MM_HousekeepingCmd_Test_NoLengthVerify");
-
-    UtTest_Add(MM_ResetCmd_Test_NoLengthVerify, MM_Test_Setup, MM_Test_TearDown, "MM_ResetCmd_Test_NoLengthVerify");
 
     UtTest_Add(MM_LookupSymbolCmd_Test_Nominal, MM_Test_Setup, MM_Test_TearDown, "MM_LookupSymbolCmd_Test_Nominal");
     UtTest_Add(MM_LookupSymbolCmd_Test_SymbolNameNull, MM_Test_Setup, MM_Test_TearDown,
                "MM_LookupSymbolCmd_Test_SymbolNameNull");
     UtTest_Add(MM_LookupSymbolCmd_Test_SymbolLookupError, MM_Test_Setup, MM_Test_TearDown,
                "MM_LookupSymbolCmd_Test_SymbolLookupError");
-    UtTest_Add(MM_LookupSymbolCmd_Test_NoLengthVerify, MM_Test_Setup, MM_Test_TearDown,
-               "MM_LookupSymbolCmd_Test_NoLengthVerify");
 
     UtTest_Add(MM_SymTblToFileCmd_Test_Nominal, MM_Test_Setup, MM_Test_TearDown, "MM_SymTblToFileCmd_Test_Nominal");
     UtTest_Add(MM_SymTblToFileCmd_Test_SymbolFilenameNull, MM_Test_Setup, MM_Test_TearDown,
                "MM_SymTblToFileCmd_Test_SymbolFilenameNull");
     UtTest_Add(MM_SymTblToFileCmd_Test_SymbolTableDumpError, MM_Test_Setup, MM_Test_TearDown,
                "MM_SymTblToFileCmd_Test_SymbolTableDumpError");
-    UtTest_Add(MM_SymTblToFileCmd_Test_NoLengthVerify, MM_Test_Setup, MM_Test_TearDown,
-               "MM_SymTblToFileCmd_Test_NoLengthVerify");
 
     UtTest_Add(MM_EepromWriteEnaCmd_Test_Nominal, MM_Test_Setup, MM_Test_TearDown, "MM_EepromWriteEnaCmd_Test_Nominal");
     UtTest_Add(MM_EepromWriteEnaCmd_Test_Error, MM_Test_Setup, MM_Test_TearDown, "MM_EepromWriteEnaCmd_Test_Error");
-    UtTest_Add(MM_EepromWriteEnaCmd_Test_NoLengthVerify, MM_Test_Setup, MM_Test_TearDown,
-               "MM_EepromWriteEnaCmd_Test_NoLengthVerify");
 
     UtTest_Add(MM_EepromWriteDisCmd_Test_Nominal, MM_Test_Setup, MM_Test_TearDown, "MM_EepromWriteDisCmd_Test_Nominal");
     UtTest_Add(MM_EepromWriteDisCmd_Test_Error, MM_Test_Setup, MM_Test_TearDown, "MM_EepromWriteDisCmd_Test_Error");
-    UtTest_Add(MM_EepromWriteDisCmd_Test_NoLengthVerify, MM_Test_Setup, MM_Test_TearDown,
-               "MM_EepromWriteDisCmd_Test_NoLengthVerify");
 }

@@ -240,7 +240,10 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
         ** Housekeeping telemetry request
         */
         case MM_SEND_HK_MID:
-            MM_HousekeepingCmd(BufPtr);
+            if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_NoArgsCmd_t)))
+            {
+                MM_HousekeepingCmd(BufPtr);
+            }
             break;
 
         /*
@@ -253,55 +256,94 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
             switch (CommandCode)
             {
                 case MM_NOOP_CC:
-                    CmdResult = MM_NoopCmd(BufPtr);
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_NoArgsCmd_t)))
+                    {
+                        CmdResult = MM_NoopCmd(BufPtr);
+                    }
                     break;
 
                 case MM_RESET_CC:
-                    CmdResult = MM_ResetCmd(BufPtr);
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_NoArgsCmd_t)))
+                    {
+                        CmdResult = MM_ResetCmd(BufPtr);
+                    }
                     break;
 
                 case MM_PEEK_CC:
-                    CmdResult = MM_PeekCmd(BufPtr);
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_PeekCmd_t)))
+                    {
+                        CmdResult = MM_PeekCmd(BufPtr);
+                    }
                     break;
 
                 case MM_POKE_CC:
-                    CmdResult = MM_PokeCmd(BufPtr);
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_PokeCmd_t)))
+                    {
+                        CmdResult = MM_PokeCmd(BufPtr);
+                    }
                     break;
 
                 case MM_LOAD_MEM_WID_CC:
-                    CmdResult = MM_LoadMemWIDCmd(BufPtr);
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_LoadMemWIDCmd_t)))
+                    {
+                        CmdResult = MM_LoadMemWIDCmd(BufPtr);
+                    }
                     break;
 
                 case MM_LOAD_MEM_FROM_FILE_CC:
-                    CmdResult = MM_LoadMemFromFileCmd(BufPtr);
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_LoadMemFromFileCmd_t)))
+                    {
+                        CmdResult = MM_LoadMemFromFileCmd(BufPtr);
+                    }
                     break;
 
                 case MM_DUMP_MEM_TO_FILE_CC:
-                    CmdResult = MM_DumpMemToFileCmd(BufPtr);
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_DumpMemToFileCmd_t)))
+                    {
+                        CmdResult = MM_DumpMemToFileCmd(BufPtr);
+                    }
                     break;
 
                 case MM_DUMP_IN_EVENT_CC:
-                    CmdResult = MM_DumpInEventCmd(BufPtr);
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_DumpInEventCmd_t)))
+                    {
+                        CmdResult = MM_DumpInEventCmd(BufPtr);
+                    }
                     break;
 
                 case MM_FILL_MEM_CC:
-                    CmdResult = MM_FillMemCmd(BufPtr);
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_FillMemCmd_t)))
+                    {
+                        CmdResult = MM_FillMemCmd(BufPtr);
+                    }
                     break;
 
                 case MM_LOOKUP_SYM_CC:
-                    CmdResult = MM_LookupSymbolCmd(BufPtr);
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_LookupSymCmd_t)))
+                    {
+                        CmdResult = MM_LookupSymbolCmd(BufPtr);
+                    }
                     break;
 
                 case MM_SYMTBL_TO_FILE_CC:
-                    CmdResult = MM_SymTblToFileCmd(BufPtr);
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_SymTblToFileCmd_t)))
+                    {
+                        CmdResult = MM_SymTblToFileCmd(BufPtr);
+                    }
                     break;
 
-                case MM_ENABLE_EEPROM_WRITE_CC:
-                    CmdResult = MM_EepromWriteEnaCmd(BufPtr);
+                 case MM_ENABLE_EEPROM_WRITE_CC:
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_EepromWriteEnaCmd_t)))
+                    {
+                        CmdResult = MM_EepromWriteEnaCmd(BufPtr);
+                    }
                     break;
 
                 case MM_DISABLE_EEPROM_WRITE_CC:
-                    CmdResult = MM_EepromWriteDisCmd(BufPtr);
+                    if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_EepromWriteDisCmd_t)))
+                    {
+                        CmdResult = MM_EepromWriteDisCmd(BufPtr);
+                    }
                     break;
 
                 default:
@@ -344,13 +386,6 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void MM_HousekeepingCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    size_t ExpectedLength = sizeof(MM_NoArgsCmd_t);
-
-    /*
-    ** Verify command packet length
-    */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         /*
         ** Send housekeeping telemetry packet
         */
@@ -360,8 +395,6 @@ void MM_HousekeepingCmd(const CFE_SB_Buffer_t *BufPtr)
         /*
         ** This command does not affect the command execution counter
         */
-
-    } /* end if */
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -371,19 +404,12 @@ void MM_HousekeepingCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_NoopCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    size_t ExpectedLength = sizeof(MM_NoArgsCmd_t);
     bool   Result         = false;
-    /*
-    ** Verify command packet length
-    */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         MM_AppData.HkPacket.Payload.LastAction = MM_NOOP;
         Result                         = true;
 
         CFE_EVS_SendEvent(MM_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op command. Version %d.%d.%d.%d",
                           MM_MAJOR_VERSION, MM_MINOR_VERSION, MM_REVISION, MM_MISSION_REV);
-    }
 
     return Result;
 }
@@ -395,20 +421,13 @@ bool MM_NoopCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_ResetCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    size_t ExpectedLength = sizeof(MM_NoArgsCmd_t);
     bool   Result         = false;
-    /*
-    ** Verify command packet length
-    */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         MM_AppData.HkPacket.Payload.LastAction = MM_RESET;
         MM_AppData.HkPacket.Payload.CmdCounter = 0;
         MM_AppData.HkPacket.Payload.ErrCounter = 0;
 
         CFE_EVS_SendEvent(MM_RESET_INF_EID, CFE_EVS_EventType_INFORMATION, "Reset counters command received");
         Result = true;
-    }
 
     return Result;
 }
@@ -423,15 +442,9 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
     int32   OS_Status    = OS_ERROR; /* Set to error instead of success since we explicitly test for success */
     cpuaddr ResolvedAddr = 0;
     const MM_LookupSymCmd_t *CmdPtr         = NULL;
-    size_t                   ExpectedLength = sizeof(MM_LookupSymCmd_t);
     bool                     Result         = false;
     char                     SymName[OS_MAX_SYM_LEN];
 
-    /*
-    ** Verify command packet length
-    */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         CmdPtr = ((MM_LookupSymCmd_t *)BufPtr);
 
         /* Make sure string is null terminated before attempting to process it */
@@ -469,8 +482,6 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
 
         } /* end strlen(CmdPtr->Payload.SymName) == 0 else */
 
-    } /* end MM_VerifyCmdLength if */
-
     return Result;
 }
 
@@ -484,14 +495,8 @@ bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
     int32 OS_Status = OS_ERROR; /* Set to error instead of success since we explicitly test for success */
     char  FileName[OS_MAX_PATH_LEN];
     const MM_SymTblToFileCmd_t *CmdPtr         = NULL;
-    size_t                      ExpectedLength = sizeof(MM_SymTblToFileCmd_t);
     bool                        Result         = false;
 
-    /*
-    ** Verify command packet length
-    */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         CmdPtr = ((MM_SymTblToFileCmd_t *)BufPtr);
 
         /* Make sure string is null terminated before attempting to process it */
@@ -527,8 +532,6 @@ bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
 
         } /* end strlen(FileName) == 0 else */
 
-    } /* end MM_VerifyCmdLength if */
-
     return Result;
 }
 
@@ -541,14 +544,8 @@ bool MM_EepromWriteEnaCmd(const CFE_SB_Buffer_t *BufPtr)
 {
     CFE_Status_t            cFE_Status     = CFE_PSP_ERROR; /* Set to error since we explicitly test for success */
     MM_EepromWriteEnaCmd_t *CmdPtr         = NULL;
-    size_t                  ExpectedLength = sizeof(MM_EepromWriteEnaCmd_t);
     bool                    Result         = false;
 
-    /*
-    ** Verify command packet length
-    */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         CmdPtr = ((MM_EepromWriteEnaCmd_t *)BufPtr);
 
         /*
@@ -573,8 +570,6 @@ bool MM_EepromWriteEnaCmd(const CFE_SB_Buffer_t *BufPtr)
                               (unsigned int)cFE_Status);
         }
 
-    } /* end MM_VerifyCmdLength if */
-
     return Result;
 }
 
@@ -587,14 +582,8 @@ bool MM_EepromWriteDisCmd(const CFE_SB_Buffer_t *BufPtr)
 {
     CFE_Status_t            cFE_Status     = CFE_PSP_ERROR; /* Set to error since we explicitly test for success */
     MM_EepromWriteDisCmd_t *CmdPtr         = NULL;
-    size_t                  ExpectedLength = sizeof(MM_EepromWriteDisCmd_t);
     bool                    Result         = false;
 
-    /*
-    ** Verify command packet length
-    */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         CmdPtr = ((MM_EepromWriteDisCmd_t *)BufPtr);
 
         /*
@@ -617,8 +606,6 @@ bool MM_EepromWriteDisCmd(const CFE_SB_Buffer_t *BufPtr)
                               "Error requesting EEPROM bank %d write disable, cFE_Status= 0x%X", (int)CmdPtr->Payload.Bank,
                               (unsigned int)cFE_Status);
         }
-
-    } /* end MM_VerifyCmdLength if */
 
     return Result;
 }
