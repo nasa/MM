@@ -44,10 +44,10 @@
  *
  * The event message format is:
  *    Message head "Memory Dump: "             13 characters
- *    Message body "FF"                         2 characters per dump byte
+ *    Message body "0xFF "                      5 characters per dump byte
  *    Message tail "from address: 0xFFFFFFFF"  33 characters including NUL on 64-bit system
  */
-#define MM_MAX_DUMP_INEVENT_BYTES ((CFE_MISSION_EVS_MAX_MESSAGE_LENGTH - (13 + 33)) / 2)
+#define MM_MAX_DUMP_INEVENT_BYTES ((CFE_MISSION_EVS_MAX_MESSAGE_LENGTH - (13 + 33)) / 5)
 
 /**
  * \brief Dump in an event scratch string size
