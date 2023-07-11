@@ -535,7 +535,7 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
                     BytePtr = (uint8 *)DumpBuffer;
                     for (i = 0; i < CmdPtr->NumOfBytes; i++)
                     {
-                        snprintf(TempString, MM_DUMPINEVENT_TEMP_CHARS, "0x%02X ", *BytePtr);
+                        snprintf(TempString, MM_DUMPINEVENT_TEMP_CHARS, "%02X ", *BytePtr);
                         CFE_SB_MessageStringGet(&EventString[EventStringTotalLength], TempString, NULL,
                                                 sizeof(EventString) - EventStringTotalLength, sizeof(TempString));
                         EventStringTotalLength = strlen(EventString);
