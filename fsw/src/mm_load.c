@@ -60,7 +60,7 @@ bool MM_PokeCmd(const CFE_SB_Buffer_t *BufPtr)
     {
         CmdPtr = ((MM_PokeCmd_t *)BufPtr);
 
-        DestSymAddress = CmdPtr->DestSymAddress;
+        DestSymAddress = CmdPtr->Payload.DestSymAddress;
 
         /* Resolve the symbolic address in command message */
         Valid = MM_ResolveSymAddr(&(DestSymAddress), &DestAddress);
@@ -68,13 +68,13 @@ bool MM_PokeCmd(const CFE_SB_Buffer_t *BufPtr)
         if (Valid == true)
         {
             /* Run necessary checks on command parameters */
-            Valid = MM_VerifyPeekPokeParams(DestAddress, CmdPtr->MemType, CmdPtr->DataSize);
+            Valid = MM_VerifyPeekPokeParams(DestAddress, CmdPtr->Payload.MemType, CmdPtr->Payload.DataSize);
 
             /* Check the specified memory type and call the appropriate routine */
             if (Valid == true)
             {
                 /* Check if we need special EEPROM processing */
-                if (CmdPtr->MemType == MM_EEPROM)
+                if (CmdPtr->Payload.MemType == MM_EEPROM)
                 {
                     MM_PokeEeprom(CmdPtr, DestAddress);
                 }
@@ -118,10 +118,10 @@ bool MM_PokeMem(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
     uint32       EventID        = 0;
 
     /* Write input number of bits to destination address */
-    switch (CmdPtr->DataSize)
+    switch (CmdPtr->Payload.DataSize)
     {
         case MM_BYTE_BIT_WIDTH:
-            ByteValue      = (uint8)CmdPtr->Data;
+            ByteValue      = (uint8)CmdPtr->Payload.Data;
             DataValue      = (uint32)ByteValue;
             BytesProcessed = sizeof(uint8);
             DataSize       = 8;
@@ -133,7 +133,7 @@ bool MM_PokeMem(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
             break;
 
         case MM_WORD_BIT_WIDTH:
-            WordValue      = (uint16)CmdPtr->Data;
+            WordValue      = (uint16)CmdPtr->Payload.Data;
             DataValue      = (uint32)WordValue;
             BytesProcessed = sizeof(uint16);
             DataSize       = 16;
@@ -145,7 +145,7 @@ bool MM_PokeMem(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
             break;
 
         case MM_DWORD_BIT_WIDTH:
-            DataValue      = CmdPtr->Data;
+            DataValue      = CmdPtr->Payload.Data;
             BytesProcessed = sizeof(uint32);
             DataSize       = 32;
             if ((PSP_Status = CFE_PSP_MemWrite32(DestAddress, DataValue)) == CFE_PSP_SUCCESS)
@@ -166,11 +166,11 @@ bool MM_PokeMem(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
     if (ValidPoke)
     {
         /* Update cmd counter and last action stats */
-        MM_AppData.HkPacket.LastAction     = MM_POKE;
-        MM_AppData.HkPacket.MemType        = CmdPtr->MemType;
-        MM_AppData.HkPacket.Address        = DestAddress;
-        MM_AppData.HkPacket.DataValue      = DataValue;
-        MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
+        MM_AppData.HkPacket.Payload.LastAction     = MM_POKE;
+        MM_AppData.HkPacket.Payload.MemType        = CmdPtr->Payload.MemType;
+        MM_AppData.HkPacket.Payload.Address        = DestAddress;
+        MM_AppData.HkPacket.Payload.DataValue      = DataValue;
+        MM_AppData.HkPacket.Payload.BytesProcessed = BytesProcessed;
 
         CFE_EVS_SendEvent(EventID, CFE_EVS_EventType_INFORMATION,
                           "Poke Command: Addr = %p, Size = %u bits, Data = 0x%08X", (void *)DestAddress,
@@ -203,10 +203,10 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
     CFE_ES_PerfLogEntry(MM_EEPROM_POKE_PERF_ID);
 
     /* Write input number of bits to destination address */
-    switch (CmdPtr->DataSize)
+    switch (CmdPtr->Payload.DataSize)
     {
         case MM_BYTE_BIT_WIDTH:
-            ByteValue      = (uint8)CmdPtr->Data;
+            ByteValue      = (uint8)CmdPtr->Payload.Data;
             DataValue      = (uint32)ByteValue;
             BytesProcessed = sizeof(uint8);
             PSP_Status     = CFE_PSP_EepromWrite8(DestAddress, ByteValue);
@@ -226,7 +226,7 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
             break;
 
         case MM_WORD_BIT_WIDTH:
-            WordValue      = (uint16)CmdPtr->Data;
+            WordValue      = (uint16)CmdPtr->Payload.Data;
             DataValue      = (uint32)WordValue;
             BytesProcessed = sizeof(uint16);
             PSP_Status     = CFE_PSP_EepromWrite16(DestAddress, WordValue);
@@ -246,9 +246,9 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
             break;
 
         case MM_DWORD_BIT_WIDTH:
-            DataValue      = CmdPtr->Data;
+            DataValue      = CmdPtr->Payload.Data;
             BytesProcessed = sizeof(uint32);
-            PSP_Status     = CFE_PSP_EepromWrite32(DestAddress, CmdPtr->Data);
+            PSP_Status     = CFE_PSP_EepromWrite32(DestAddress, CmdPtr->Payload.Data);
             if (PSP_Status != CFE_PSP_SUCCESS)
             {
                 CFE_EVS_SendEvent(MM_OS_EEPROMWRITE32_ERR_EID, CFE_EVS_EventType_ERROR,
@@ -259,7 +259,7 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
             {
                 CFE_EVS_SendEvent(MM_POKE_DWORD_INF_EID, CFE_EVS_EventType_INFORMATION,
                                   "Poke Command: Addr = %p, Size = 32 bits, Data = 0x%08X", (void *)DestAddress,
-                                  (unsigned int)(CmdPtr->Data));
+                                  (unsigned int)(CmdPtr->Payload.Data));
                 ValidPoke = true;
             }
             break;
@@ -275,11 +275,11 @@ bool MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
     if (ValidPoke)
     {
         /* Update cmd counter and last action stats */
-        MM_AppData.HkPacket.LastAction     = MM_POKE;
-        MM_AppData.HkPacket.MemType        = CmdPtr->MemType;
-        MM_AppData.HkPacket.Address        = DestAddress;
-        MM_AppData.HkPacket.DataValue      = DataValue;
-        MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
+        MM_AppData.HkPacket.Payload.LastAction     = MM_POKE;
+        MM_AppData.HkPacket.Payload.MemType        = CmdPtr->Payload.MemType;
+        MM_AppData.HkPacket.Payload.Address        = DestAddress;
+        MM_AppData.HkPacket.Payload.DataValue      = DataValue;
+        MM_AppData.HkPacket.Payload.BytesProcessed = BytesProcessed;
     }
 
     CFE_ES_PerfLogExit(MM_EEPROM_POKE_PERF_ID);
@@ -307,7 +307,7 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
     {
         CmdPtr = ((MM_LoadMemWIDCmd_t *)BufPtr);
 
-        DestSymAddress = CmdPtr->DestSymAddress;
+        DestSymAddress = CmdPtr->Payload.DestSymAddress;
 
         /* Resolve the symbolic address in command message */
         if (MM_ResolveSymAddr(&(DestSymAddress), &DestAddress) == true)
@@ -316,34 +316,34 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
             ** Run some necessary checks on command parameters
             ** NOTE: A load with interrupts disabled command is only valid for RAM addresses
             */
-            if (MM_VerifyLoadDumpParams(DestAddress, MM_RAM, CmdPtr->NumOfBytes, MM_VERIFY_WID) == true)
+            if (MM_VerifyLoadDumpParams(DestAddress, MM_RAM, CmdPtr->Payload.NumOfBytes, MM_VERIFY_WID) == true)
             {
                 /* Verify data integrity check value */
-                ComputedCRC = CFE_ES_CalculateCRC(CmdPtr->DataArray, CmdPtr->NumOfBytes, 0, MM_LOAD_WID_CRC_TYPE);
+                ComputedCRC = CFE_ES_CalculateCRC(CmdPtr->Payload.DataArray, CmdPtr->Payload.NumOfBytes, 0, MM_LOAD_WID_CRC_TYPE);
                 /*
                 ** If the CRC matches do the load
                 */
-                if (ComputedCRC == CmdPtr->Crc)
+                if (ComputedCRC == CmdPtr->Payload.Crc)
                 {
                     /* Load input data to input memory address */
-                    memcpy((void *)DestAddress, CmdPtr->DataArray, CmdPtr->NumOfBytes);
+                    memcpy((void *)DestAddress, CmdPtr->Payload.DataArray, CmdPtr->Payload.NumOfBytes);
 
                     CmdResult = true;
                     CFE_EVS_SendEvent(MM_LOAD_WID_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                      "Load Memory WID Command: Wrote %d bytes to address: %p", (int)CmdPtr->NumOfBytes,
+                                      "Load Memory WID Command: Wrote %d bytes to address: %p", (int)CmdPtr->Payload.NumOfBytes,
                                       (void *)DestAddress);
 
                     /* Update last action statistics */
-                    MM_AppData.HkPacket.LastAction     = MM_LOAD_WID;
-                    MM_AppData.HkPacket.Address        = DestAddress;
-                    MM_AppData.HkPacket.MemType        = MM_RAM;
-                    MM_AppData.HkPacket.BytesProcessed = CmdPtr->NumOfBytes;
+                    MM_AppData.HkPacket.Payload.LastAction     = MM_LOAD_WID;
+                    MM_AppData.HkPacket.Payload.Address        = DestAddress;
+                    MM_AppData.HkPacket.Payload.MemType        = MM_RAM;
+                    MM_AppData.HkPacket.Payload.BytesProcessed = CmdPtr->Payload.NumOfBytes;
                 }
                 else
                 {
                     CFE_EVS_SendEvent(MM_LOAD_WID_CRC_ERR_EID, CFE_EVS_EventType_ERROR,
                                       "Interrupts Disabled Load CRC failure: Expected = 0x%X Calculated = 0x%X",
-                                      (unsigned int)CmdPtr->Crc, (unsigned int)ComputedCRC);
+                                      (unsigned int)CmdPtr->Payload.Crc, (unsigned int)ComputedCRC);
                 }
 
             } /* end MM_VerifyLoadWIDParams */
@@ -386,7 +386,7 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
         CmdPtr = ((MM_LoadMemFromFileCmd_t *)BufPtr);
 
         /* Make sure string is null terminated before attempting to process it */
-        CFE_SB_MessageStringGet(FileName, CmdPtr->FileName, NULL, sizeof(FileName), sizeof(CmdPtr->FileName));
+        CFE_SB_MessageStringGet(FileName, CmdPtr->Payload.FileName, NULL, sizeof(FileName), sizeof(CmdPtr->Payload.FileName));
 
         /* Open load file for reading */
         OS_Status = OS_OpenCreate(&FileHandle, FileName, OS_FILE_FLAG_NONE, OS_READ_ONLY);
@@ -471,7 +471,7 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
                                         CFE_EVS_SendEvent(MM_LD_MEM_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
                                                           "Load Memory From File Command: Loaded %d bytes to "
                                                           "address %p from file '%s'",
-                                                          (int)MM_AppData.HkPacket.BytesProcessed, (void *)DestAddress,
+                                                          (int)MM_AppData.HkPacket.Payload.BytesProcessed, (void *)DestAddress,
                                                           FileName);
                                     }
 
@@ -542,7 +542,7 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
         {
             Valid = false;
             CFE_EVS_SendEvent(MM_OS_OPEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "OS_OpenCreate error received: RC = %d File = '%s'", (int)OS_Status, CmdPtr->FileName);
+                              "OS_OpenCreate error received: RC = %d File = '%s'", (int)OS_Status, CmdPtr->Payload.FileName);
         }
 
     } /* end MM_VerifyCmdLength if */
@@ -610,11 +610,11 @@ bool MM_LoadMemFromFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
     if (BytesProcessed == FileHeader->NumOfBytes)
     {
         Valid                              = true;
-        MM_AppData.HkPacket.LastAction     = MM_LOAD_FROM_FILE;
-        MM_AppData.HkPacket.MemType        = FileHeader->MemType;
-        MM_AppData.HkPacket.Address        = DestAddress;
-        MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
-        strncpy(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN);
+        MM_AppData.HkPacket.Payload.LastAction     = MM_LOAD_FROM_FILE;
+        MM_AppData.HkPacket.Payload.MemType        = FileHeader->MemType;
+        MM_AppData.HkPacket.Payload.Address        = DestAddress;
+        MM_AppData.HkPacket.Payload.BytesProcessed = BytesProcessed;
+        strncpy(MM_AppData.HkPacket.Payload.FileName, FileName, OS_MAX_PATH_LEN);
     }
 
     return Valid;
@@ -727,7 +727,7 @@ bool MM_FillMemCmd(const CFE_SB_Buffer_t *BufPtr)
     const MM_FillMemCmd_t *CmdPtr         = (MM_FillMemCmd_t *)BufPtr;
     size_t                 ExpectedLength = sizeof(MM_FillMemCmd_t);
     bool                   CmdResult      = false;
-    MM_SymAddr_t           DestSymAddress = CmdPtr->DestSymAddress;
+    MM_SymAddr_t           DestSymAddress = CmdPtr->Payload.DestSymAddress;
 
     /* Verify command packet length */
     if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
@@ -736,9 +736,9 @@ bool MM_FillMemCmd(const CFE_SB_Buffer_t *BufPtr)
         if (MM_ResolveSymAddr(&(DestSymAddress), &DestAddress) == true)
         {
             /* Run necessary checks on command parameters */
-            if (MM_VerifyLoadDumpParams(DestAddress, CmdPtr->MemType, CmdPtr->NumOfBytes, MM_VERIFY_FILL) == true)
+            if (MM_VerifyLoadDumpParams(DestAddress, CmdPtr->Payload.MemType, CmdPtr->Payload.NumOfBytes, MM_VERIFY_FILL) == true)
             {
-                switch (CmdPtr->MemType)
+                switch (CmdPtr->Payload.MemType)
                 {
                     case MM_RAM:
                     case MM_EEPROM:
@@ -772,12 +772,12 @@ bool MM_FillMemCmd(const CFE_SB_Buffer_t *BufPtr)
                         break;
                 }
 
-                if (MM_AppData.HkPacket.LastAction == MM_FILL)
+                if (MM_AppData.HkPacket.Payload.LastAction == MM_FILL)
                 {
                     CFE_EVS_SendEvent(MM_FILL_INF_EID, CFE_EVS_EventType_INFORMATION,
                                       "Fill Memory Command: Filled %d bytes at address: %p with pattern: 0x%08X",
-                                      (int)MM_AppData.HkPacket.BytesProcessed, (void *)DestAddress,
-                                      (unsigned int)MM_AppData.HkPacket.DataValue);
+                                      (int)MM_AppData.HkPacket.Payload.BytesProcessed, (void *)DestAddress,
+                                      (unsigned int)MM_AppData.HkPacket.Payload.DataValue);
                 }
             }
         }
@@ -801,7 +801,7 @@ bool MM_FillMem(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
     uint16 i;
     bool   Valid          = true;
     size_t BytesProcessed = 0;
-    uint32 BytesRemaining = CmdPtr->NumOfBytes;
+    uint32 BytesRemaining = CmdPtr->Payload.NumOfBytes;
     uint32 SegmentSize    = MM_MAX_FILL_DATA_SEG;
     uint8 *TargetPointer  = (uint8 *)DestAddress;
     uint8 *FillBuffer     = (uint8 *)&MM_AppData.FillBuffer[0];
@@ -809,11 +809,11 @@ bool MM_FillMem(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
     /* Create a scratch buffer with one fill segment */
     for (i = 0; i < (MM_MAX_FILL_DATA_SEG / sizeof(uint32)); i++)
     {
-        FillBuffer[i] = CmdPtr->FillPattern;
+        FillBuffer[i] = CmdPtr->Payload.FillPattern;
     }
 
     /* Start EEPROM performance monitor */
-    if (CmdPtr->MemType == MM_EEPROM)
+    if (CmdPtr->Payload.MemType == MM_EEPROM)
     {
         CFE_ES_PerfLogEntry(MM_EEPROM_FILL_PERF_ID);
     }
@@ -841,17 +841,17 @@ bool MM_FillMem(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
     }
 
     /* Stop EEPROM performance monitor */
-    if (CmdPtr->MemType == MM_EEPROM)
+    if (CmdPtr->Payload.MemType == MM_EEPROM)
     {
         CFE_ES_PerfLogExit(MM_EEPROM_FILL_PERF_ID);
     }
 
     /* Update last action statistics */
-    MM_AppData.HkPacket.LastAction     = MM_FILL;
-    MM_AppData.HkPacket.MemType        = CmdPtr->MemType;
-    MM_AppData.HkPacket.Address        = DestAddress;
-    MM_AppData.HkPacket.DataValue      = CmdPtr->FillPattern;
-    MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
+    MM_AppData.HkPacket.Payload.LastAction     = MM_FILL;
+    MM_AppData.HkPacket.Payload.MemType        = CmdPtr->Payload.MemType;
+    MM_AppData.HkPacket.Payload.Address        = DestAddress;
+    MM_AppData.HkPacket.Payload.DataValue      = CmdPtr->Payload.FillPattern;
+    MM_AppData.HkPacket.Payload.BytesProcessed = BytesProcessed;
 
     return Valid;
 }

@@ -116,11 +116,11 @@ bool MM_LoadMem16FromFile(osal_id_t FileHandle, const char *FileName, const MM_L
     if (BytesProcessed == FileHeader->NumOfBytes)
     {
         Valid                              = true;
-        MM_AppData.HkPacket.LastAction     = MM_LOAD_FROM_FILE;
-        MM_AppData.HkPacket.MemType        = MM_MEM16;
-        MM_AppData.HkPacket.Address        = DestAddress;
-        MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
-        strncpy(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN);
+        MM_AppData.HkPacket.Payload.LastAction     = MM_LOAD_FROM_FILE;
+        MM_AppData.HkPacket.Payload.MemType        = MM_MEM16;
+        MM_AppData.HkPacket.Payload.Address        = DestAddress;
+        MM_AppData.HkPacket.Payload.BytesProcessed = BytesProcessed;
+        strncpy(MM_AppData.HkPacket.Payload.FileName, FileName, OS_MAX_PATH_LEN);
     }
 
     return Valid;
@@ -202,11 +202,11 @@ bool MM_DumpMem16ToFile(osal_id_t FileHandle, const char *FileName, const MM_Loa
     if (Valid)
     {
         /* Update last action statistics */
-        MM_AppData.HkPacket.LastAction = MM_DUMP_TO_FILE;
-        MM_AppData.HkPacket.MemType    = MM_MEM16;
-        MM_AppData.HkPacket.Address    = FileHeader->SymAddress.Offset;
-        strncpy(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN);
-        MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
+        MM_AppData.HkPacket.Payload.LastAction = MM_DUMP_TO_FILE;
+        MM_AppData.HkPacket.Payload.MemType    = MM_MEM16;
+        MM_AppData.HkPacket.Payload.Address    = FileHeader->SymAddress.Offset;
+        strncpy(MM_AppData.HkPacket.Payload.FileName, FileName, OS_MAX_PATH_LEN);
+        MM_AppData.HkPacket.Payload.BytesProcessed = BytesProcessed;
     }
 
     return Valid;
@@ -223,9 +223,9 @@ bool MM_FillMem16(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
     uint32       i;
     CFE_Status_t PSP_Status     = CFE_PSP_SUCCESS;
     size_t       BytesProcessed = 0;
-    uint32       BytesRemaining = CmdPtr->NumOfBytes;
+    uint32       BytesRemaining = CmdPtr->Payload.NumOfBytes;
     uint32       NewBytesRemaining;
-    uint16       FillPattern16 = (uint16)CmdPtr->FillPattern;
+    uint16       FillPattern16 = (uint16)CmdPtr->Payload.FillPattern;
     uint16 *     DataPointer16 = (uint16 *)DestAddress;
     size_t       SegmentSize   = MM_MAX_FILL_DATA_SEG;
     bool         Result        = true;
@@ -284,13 +284,13 @@ bool MM_FillMem16(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
     }
 
     /* Update last action statistics */
-    if (BytesProcessed == CmdPtr->NumOfBytes)
+    if (BytesProcessed == CmdPtr->Payload.NumOfBytes)
     {
-        MM_AppData.HkPacket.LastAction     = MM_FILL;
-        MM_AppData.HkPacket.MemType        = MM_MEM16;
-        MM_AppData.HkPacket.Address        = DestAddress;
-        MM_AppData.HkPacket.DataValue      = (uint32)FillPattern16;
-        MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
+        MM_AppData.HkPacket.Payload.LastAction     = MM_FILL;
+        MM_AppData.HkPacket.Payload.MemType        = MM_MEM16;
+        MM_AppData.HkPacket.Payload.Address        = DestAddress;
+        MM_AppData.HkPacket.Payload.DataValue      = (uint32)FillPattern16;
+        MM_AppData.HkPacket.Payload.BytesProcessed = BytesProcessed;
     }
 
     return Result;
