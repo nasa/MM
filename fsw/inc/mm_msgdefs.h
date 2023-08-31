@@ -89,7 +89,7 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will increment
+ *       - #MM_HkPacket_Payload_t.CmdCounter will increment
  *       - The #MM_NOOP_INF_EID informational event message will be
  *         generated when the command is received
  *
@@ -98,7 +98,7 @@
  *       - Command packet length not as expected
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *
  *  \par Criticality
@@ -120,8 +120,8 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will be cleared
- *       - #MM_HkPacket_t.ErrCounter will be cleared
+ *       - #MM_HkPacket_Payload_t.CmdCounter will be cleared
+ *       - #MM_HkPacket_Payload_t.ErrCounter will be cleared
  *       - The #MM_RESET_INF_EID informational event message will be
  *         generated when the command is executed
  *
@@ -130,7 +130,7 @@
  *       - Command packet length not as expected
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *
  *  \par Criticality
@@ -152,11 +152,11 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will increment
- *       - #MM_HkPacket_t.LastAction will be set to #MM_PEEK
- *       - #MM_HkPacket_t.MemType will be set to the commanded memory type
- *       - #MM_HkPacket_t.Address will be set to the fully resolved destination memory address
- *       - #MM_HkPacket_t.BytesProcessed will be set to the byte size of the peek operation (1, 2, or 4)
+ *       - #MM_HkPacket_Payload_t.CmdCounter will increment
+ *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_PEEK
+ *       - #MM_HkPacket_Payload_t.MemType will be set to the commanded memory type
+ *       - #MM_HkPacket_Payload_t.Address will be set to the fully resolved destination memory address
+ *       - #MM_HkPacket_Payload_t.BytesProcessed will be set to the byte size of the peek operation (1, 2, or 4)
  *       - The #MM_PEEK_BYTE_INF_EID informational event message will
  *         be generated with the peek data if the data size was 8 bits
  *       - The #MM_PEEK_WORD_INF_EID informational event message will
@@ -174,7 +174,7 @@
  *       - The address and data size are not properly aligned
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *       - Error specific event message #MM_DATA_SIZE_BITS_ERR_EID
@@ -209,11 +209,11 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will increment
- *       - #MM_HkPacket_t.LastAction will be set to #MM_POKE
- *       - #MM_HkPacket_t.MemType will be set to the commanded memory type
- *       - #MM_HkPacket_t.Address will be set to the fully resolved source memory address
- *       - #MM_HkPacket_t.BytesProcessed will be set to the byte size of the poke operation (1, 2, or 4)
+ *       - #MM_HkPacket_Payload_t.CmdCounter will increment
+ *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_POKE
+ *       - #MM_HkPacket_Payload_t.MemType will be set to the commanded memory type
+ *       - #MM_HkPacket_Payload_t.Address will be set to the fully resolved source memory address
+ *       - #MM_HkPacket_Payload_t.BytesProcessed will be set to the byte size of the poke operation (1, 2, or 4)
  *       - The #MM_POKE_BYTE_INF_EID informational event message will
  *         be generated if the data size was 8 bits
  *       - The #MM_POKE_WORD_INF_EID informational event message will
@@ -232,7 +232,7 @@
  *       - An EEPROM write error occured
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *       - Error specific event message #MM_DATA_SIZE_BITS_ERR_EID
@@ -276,10 +276,10 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will increment
- *       - #MM_HkPacket_t.LastAction will be set to #MM_LOAD_WID
- *       - #MM_HkPacket_t.Address will be set to the fully resolved destination memory address
- *       - #MM_HkPacket_t.BytesProcessed will be set to the number of bytes loaded
+ *       - #MM_HkPacket_Payload_t.CmdCounter will increment
+ *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_LOAD_WID
+ *       - #MM_HkPacket_Payload_t.Address will be set to the fully resolved destination memory address
+ *       - #MM_HkPacket_Payload_t.BytesProcessed will be set to the number of bytes loaded
  *       - The #MM_LOAD_WID_INF_EID information event message will be
  *         generated when the command is executed
  *
@@ -292,7 +292,7 @@
  *       - Invalid data size specified in command message
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *       - Error specific event message #MM_LOAD_WID_CRC_ERR_EID
@@ -329,12 +329,12 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will increment
- *       - #MM_HkPacket_t.LastAction will be set to #MM_LOAD_FROM_FILE
- *       - #MM_HkPacket_t.MemType will be set to the commanded memory type
- *       - #MM_HkPacket_t.Address will be set to the fully resolved destination memory address
- *       - #MM_HkPacket_t.BytesProcessed will be set to the number of bytes loaded
- *       - #MM_HkPacket_t.FileName will be set to the load file name
+ *       - #MM_HkPacket_Payload_t.CmdCounter will increment
+ *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_LOAD_FROM_FILE
+ *       - #MM_HkPacket_Payload_t.MemType will be set to the commanded memory type
+ *       - #MM_HkPacket_Payload_t.Address will be set to the fully resolved destination memory address
+ *       - #MM_HkPacket_Payload_t.BytesProcessed will be set to the number of bytes loaded
+ *       - #MM_HkPacket_Payload_t.FileName will be set to the load file name
  *       - The #MM_LD_MEM_FILE_INF_EID informational event message will
  *         be generated
  *
@@ -356,7 +356,7 @@
  *       - The specified memory type is invalid
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *       - Error specific event message #MM_OS_OPEN_ERR_EID
  *       - Error specific event message #MM_OS_CLOSE_ERR_EID
@@ -403,12 +403,12 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will increment
- *       - #MM_HkPacket_t.LastAction will be set to #MM_DUMP_TO_FILE
- *       - #MM_HkPacket_t.MemType will be set to the commanded memory type
- *       - #MM_HkPacket_t.Address will be set to the fully resolved source memory address
- *       - #MM_HkPacket_t.BytesProcessed will be set to the number of bytes dumped
- *       - #MM_HkPacket_t.FileName will be set to the dump file name
+ *       - #MM_HkPacket_Payload_t.CmdCounter will increment
+ *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_DUMP_TO_FILE
+ *       - #MM_HkPacket_Payload_t.MemType will be set to the commanded memory type
+ *       - #MM_HkPacket_Payload_t.Address will be set to the fully resolved source memory address
+ *       - #MM_HkPacket_Payload_t.BytesProcessed will be set to the number of bytes dumped
+ *       - #MM_HkPacket_Payload_t.FileName will be set to the dump file name
  *       - The #MM_DMP_MEM_FILE_INF_EID informational event message will
  *         be generated
  *
@@ -429,7 +429,7 @@
  *       - The specified memory type is invalid
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *       - Error specific event message #MM_OS_CREAT_ERR_EID
@@ -469,11 +469,11 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will increment
- *       - #MM_HkPacket_t.LastAction will be set to #MM_DUMP_INEVENT
- *       - #MM_HkPacket_t.MemType will be set to the commanded memory type
- *       - #MM_HkPacket_t.Address will be set to the fully resolved source memory address
- *       - #MM_HkPacket_t.BytesProcessed will be set to the number of bytes dumped
+ *       - #MM_HkPacket_Payload_t.CmdCounter will increment
+ *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_DUMP_INEVENT
+ *       - #MM_HkPacket_Payload_t.MemType will be set to the commanded memory type
+ *       - #MM_HkPacket_Payload_t.Address will be set to the fully resolved source memory address
+ *       - #MM_HkPacket_Payload_t.BytesProcessed will be set to the number of bytes dumped
  *       - The #MM_DUMP_INEVENT_INF_EID informational event message will
  *         be generated with the dump data
  *
@@ -487,7 +487,7 @@
  *       - The specified memory type is invalid
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *       - Error specific event message #MM_OS_MEMVALIDATE_ERR_EID
@@ -522,12 +522,12 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will increment
- *       - #MM_HkPacket_t.LastAction will be set to #MM_FILL
- *       - #MM_HkPacket_t.MemType will be set to the commanded memory type
- *       - #MM_HkPacket_t.Address will be set to the fully resolved destination memory address
- *       - #MM_HkPacket_t.DataValue will be set to the fill pattern used
- *       - #MM_HkPacket_t.BytesProcessed will be set to the number of bytes filled
+ *       - #MM_HkPacket_Payload_t.CmdCounter will increment
+ *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_FILL
+ *       - #MM_HkPacket_Payload_t.MemType will be set to the commanded memory type
+ *       - #MM_HkPacket_Payload_t.Address will be set to the fully resolved destination memory address
+ *       - #MM_HkPacket_Payload_t.DataValue will be set to the fill pattern used
+ *       - #MM_HkPacket_Payload_t.BytesProcessed will be set to the number of bytes filled
  *       - The #MM_FILL_INF_EID informational event message will
  *         be generated when the command is executed
  *
@@ -541,7 +541,7 @@
  *       - The specified memory type is invalid
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *       - Error specific event message #MM_OS_MEMVALIDATE_ERR_EID
@@ -580,9 +580,9 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will increment
- *       - #MM_HkPacket_t.LastAction will be set to #MM_SYM_LOOKUP
- *       - #MM_HkPacket_t.Address will be set to the fully resolved memory address
+ *       - #MM_HkPacket_Payload_t.CmdCounter will increment
+ *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_SYM_LOOKUP
+ *       - #MM_HkPacket_Payload_t.Address will be set to the fully resolved memory address
  *
  *  \par Error Conditions
  *       This command may fail for the following reason(s):
@@ -591,7 +591,7 @@
  *       - A symbol name was specified that can't be resolved
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_NUL_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
@@ -616,9 +616,9 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will increment
- *       - #MM_HkPacket_t.LastAction will be set to #MM_SYMTBL_SAVE
- *       - #MM_HkPacket_t.FileName will be set to the dump file name
+ *       - #MM_HkPacket_Payload_t.CmdCounter will increment
+ *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_SYMTBL_SAVE
+ *       - #MM_HkPacket_Payload_t.FileName will be set to the dump file name
  *       - The #MM_SYMTBL_TO_FILE_INF_EID informational event message will
  *         be generated when the command is executed
  *
@@ -629,7 +629,7 @@
  *       - The OSAL returns a status other than success to the command
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *       - Error specific event message #MM_SYMFILENAME_NUL_ERR_EID
  *       - Error specific event message #MM_SYMTBL_TO_FILE_FAIL_ERR_EID
@@ -656,8 +656,8 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will increment
- *       - #MM_HkPacket_t.LastAction will be set to #MM_EEPROMWRITE_ENA
+ *       - #MM_HkPacket_Payload_t.CmdCounter will increment
+ *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_EEPROMWRITE_ENA
  *       - The #MM_EEPROM_WRITE_ENA_INF_EID informational event message will
  *         be generated when the command is executed
  *
@@ -667,7 +667,7 @@
  *       - Non-success return status from PSP write enable
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *       - Error specific event message #MM_EEPROM_WRITE_ENA_ERR_EID
  *
@@ -694,8 +694,8 @@
  *  \par Command Verification
  *       Successful execution of this command may be verified with
  *       the following telemetry:
- *       - #MM_HkPacket_t.CmdCounter will increment
- *       - #MM_HkPacket_t.LastAction will be set to #MM_EEPROMWRITE_DIS
+ *       - #MM_HkPacket_Payload_t.CmdCounter will increment
+ *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_EEPROMWRITE_DIS
  *       - The #MM_EEPROM_WRITE_DIS_INF_EID informational event message will
  *         be generated when the command is executed
  *
@@ -705,7 +705,7 @@
  *       - Non-success return status from PSP write disable
  *
  *  \par Evidence of failure may be found in the following telemetry:
- *       - #MM_HkPacket_t.ErrCounter will increment
+ *       - #MM_HkPacket_Payload_t.ErrCounter will increment
  *       - Error specific event message #MM_LEN_ERR_EID
  *       - Error specific event message #MM_EEPROM_WRITE_DIS_ERR_EID
  *

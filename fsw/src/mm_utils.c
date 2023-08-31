@@ -51,12 +51,12 @@ extern MM_AppData_t MM_AppData;
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void MM_ResetHk(void)
 {
-    MM_AppData.HkPacket.LastAction     = MM_NOACTION;
-    MM_AppData.HkPacket.MemType        = MM_NOMEMTYPE;
-    MM_AppData.HkPacket.Address        = MM_CLEAR_ADDR;
-    MM_AppData.HkPacket.DataValue      = MM_CLEAR_PATTERN;
-    MM_AppData.HkPacket.BytesProcessed = 0;
-    MM_AppData.HkPacket.FileName[0]    = MM_CLEAR_FNAME;
+    MM_AppData.HkPacket.Payload.LastAction     = MM_NOACTION;
+    MM_AppData.HkPacket.Payload.MemType        = MM_NOMEMTYPE;
+    MM_AppData.HkPacket.Payload.Address        = MM_CLEAR_ADDR;
+    MM_AppData.HkPacket.Payload.DataValue      = MM_CLEAR_PATTERN;
+    MM_AppData.HkPacket.Payload.BytesProcessed = 0;
+    MM_AppData.HkPacket.Payload.FileName[0]    = MM_CLEAR_FNAME;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

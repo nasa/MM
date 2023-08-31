@@ -64,7 +64,7 @@ CFE_Status_t MM_APP_TEST_CFE_SB_RcvMsgHook(void *UserObj, int32 StubRetcode, uin
 int32 MM_APP_TEST_CFE_ES_ExitAppHook(void *UserObj, int32 StubRetcode, uint32 CallCount,
                                      const UT_StubContext_t *Context)
 {
-    MM_AppData.HkPacket.CmdCounter++;
+    MM_AppData.HkPacket.Payload.CmdCounter++;
 
     return 0;
 }
@@ -97,8 +97,8 @@ void MM_AppMain_Test_Nominal(void)
     MM_AppMain();
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     /* Generates 1 event message we don't care about in this test */
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
@@ -163,15 +163,15 @@ void MM_AppMain_Test_SBError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &forced_MsgID, sizeof(forced_MsgID), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &forced_Size, sizeof(forced_Size), false);
 
-    /* Used to verify completion of MM_AppMain by incrementing MM_AppData.HkPacket.CmdCounter. */
+    /* Used to verify completion of MM_AppMain by incrementing MM_AppData.HkPacket.Payload.CmdCounter. */
     UT_SetHookFunction(UT_KEY(CFE_ES_ExitApp), MM_APP_TEST_CFE_ES_ExitAppHook, NULL);
 
     /* Execute the function being tested */
     MM_AppMain();
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[1].EventID, MM_PIPE_ERR_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[1].EventType, CFE_EVS_EventType_ERROR);
@@ -202,7 +202,7 @@ void MM_AppMain_Test_SBTimeout(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &forced_MsgID, sizeof(forced_MsgID), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &forced_Size, sizeof(forced_Size), false);
 
-    /* Used to verify completion of MM_AppMain by incrementing MM_AppData.HkPacket.CmdCounter. */
+    /* Used to verify completion of MM_AppMain by incrementing MM_AppData.HkPacket.Payload.CmdCounter. */
     UT_SetHookFunction(UT_KEY(CFE_ES_ExitApp), MM_APP_TEST_CFE_ES_ExitAppHook, NULL);
 
     /* Execute the function being tested */
@@ -235,8 +235,8 @@ void MM_AppInit_Test_Nominal(void)
     UtAssert_True(Result == CFE_SUCCESS, "Result == CFE_SUCCESS");
 
     UtAssert_True(MM_AppData.RunStatus == CFE_ES_RunStatus_APP_RUN, "MM_AppData.RunStatus == CFE_ES_RunStatus_APP_RUN");
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_INIT_INF_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
@@ -274,8 +274,8 @@ void MM_AppInit_Test_EVSRegisterError(void)
     UtAssert_True(Result == -1, "Result == -1");
 
     UtAssert_True(MM_AppData.RunStatus == CFE_ES_RunStatus_APP_RUN, "MM_AppData.RunStatus == CFE_ES_RunStatus_APP_RUN");
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     strCmpResult = strncmp(ExpectedSysLogString, context_CFE_ES_WriteToSysLog.Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
@@ -308,8 +308,8 @@ void MM_AppInit_Test_SBCreatePipeError(void)
     UtAssert_True(Result == -1, "Result == -1");
 
     UtAssert_True(MM_AppData.RunStatus == CFE_ES_RunStatus_APP_RUN, "MM_AppData.RunStatus == CFE_ES_RunStatus_APP_RUN");
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
@@ -342,8 +342,8 @@ void MM_AppInit_Test_SBSubscribeHKError(void)
     UtAssert_True(Result == -1, "Result == -1");
 
     UtAssert_True(MM_AppData.RunStatus == CFE_ES_RunStatus_APP_RUN, "MM_AppData.RunStatus == CFE_ES_RunStatus_APP_RUN");
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
@@ -376,8 +376,8 @@ void MM_AppInit_Test_SBSubscribeMMError(void)
     UtAssert_True(Result == -1, "Result == -1");
 
     UtAssert_True(MM_AppData.RunStatus == CFE_ES_RunStatus_APP_RUN, "MM_AppData.RunStatus == CFE_ES_RunStatus_APP_RUN");
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
@@ -401,8 +401,8 @@ void MM_AppPipe_Test_SendHK(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
@@ -430,11 +430,11 @@ void MM_AppPipe_Test_NoopSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_NOOP, "MM_AppData.HkPacket.LastAction == MM_NOOP");
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_NOOP, "MM_AppData.HkPacket.Payload.LastAction == MM_NOOP");
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    /* Note: this event message is generated in subfunction MM_NoopCmd.  It is checked here to verify that the
+    /* Note: this event message is generated in subfunction MM_NoopCmd.Payload.  It is checked here to verify that the
      * subfunction has been reached. */
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_NOOP_INF_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
@@ -468,8 +468,8 @@ void MM_AppPipe_Test_NoopFail(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
@@ -497,11 +497,11 @@ void MM_AppPipe_Test_ResetSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_RESET, "MM_AppData.HkPacket.LastAction == MM_RESET");
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_RESET, "MM_AppData.HkPacket.Payload.LastAction == MM_RESET");
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    /* Note: this event message is generated in subfunction MM_ResetCmd.  It is checked here to verify that the
+    /* Note: this event message is generated in subfunction MM_ResetCmd.Payload.  It is checked here to verify that the
      * subfunction has been reached. */
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_RESET_INF_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
@@ -535,8 +535,8 @@ void MM_AppPipe_Test_ResetFail(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
                   call_count_CFE_EVS_SendEvent);
@@ -557,8 +557,8 @@ void MM_AppPipe_Test_PeekSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     call_count_MM_PeekCmd = UT_GetStubCount(UT_KEY(MM_PeekCmd));
     UtAssert_INT32_EQ(call_count_MM_PeekCmd, 1);
@@ -579,8 +579,8 @@ void MM_AppPipe_Test_PeekFail(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     call_count_MM_PeekCmd = UT_GetStubCount(UT_KEY(MM_PeekCmd));
     UtAssert_INT32_EQ(call_count_MM_PeekCmd, 1);
@@ -600,8 +600,8 @@ void MM_AppPipe_Test_PokeSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     uint8 call_count_MM_PokeCmd = 0;
     call_count_MM_PokeCmd       = UT_GetStubCount(UT_KEY(MM_PokeCmd));
@@ -622,8 +622,8 @@ void MM_AppPipe_Test_PokeFail(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     uint8 call_count_MM_PokeCmd = 0;
     call_count_MM_PokeCmd       = UT_GetStubCount(UT_KEY(MM_PokeCmd));
@@ -644,8 +644,8 @@ void MM_AppPipe_Test_LoadMemWIDSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     uint8 call_count_MM_LoadMemWID = 0;
     call_count_MM_LoadMemWID       = UT_GetStubCount(UT_KEY(MM_LoadMemWIDCmd));
@@ -666,8 +666,8 @@ void MM_AppPipe_Test_LoadMemWIDFail(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     uint8 call_count_MM_LoadMemWID = 0;
     call_count_MM_LoadMemWID       = UT_GetStubCount(UT_KEY(MM_LoadMemWIDCmd));
@@ -688,8 +688,8 @@ void MM_AppPipe_Test_LoadMemFromFileSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     uint8 call_count_MM_LoadMemFromFile = 0;
     call_count_MM_LoadMemFromFile       = UT_GetStubCount(UT_KEY(MM_LoadMemFromFileCmd));
@@ -710,8 +710,8 @@ void MM_AppPipe_Test_LoadMemFromFileFail(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     uint8 call_count_MM_LoadMemFromFile = 0;
     call_count_MM_LoadMemFromFile       = UT_GetStubCount(UT_KEY(MM_LoadMemFromFileCmd));
@@ -732,8 +732,8 @@ void MM_AppPipe_Test_DumpMemToFileSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     uint8 call_count_MM_DumpMemToFile = 0;
     call_count_MM_DumpMemToFile       = UT_GetStubCount(UT_KEY(MM_DumpMemToFileCmd));
@@ -754,8 +754,8 @@ void MM_AppPipe_Test_DumpMemToFileFail(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     uint8 call_count_MM_DumpMemToFile = 0;
     call_count_MM_DumpMemToFile       = UT_GetStubCount(UT_KEY(MM_DumpMemToFileCmd));
@@ -776,8 +776,8 @@ void MM_AppPipe_Test_DumpInEventSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     uint8 call_count_MM_DumpInEvent = 0;
     call_count_MM_DumpInEvent       = UT_GetStubCount(UT_KEY(MM_DumpInEventCmd));
@@ -798,8 +798,8 @@ void MM_AppPipe_Test_DumpInEventFail(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     uint8 call_count_MM_DumpInEvent = 0;
     call_count_MM_DumpInEvent       = UT_GetStubCount(UT_KEY(MM_DumpInEventCmd));
@@ -820,8 +820,8 @@ void MM_AppPipe_Test_FillMemSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     uint8 call_count_MM_FillMem = 0;
     call_count_MM_FillMem       = UT_GetStubCount(UT_KEY(MM_FillMemCmd));
@@ -842,8 +842,8 @@ void MM_AppPipe_Test_FillMemFail(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     uint8 call_count_MM_FillMem = 0;
     call_count_MM_FillMem       = UT_GetStubCount(UT_KEY(MM_FillMemCmd));
@@ -861,7 +861,7 @@ void MM_AppPipe_Test_LookupSymbolSuccess(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.LookupSymCmd.SymName, "name", sizeof(UT_CmdBuf.LookupSymCmd.SymName) - 1);
+    strncpy(UT_CmdBuf.LookupSymCmd.Payload.SymName, "name", sizeof(UT_CmdBuf.LookupSymCmd.Payload.SymName) - 1);
     UT_SetDataBuffer(UT_KEY(OS_SymbolLookup), &ResolvedAddr, sizeof(ResolvedAddr), false);
 
     /* ignore dummy message length check */
@@ -871,10 +871,10 @@ void MM_AppPipe_Test_LookupSymbolSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    /* Generates 1 event message in subfunction MM_LookupSymbolCmd.  Event message count = 1 verifies that the
+    /* Generates 1 event message in subfunction MM_LookupSymbolCmd.Payload.  Event message count = 1 verifies that the
      * subfunction has been reached. */
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -898,8 +898,8 @@ void MM_AppPipe_Test_LookupSymbolFail(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
@@ -916,7 +916,7 @@ void MM_AppPipe_Test_SymTblToFileSuccess(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.SymTblToFileCmd.FileName, "name", sizeof(UT_CmdBuf.SymTblToFileCmd.FileName) - 1);
+    strncpy(UT_CmdBuf.SymTblToFileCmd.Payload.FileName, "name", sizeof(UT_CmdBuf.SymTblToFileCmd.Payload.FileName) - 1);
 
     /* Set to satisfy condition "OS_Status == OS_SUCCESS" */
     UT_SetDeferredRetcode(UT_KEY(OS_SymbolTableDump), 1, CFE_SUCCESS);
@@ -928,10 +928,10 @@ void MM_AppPipe_Test_SymTblToFileSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    /* Generates 1 event message in subfunction MM_SymTblToFileCmd.  Event message count = 1 verifies that the
+    /* Generates 1 event message in subfunction MM_SymTblToFileCmd.Payload.  Event message count = 1 verifies that the
      * subfunction has been reached. */
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -955,10 +955,10 @@ void MM_AppPipe_Test_SymTblToFileFail(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
-    /* Generates 1 event message in subfunction MM_SymTblToFileCmd.  Event message count = 1 verifies that the
+    /* Generates 1 event message in subfunction MM_SymTblToFileCmd.Payload.  Event message count = 1 verifies that the
      * subfunction has been reached. */
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
@@ -982,10 +982,10 @@ void MM_AppPipe_Test_EnableEepromWriteSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    /* Generates 1 event message in subfunction MM_EepromWriteEnaCmd.  Event message count = 1 verifies that the
+    /* Generates 1 event message in subfunction MM_EepromWriteEnaCmd.Payload.  Event message count = 1 verifies that the
      * subfunction has been reached. */
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1009,8 +1009,8 @@ void MM_AppPipe_Test_EnableEepromWriteFail(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
@@ -1035,10 +1035,10 @@ void MM_AppPipe_Test_DisableEepromWriteSuccess(void)
 
     /* Verify results */
 
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 1);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
-    /* Generates 1 event message in subfunction MM_EepromWriteDisCmd.  Event message count = 1 verifies that the
+    /* Generates 1 event message in subfunction MM_EepromWriteDisCmd.Payload.  Event message count = 1 verifies that the
      * subfunction has been reached. */
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
@@ -1063,8 +1063,8 @@ void MM_AppPipe_Test_DisableEepromWriteFail(void)
 
     /* Verify results */
 
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
     UtAssert_True(call_count_CFE_EVS_SendEvent == 0, "CFE_EVS_SendEvent was called %u time(s), expected 0",
@@ -1093,8 +1093,8 @@ void MM_AppPipe_Test_InvalidCommandCode(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_CC1_ERR_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
@@ -1131,8 +1131,8 @@ void MM_AppPipe_Test_InvalidCommandPipeMessageID(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 1);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_MID_ERR_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
@@ -1157,15 +1157,15 @@ void MM_HousekeepingCmd_Test(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    MM_AppData.HkPacket.CmdCounter     = 1;
-    MM_AppData.HkPacket.ErrCounter     = 2;
-    MM_AppData.HkPacket.LastAction     = 3;
-    MM_AppData.HkPacket.MemType        = 4;
-    MM_AppData.HkPacket.Address        = 5;
-    MM_AppData.HkPacket.DataValue      = 6;
-    MM_AppData.HkPacket.BytesProcessed = 7;
+    MM_AppData.HkPacket.Payload.CmdCounter     = 1;
+    MM_AppData.HkPacket.Payload.ErrCounter     = 2;
+    MM_AppData.HkPacket.Payload.LastAction     = 3;
+    MM_AppData.HkPacket.Payload.MemType        = 4;
+    MM_AppData.HkPacket.Payload.Address        = 5;
+    MM_AppData.HkPacket.Payload.DataValue      = 6;
+    MM_AppData.HkPacket.Payload.BytesProcessed = 7;
 
-    strncpy(MM_AppData.HkPacket.FileName, "name", sizeof(MM_AppData.HkPacket.FileName) - 1);
+    strncpy(MM_AppData.HkPacket.Payload.FileName, "name", sizeof(MM_AppData.HkPacket.Payload.FileName) - 1);
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1174,16 +1174,16 @@ void MM_HousekeepingCmd_Test(void)
     MM_HousekeepingCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_True(MM_AppData.HkPacket.CmdCounter == 1, "MM_AppData.HkPacket.CmdCounter == 1");
-    UtAssert_True(MM_AppData.HkPacket.ErrCounter == 2, "MM_AppData.HkPacket.ErrCounter == 2");
-    UtAssert_True(MM_AppData.HkPacket.LastAction == 3, "MM_AppData.HkPacket.LastAction == 3");
-    UtAssert_True(MM_AppData.HkPacket.MemType == 4, "MM_AppData.HkPacket.MemType == 4");
-    UtAssert_True(MM_AppData.HkPacket.Address == 5, "MM_AppData.HkPacket.Address == 5");
-    UtAssert_True(MM_AppData.HkPacket.DataValue == 6, "MM_AppData.HkPacket.DataValue == 6");
-    UtAssert_True(MM_AppData.HkPacket.BytesProcessed == 7, "MM_AppData.HkPacket.BytesProcessed == 7");
+    UtAssert_True(MM_AppData.HkPacket.Payload.CmdCounter == 1, "MM_AppData.HkPacket.Payload.CmdCounter == 1");
+    UtAssert_True(MM_AppData.HkPacket.Payload.ErrCounter == 2, "MM_AppData.HkPacket.Payload.ErrCounter == 2");
+    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == 3, "MM_AppData.HkPacket.Payload.LastAction == 3");
+    UtAssert_True(MM_AppData.HkPacket.Payload.MemType == 4, "MM_AppData.HkPacket.Payload.MemType == 4");
+    UtAssert_True(MM_AppData.HkPacket.Payload.Address == 5, "MM_AppData.HkPacket.Payload.Address == 5");
+    UtAssert_True(MM_AppData.HkPacket.Payload.DataValue == 6, "MM_AppData.HkPacket.Payload.DataValue == 6");
+    UtAssert_True(MM_AppData.HkPacket.Payload.BytesProcessed == 7, "MM_AppData.HkPacket.Payload.BytesProcessed == 7");
 
-    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, MM_AppData.HkPacket.FileName, OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.FileName, MM_AppData.HkPacket.FileName, OS_MAX_PATH_LEN) == 0");
+    UtAssert_True(strncmp(MM_AppData.HkPacket.Payload.FileName, MM_AppData.HkPacket.Payload.FileName, OS_MAX_PATH_LEN) == 0,
+                  "strncmp(MM_AppData.HkPacket.Payload.FileName, MM_AppData.HkPacket.Payload.FileName, OS_MAX_PATH_LEN) == 0");
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1198,8 +1198,8 @@ void MM_HousekeepingCmd_Test_NoLengthVerify(void)
     /* Execute the function being tested */
     MM_HousekeepingCmd(&UT_CmdBuf.Buf);
 
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1214,8 +1214,8 @@ void MM_ResetCmd_Test_NoLengthVerify(void)
     /* Execute the function being tested */
     MM_ResetCmd(&UT_CmdBuf.Buf);
 
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1238,7 +1238,7 @@ void MM_LookupSymbolCmd_Test_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.LookupSymCmd.SymName, "name", sizeof(UT_CmdBuf.LookupSymCmd.SymName) - 1);
+    strncpy(UT_CmdBuf.LookupSymCmd.Payload.SymName, "name", sizeof(UT_CmdBuf.LookupSymCmd.Payload.SymName) - 1);
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1249,10 +1249,10 @@ void MM_LookupSymbolCmd_Test_Nominal(void)
     MM_LookupSymbolCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_SYM_LOOKUP, "MM_AppData.HkPacket.LastAction == MM_SYM_LOOKUP");
-    UtAssert_True(MM_AppData.HkPacket.Address == 0, "MM_AppData.HkPacket.Address == 0");
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_SYM_LOOKUP, "MM_AppData.HkPacket.Payload.LastAction == MM_SYM_LOOKUP");
+    UtAssert_True(MM_AppData.HkPacket.Payload.Address == 0, "MM_AppData.HkPacket.Payload.Address == 0");
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_SYM_LOOKUP_INF_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
@@ -1281,7 +1281,7 @@ void MM_LookupSymbolCmd_Test_SymbolNameNull(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    UT_CmdBuf.LookupSymCmd.SymName[0] = '\0';
+    UT_CmdBuf.LookupSymCmd.Payload.SymName[0] = '\0';
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1290,8 +1290,8 @@ void MM_LookupSymbolCmd_Test_SymbolNameNull(void)
     MM_LookupSymbolCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_SYMNAME_NUL_ERR_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
@@ -1321,7 +1321,7 @@ void MM_LookupSymbolCmd_Test_SymbolLookupError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.LookupSymCmd.SymName, "name", sizeof(UT_CmdBuf.LookupSymCmd.SymName) - 1);
+    strncpy(UT_CmdBuf.LookupSymCmd.Payload.SymName, "name", sizeof(UT_CmdBuf.LookupSymCmd.Payload.SymName) - 1);
 
     /* Set to generate error message MM_SYMNAME_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(OS_SymbolLookup), 1, -1);
@@ -1333,8 +1333,8 @@ void MM_LookupSymbolCmd_Test_SymbolLookupError(void)
     MM_LookupSymbolCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_SYMNAME_ERR_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
@@ -1356,8 +1356,8 @@ void MM_LookupSymbolCmd_Test_NoLengthVerify(void)
     /* Execute the function being tested */
     MM_LookupSymbolCmd(&UT_CmdBuf.Buf);
 
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1380,7 +1380,7 @@ void MM_SymTblToFileCmd_Test_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.SymTblToFileCmd.FileName, "name", sizeof(UT_CmdBuf.SymTblToFileCmd.FileName) - 1);
+    strncpy(UT_CmdBuf.SymTblToFileCmd.Payload.FileName, "name", sizeof(UT_CmdBuf.SymTblToFileCmd.Payload.FileName) - 1);
 
     /* Set to satisfy condition "OS_Status == OS_SUCCESS" */
     UT_SetDeferredRetcode(UT_KEY(OS_SymbolTableDump), 1, CFE_SUCCESS);
@@ -1392,11 +1392,11 @@ void MM_SymTblToFileCmd_Test_Nominal(void)
     MM_SymTblToFileCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_SYMTBL_SAVE, "MM_AppData.HkPacket.LastAction == MM_SYMTBL_SAVE");
-    UtAssert_True(strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.SymTblToFileCmd.FileName, OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.FileName, UT_CmdBuf.SymTblToFileCmd.FileName, OS_MAX_PATH_LEN) == 0");
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_SYMTBL_SAVE, "MM_AppData.HkPacket.Payload.LastAction == MM_SYMTBL_SAVE");
+    UtAssert_True(strncmp(MM_AppData.HkPacket.Payload.FileName, UT_CmdBuf.SymTblToFileCmd.Payload.FileName, OS_MAX_PATH_LEN) == 0,
+                  "strncmp(MM_AppData.HkPacket.Payload.FileName, UT_CmdBuf.SymTblToFileCmd.Payload.FileName, OS_MAX_PATH_LEN) == 0");
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_SYMTBL_TO_FILE_INF_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
@@ -1426,7 +1426,7 @@ void MM_SymTblToFileCmd_Test_SymbolFilenameNull(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    UT_CmdBuf.SymTblToFileCmd.FileName[0] = '\0';
+    UT_CmdBuf.SymTblToFileCmd.Payload.FileName[0] = '\0';
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1435,8 +1435,8 @@ void MM_SymTblToFileCmd_Test_SymbolFilenameNull(void)
     MM_SymTblToFileCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_SYMFILENAME_NUL_ERR_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
@@ -1466,7 +1466,7 @@ void MM_SymTblToFileCmd_Test_SymbolTableDumpError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    strncpy(UT_CmdBuf.SymTblToFileCmd.FileName, "name", sizeof(UT_CmdBuf.SymTblToFileCmd.FileName) - 1);
+    strncpy(UT_CmdBuf.SymTblToFileCmd.Payload.FileName, "name", sizeof(UT_CmdBuf.SymTblToFileCmd.Payload.FileName) - 1);
 
     /* Set to generate error message MM_SYMTBL_TO_FILE_FAIL_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(OS_SymbolTableDump), 1, -1);
@@ -1478,8 +1478,8 @@ void MM_SymTblToFileCmd_Test_SymbolTableDumpError(void)
     MM_SymTblToFileCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_SYMTBL_TO_FILE_FAIL_ERR_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
@@ -1501,8 +1501,8 @@ void MM_SymTblToFileCmd_Test_NoLengthVerify(void)
     /* Execute the function being tested */
     MM_SymTblToFileCmd(&UT_CmdBuf.Buf);
 
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1525,7 +1525,7 @@ void MM_EepromWriteEnaCmd_Test_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    UT_CmdBuf.EepromWriteEnaCmd.Bank = 0;
+    UT_CmdBuf.EepromWriteEnaCmd.Payload.Bank = 0;
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1536,11 +1536,11 @@ void MM_EepromWriteEnaCmd_Test_Nominal(void)
     MM_EepromWriteEnaCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_EEPROMWRITE_ENA,
-                  "MM_AppData.HkPacket.LastAction == MM_EEPROMWRITE_ENA");
-    UtAssert_True(MM_AppData.HkPacket.MemType == MM_EEPROM, "MM_AppData.HkPacket.MemType == MM_EEPROM");
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_EEPROMWRITE_ENA,
+                  "MM_AppData.HkPacket.Payload.LastAction == MM_EEPROMWRITE_ENA");
+    UtAssert_True(MM_AppData.HkPacket.Payload.MemType == MM_EEPROM, "MM_AppData.HkPacket.Payload.MemType == MM_EEPROM");
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_EEPROM_WRITE_ENA_INF_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
@@ -1571,7 +1571,7 @@ void MM_EepromWriteEnaCmd_Test_Error(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
     /* Stub will fail on bank 1 */
-    UT_CmdBuf.EepromWriteEnaCmd.Bank = 1;
+    UT_CmdBuf.EepromWriteEnaCmd.Payload.Bank = 1;
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1583,8 +1583,8 @@ void MM_EepromWriteEnaCmd_Test_Error(void)
     MM_EepromWriteEnaCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_EEPROM_WRITE_ENA_ERR_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
@@ -1606,8 +1606,8 @@ void MM_EepromWriteEnaCmd_Test_NoLengthVerify(void)
     /* Execute the function being tested */
     MM_EepromWriteEnaCmd(&UT_CmdBuf.Buf);
 
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1630,7 +1630,7 @@ void MM_EepromWriteDisCmd_Test_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
-    UT_CmdBuf.EepromWriteDisCmd.Bank = 0;
+    UT_CmdBuf.EepromWriteDisCmd.Payload.Bank = 0;
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1641,11 +1641,11 @@ void MM_EepromWriteDisCmd_Test_Nominal(void)
     MM_EepromWriteDisCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_True(MM_AppData.HkPacket.LastAction == MM_EEPROMWRITE_DIS,
-                  "MM_AppData.HkPacket.LastAction == MM_EEPROMWRITE_DIS");
-    UtAssert_True(MM_AppData.HkPacket.MemType == MM_EEPROM, "MM_AppData.HkPacket.MemType == MM_EEPROM");
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_EEPROMWRITE_DIS,
+                  "MM_AppData.HkPacket.Payload.LastAction == MM_EEPROMWRITE_DIS");
+    UtAssert_True(MM_AppData.HkPacket.Payload.MemType == MM_EEPROM, "MM_AppData.HkPacket.Payload.MemType == MM_EEPROM");
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_EEPROM_WRITE_DIS_INF_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
@@ -1676,7 +1676,7 @@ void MM_EepromWriteDisCmd_Test_Error(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
     /* Stub will fail on bank 1 */
-    UT_CmdBuf.EepromWriteDisCmd.Bank = 1;
+    UT_CmdBuf.EepromWriteDisCmd.Payload.Bank = 1;
 
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
@@ -1688,8 +1688,8 @@ void MM_EepromWriteDisCmd_Test_Error(void)
     MM_EepromWriteDisCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_EEPROM_WRITE_DIS_ERR_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
@@ -1711,8 +1711,8 @@ void MM_EepromWriteDisCmd_Test_NoLengthVerify(void)
     /* Execute the function being tested */
     MM_EepromWriteDisCmd(&UT_CmdBuf.Buf);
 
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkPacket.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 

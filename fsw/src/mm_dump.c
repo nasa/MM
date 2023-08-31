@@ -59,7 +59,7 @@ bool MM_PeekCmd(const CFE_SB_Buffer_t *BufPtr)
     {
         CmdPtr = ((MM_PeekCmd_t *)BufPtr);
 
-        SrcSymAddress = CmdPtr->SrcSymAddress;
+        SrcSymAddress = CmdPtr->Payload.SrcSymAddress;
 
         /* Resolve the symbolic address in command message */
         Valid = MM_ResolveSymAddr(&(SrcSymAddress), &SrcAddress);
@@ -67,7 +67,7 @@ bool MM_PeekCmd(const CFE_SB_Buffer_t *BufPtr)
         if (Valid == true)
         {
             /* Run necessary checks on command parameters */
-            Valid = MM_VerifyPeekPokeParams(SrcAddress, CmdPtr->MemType, CmdPtr->DataSize);
+            Valid = MM_VerifyPeekPokeParams(SrcAddress, CmdPtr->Payload.MemType, CmdPtr->Payload.DataSize);
 
             /* Check the specified memory type and call the appropriate routine */
             if (Valid == true)
@@ -83,7 +83,7 @@ bool MM_PeekCmd(const CFE_SB_Buffer_t *BufPtr)
         else
         {
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Symbolic address can't be resolved: Name = '%s'", CmdPtr->SrcSymAddress.SymName);
+                              "Symbolic address can't be resolved: Name = '%s'", CmdPtr->Payload.SrcSymAddress.SymName);
         }
 
     } /* end MM_VerifyCmdLength if */
@@ -111,7 +111,7 @@ bool MM_PeekMem(const MM_PeekCmd_t *CmdPtr, cpuaddr SrcAddress)
     /*
     ** Read the requested number of bytes and report in an event message
     */
-    switch (CmdPtr->DataSize)
+    switch (CmdPtr->Payload.DataSize)
     {
         case MM_BYTE_BIT_WIDTH:
 
@@ -162,11 +162,11 @@ bool MM_PeekMem(const MM_PeekCmd_t *CmdPtr, cpuaddr SrcAddress)
 
     if (ValidPeek)
     {
-        MM_AppData.HkPacket.LastAction     = MM_PEEK;
-        MM_AppData.HkPacket.MemType        = CmdPtr->MemType;
-        MM_AppData.HkPacket.Address        = SrcAddress;
-        MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
-        MM_AppData.HkPacket.DataValue      = DataValue;
+        MM_AppData.HkPacket.Payload.LastAction     = MM_PEEK;
+        MM_AppData.HkPacket.Payload.MemType        = CmdPtr->Payload.MemType;
+        MM_AppData.HkPacket.Payload.Address        = SrcAddress;
+        MM_AppData.HkPacket.Payload.BytesProcessed = BytesProcessed;
+        MM_AppData.HkPacket.Payload.DataValue      = DataValue;
 
         CFE_EVS_SendEvent(EventID, CFE_EVS_EventType_INFORMATION,
                           "Peek Command: Addr = %p Size = %u bits Data = 0x%08X", (void *)SrcAddress,
@@ -205,10 +205,10 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
     {
         CmdPtr = ((MM_DumpMemToFileCmd_t *)BufPtr);
 
-        SrcSymAddress = CmdPtr->SrcSymAddress;
+        SrcSymAddress = CmdPtr->Payload.SrcSymAddress;
 
         /* Make sure strings are null terminated before attempting to process them */
-        CFE_SB_MessageStringGet(FileName, CmdPtr->FileName, NULL, sizeof(FileName), sizeof(CmdPtr->FileName));
+        CFE_SB_MessageStringGet(FileName, CmdPtr->Payload.FileName, NULL, sizeof(FileName), sizeof(CmdPtr->Payload.FileName));
 
         /* Resolve the symbolic address in command message */
         Valid = MM_ResolveSymAddr(&(SrcSymAddress), &SrcAddress);
@@ -216,7 +216,7 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
         if (Valid == true)
         {
             /* Run necessary checks on command parameters */
-            Valid = MM_VerifyLoadDumpParams(SrcAddress, CmdPtr->MemType, CmdPtr->NumOfBytes, MM_VERIFY_DUMP);
+            Valid = MM_VerifyLoadDumpParams(SrcAddress, CmdPtr->Payload.MemType, CmdPtr->Payload.NumOfBytes, MM_VERIFY_DUMP);
 
             if (Valid == true)
             {
@@ -235,8 +235,8 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                 ** Copy command data to file secondary header
                 */
                 MMFileHeader.SymAddress.Offset = SrcAddress;
-                MMFileHeader.MemType           = CmdPtr->MemType;
-                MMFileHeader.NumOfBytes        = CmdPtr->NumOfBytes;
+                MMFileHeader.MemType           = CmdPtr->Payload.MemType;
+                MMFileHeader.NumOfBytes        = CmdPtr->Payload.NumOfBytes;
 
                 /*
                 ** Create and open dump file
@@ -321,15 +321,15 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                             CFE_EVS_SendEvent(
                                 MM_DMP_MEM_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
                                 "Dump Memory To File Command: Dumped %d bytes from address %p to file '%s'",
-                                (int)MM_AppData.HkPacket.BytesProcessed, (void *)SrcAddress, FileName);
+                                (int)MM_AppData.HkPacket.Payload.BytesProcessed, (void *)SrcAddress, FileName);
                             /*
                             ** Update last action statistics
                             */
-                            MM_AppData.HkPacket.LastAction = MM_DUMP_TO_FILE;
-                            strncpy(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN);
-                            MM_AppData.HkPacket.MemType        = CmdPtr->MemType;
-                            MM_AppData.HkPacket.Address        = SrcAddress;
-                            MM_AppData.HkPacket.BytesProcessed = CmdPtr->NumOfBytes;
+                            MM_AppData.HkPacket.Payload.LastAction = MM_DUMP_TO_FILE;
+                            strncpy(MM_AppData.HkPacket.Payload.FileName, FileName, OS_MAX_PATH_LEN);
+                            MM_AppData.HkPacket.Payload.MemType        = CmdPtr->Payload.MemType;
+                            MM_AppData.HkPacket.Payload.Address        = SrcAddress;
+                            MM_AppData.HkPacket.Payload.BytesProcessed = CmdPtr->Payload.NumOfBytes;
                         }
 
                     } /* end MM_WriteFileHeaders if */
@@ -416,11 +416,11 @@ bool MM_DumpMemToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadD
     if (BytesProcessed == FileHeader->NumOfBytes)
     {
         ValidDump                          = true;
-        MM_AppData.HkPacket.LastAction     = MM_DUMP_TO_FILE;
-        MM_AppData.HkPacket.MemType        = FileHeader->MemType;
-        MM_AppData.HkPacket.Address        = FileHeader->SymAddress.Offset;
-        MM_AppData.HkPacket.BytesProcessed = BytesProcessed;
-        strncpy(MM_AppData.HkPacket.FileName, FileName, OS_MAX_PATH_LEN);
+        MM_AppData.HkPacket.Payload.LastAction     = MM_DUMP_TO_FILE;
+        MM_AppData.HkPacket.Payload.MemType        = FileHeader->MemType;
+        MM_AppData.HkPacket.Payload.Address        = FileHeader->SymAddress.Offset;
+        MM_AppData.HkPacket.Payload.BytesProcessed = BytesProcessed;
+        strncpy(MM_AppData.HkPacket.Payload.FileName, FileName, OS_MAX_PATH_LEN);
     }
 
     return ValidDump;
@@ -502,7 +502,7 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
     {
         CmdPtr = ((MM_DumpInEventCmd_t *)BufPtr);
 
-        SrcSymAddress = CmdPtr->SrcSymAddress;
+        SrcSymAddress = CmdPtr->Payload.SrcSymAddress;
 
         /* Resolve the symbolic source address in the command message */
         Valid = MM_ResolveSymAddr(&(SrcSymAddress), &SrcAddress);
@@ -510,7 +510,7 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
         if (Valid == true)
         {
             /* Run necessary checks on command parameters */
-            Valid = MM_VerifyLoadDumpParams(SrcAddress, CmdPtr->MemType, CmdPtr->NumOfBytes, MM_VERIFY_EVENT);
+            Valid = MM_VerifyLoadDumpParams(SrcAddress, CmdPtr->Payload.MemType, CmdPtr->Payload.NumOfBytes, MM_VERIFY_EVENT);
 
             if (Valid == true)
             {
@@ -533,7 +533,7 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
                     ** Note this really only allows up to ~15 bytes using default config
                     */
                     BytePtr = (uint8 *)DumpBuffer;
-                    for (i = 0; i < CmdPtr->NumOfBytes; i++)
+                    for (i = 0; i < CmdPtr->Payload.NumOfBytes; i++)
                     {
                         snprintf(TempString, MM_DUMPINEVENT_TEMP_CHARS, "0x%02X ", *BytePtr);
                         CFE_SB_MessageStringGet(&EventString[EventStringTotalLength], TempString, NULL,
@@ -554,10 +554,10 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
                     CFE_EVS_SendEvent(MM_DUMP_INEVENT_INF_EID, CFE_EVS_EventType_INFORMATION, "%s", EventString);
 
                     /* Update telemetry */
-                    MM_AppData.HkPacket.LastAction     = MM_DUMP_INEVENT;
-                    MM_AppData.HkPacket.MemType        = CmdPtr->MemType;
-                    MM_AppData.HkPacket.Address        = SrcAddress;
-                    MM_AppData.HkPacket.BytesProcessed = CmdPtr->NumOfBytes;
+                    MM_AppData.HkPacket.Payload.LastAction     = MM_DUMP_INEVENT;
+                    MM_AppData.HkPacket.Payload.MemType        = CmdPtr->Payload.MemType;
+                    MM_AppData.HkPacket.Payload.Address        = SrcAddress;
+                    MM_AppData.HkPacket.Payload.BytesProcessed = CmdPtr->Payload.NumOfBytes;
                 } /* end MM_FillDumpInEventBuffer if */
             }     /* end MM_VerifyFileLoadDumpParams if */
         }         /* end MM_ResolveSymAddr if */
@@ -589,16 +589,16 @@ bool MM_FillDumpInEventBuffer(cpuaddr SrcAddress, const MM_DumpInEventCmd_t *Cmd
     /* Initialize buffer */
     memset(DumpBuffer, 0, MM_MAX_DUMP_INEVENT_BYTES);
 
-    switch (CmdPtr->MemType)
+    switch (CmdPtr->Payload.MemType)
     {
         case MM_RAM:
         case MM_EEPROM:
-            memcpy((void *)DumpBuffer, (void *)SrcAddress, CmdPtr->NumOfBytes);
+            memcpy((void *)DumpBuffer, (void *)SrcAddress, CmdPtr->Payload.NumOfBytes);
             break;
 
 #ifdef MM_OPT_CODE_MEM32_MEMTYPE
         case MM_MEM32:
-            for (i = 0; i < (CmdPtr->NumOfBytes / 4); i++)
+            for (i = 0; i < (CmdPtr->Payload.NumOfBytes / 4); i++)
             {
                 PSP_Status = CFE_PSP_MemRead32(SrcAddress, (uint32 *)DumpBuffer);
                 if (PSP_Status == CFE_PSP_SUCCESS)
@@ -622,7 +622,7 @@ bool MM_FillDumpInEventBuffer(cpuaddr SrcAddress, const MM_DumpInEventCmd_t *Cmd
 
 #ifdef MM_OPT_CODE_MEM16_MEMTYPE
         case MM_MEM16:
-            for (i = 0; i < (CmdPtr->NumOfBytes / 2); i++)
+            for (i = 0; i < (CmdPtr->Payload.NumOfBytes / 2); i++)
             {
                 PSP_Status = CFE_PSP_MemRead16(SrcAddress, (uint16 *)DumpBuffer);
                 if (PSP_Status == CFE_PSP_SUCCESS)
@@ -646,7 +646,7 @@ bool MM_FillDumpInEventBuffer(cpuaddr SrcAddress, const MM_DumpInEventCmd_t *Cmd
 
 #ifdef MM_OPT_CODE_MEM8_MEMTYPE
         case MM_MEM8:
-            for (i = 0; i < CmdPtr->NumOfBytes; i++)
+            for (i = 0; i < CmdPtr->Payload.NumOfBytes; i++)
             {
                 PSP_Status = CFE_PSP_MemRead8(SrcAddress, (uint8 *)DumpBuffer);
                 if (PSP_Status == CFE_PSP_SUCCESS)
@@ -668,13 +668,13 @@ bool MM_FillDumpInEventBuffer(cpuaddr SrcAddress, const MM_DumpInEventCmd_t *Cmd
             break;
 #endif /* MM_OPT_CODE_MEM8_MEMTYPE */
         default:
-            /* This branch will never be executed. CmdPtr->MemType will always
+            /* This branch will never be executed. CmdPtr->Payload.MemType will always
              * be valid value for this switch statement it is verified via
              * MM_VerifyFileLoadDumpParams */
             Valid = false;
             break;
 
-    } /* end CmdPtr->MemType switch */
+    } /* end CmdPtr->Payload.MemType switch */
 
     return Valid;
 }
