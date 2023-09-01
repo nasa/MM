@@ -52,12 +52,8 @@ bool MM_PokeCmd(const CFE_SB_Buffer_t *BufPtr)
     bool                Valid       = false;
     cpuaddr             DestAddress = 0;
     const MM_PokeCmd_t *CmdPtr;
-    size_t              ExpectedLength = sizeof(MM_PokeCmd_t);
     MM_SymAddr_t        DestSymAddress;
 
-    /* Verify command packet length */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         CmdPtr = ((MM_PokeCmd_t *)BufPtr);
 
         DestSymAddress = CmdPtr->Payload.DestSymAddress;
@@ -95,8 +91,6 @@ bool MM_PokeCmd(const CFE_SB_Buffer_t *BufPtr)
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Symbolic address can't be resolved: Name = '%s'", DestSymAddress.SymName);
         }
-
-    } /* end MM_VerifyCmdLength if */
 
     return Valid;
 }
@@ -298,13 +292,9 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
     const MM_LoadMemWIDCmd_t *CmdPtr;
     uint32                    ComputedCRC;
     cpuaddr                   DestAddress    = 0;
-    size_t                    ExpectedLength = sizeof(MM_LoadMemWIDCmd_t);
     bool                      CmdResult      = false;
     MM_SymAddr_t              DestSymAddress;
 
-    /* Verify command packet length */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         CmdPtr = ((MM_LoadMemWIDCmd_t *)BufPtr);
 
         DestSymAddress = CmdPtr->Payload.DestSymAddress;
@@ -355,8 +345,6 @@ bool MM_LoadMemWIDCmd(const CFE_SB_Buffer_t *BufPtr)
                               "Symbolic address can't be resolved: Name = '%s'", DestSymAddress.SymName);
         }
 
-    } /* end MM_VerifyCmdLength if */
-
     return CmdResult;
 }
 
@@ -376,13 +364,9 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
     CFE_FS_Header_t                CFEFileHeader;
     MM_LoadDumpFileHeader_t        MMFileHeader;
     uint32                         ComputedCRC;
-    size_t                         ExpectedLength = sizeof(MM_LoadMemFromFileCmd_t);
 
     memset(&MMFileHeader, 0, sizeof(MMFileHeader));
 
-    /* Verify command packet length */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         CmdPtr = ((MM_LoadMemFromFileCmd_t *)BufPtr);
 
         /* Make sure string is null terminated before attempting to process it */
@@ -544,8 +528,6 @@ bool MM_LoadMemFromFileCmd(const CFE_SB_Buffer_t *BufPtr)
             CFE_EVS_SendEvent(MM_OS_OPEN_ERR_EID, CFE_EVS_EventType_ERROR,
                               "OS_OpenCreate error received: RC = %d File = '%s'", (int)OS_Status, CmdPtr->Payload.FileName);
         }
-
-    } /* end MM_VerifyCmdLength if */
 
     return Valid;
 }
@@ -725,13 +707,9 @@ bool MM_FillMemCmd(const CFE_SB_Buffer_t *BufPtr)
 {
     cpuaddr                DestAddress    = 0;
     const MM_FillMemCmd_t *CmdPtr         = (MM_FillMemCmd_t *)BufPtr;
-    size_t                 ExpectedLength = sizeof(MM_FillMemCmd_t);
     bool                   CmdResult      = false;
     MM_SymAddr_t           DestSymAddress = CmdPtr->Payload.DestSymAddress;
 
-    /* Verify command packet length */
-    if (MM_VerifyCmdLength(&BufPtr->Msg, ExpectedLength))
-    {
         /* Resolve symbolic address */
         if (MM_ResolveSymAddr(&(DestSymAddress), &DestAddress) == true)
         {
@@ -786,7 +764,6 @@ bool MM_FillMemCmd(const CFE_SB_Buffer_t *BufPtr)
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Symbolic address can't be resolved: Name = '%s'", DestSymAddress.SymName);
         }
-    }
 
     return CmdResult;
 }
