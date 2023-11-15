@@ -156,6 +156,7 @@
  *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_PEEK
  *       - #MM_HkPacket_Payload_t.MemType will be set to the commanded memory type
  *       - #MM_HkPacket_Payload_t.Address will be set to the fully resolved destination memory address
+ *       - #MM_HkPacket_Payload_t.DataValue will be set to the value contained in the requested address
  *       - #MM_HkPacket_Payload_t.BytesProcessed will be set to the byte size of the peek operation (1, 2, or 4)
  *       - The #MM_PEEK_BYTE_INF_EID informational event message will
  *         be generated with the peek data if the data size was 8 bits
@@ -213,6 +214,7 @@
  *       - #MM_HkPacket_Payload_t.LastAction will be set to #MM_POKE
  *       - #MM_HkPacket_Payload_t.MemType will be set to the commanded memory type
  *       - #MM_HkPacket_Payload_t.Address will be set to the fully resolved source memory address
+ *       - #MM_HkPacket_Payload_t.DataValue will be set to the commanded poke data value
  *       - #MM_HkPacket_Payload_t.BytesProcessed will be set to the byte size of the poke operation (1, 2, or 4)
  *       - The #MM_POKE_BYTE_INF_EID informational event message will
  *         be generated if the data size was 8 bits

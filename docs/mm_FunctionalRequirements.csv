@@ -14,15 +14,15 @@ MM1011,MM1011,<OPTIONAL>  Symbol Name and offset can be used in lieu of an absol
 MM1012,MM1012,<OPTIONAL>  Symbol Name and offset can be used in lieu an absolute address in any EEPROM command,"If symbolic addressing supported, symbolic names and offset can be used instead of an absolute address in EEPROM"
 MM1013,MM1013,The MM application shall generate an error event message if symbol table operations are initiated but not supported in the current target environment.,Got to do something graceful if we’re running without a system symbol table to query
 MM2000,MM2000,"Upon receipt of a Poke command , MM shall write 8, 16, or 32 bits of data to the command-specified RAM address.",Memory poke to any RAM address. Typically the peek function is used to verify the poke.
-MM2000.1,MM2000.1,"MM shall confirm a write to the RAM address by issuing an event message which includes:
+MM2000.1,MM2000.1,"MM shall confirm a write to the RAM address by telemetering the following information in the HK packet and issuing an event message containing:
 a) address written
 b) length of data written
 c) value of the data written
 ",Confirms memory poke operations
 MM2000.2,MM2000.2,"When MM receives a Poke command, if the data size is not 8, 16, or 32 bits, MM shall reject the command.",Ensure writes happen at 8-bit boundaries
-MM2002,MM2002,"Upon receipt of a Peek command, MM shall read 8, 16, or 32 bits of data from the command-specified RAM address and generate an event message containing the following data: 
-a) address read 
-b) length of data read 
+MM2002,MM2002,"Upon receipt of a Peek command, MM shall read 8, 16, or 32 bits of data from the command-specified RAM address and telemeter the following information in the HK packet + issue an event message containing:
+a) address read
+b) length of data read
 c) value of the data read
 ",Memory peek to any Memory Type
 MM2003,MM2003,"Upon receipt of a Write With Interrupts Disable command, MM shall write up to <PLATFORM_DEFINED, TBD> bytes to the command-specified RAM memory address with interrupts disabled.",Load with interrupts disabled so that can patch software that is executing.
@@ -30,17 +30,17 @@ MM2003.1,MM2003.1,MM shall verify that the command-specified CRC matches the com
 MM2003.2,MM2003.2,"If the command-specified CRC fails validation, MM shall reject the command",Verify data before changing memory
 MM2004,MM2004,"Upon receipt of a Read command, MM shall read the command-specified number of consecutive bytes from the command-specified RAM memory address and generate an event message containing the data.",Dump in event message in order to provide a quick display (alleviates post processing)
 MM2004.1,MM2004.1,"When MM receives a “Dump to Event” command, if the number of bytes exceeds the maximum event message size then the command shall be rejected.",Cannot exceed the event message size maximum
-MM2100,MM2100,"Upon receipt of a Load From File command, MM shall load RAM, with interrupts enabled during the actual load, based on the following information contained in the command-specified ""file:"" 
-a) Destination Address 
-b) Destination Memory Type 
-c) <MISSION_DEFINED> CRC (data only) 
+MM2100,MM2100,"Upon receipt of a Load From File command, MM shall load RAM, with interrupts enabled during the actual load, based on the following information contained in the command-specified ""file:""
+a) Destination Address
+b) Destination Memory Type
+c) <MISSION_DEFINED> CRC (data only)
 d) Number of Bytes to Load",Standard load from file into RAM memory. Files are assumed to be binary
 MM2100.1,MM2100.1,"If the CRC contained in the file fails validation, MM shall reject the command.",Verifies load file integrity
 MM2100.2,MM2100.2,"If the number of bytes exceeds <PLATFORM_DEFINED, TBD> then the command shall be rejected.",<Platform_defined>maximum should be sized to be able to handle the largest app. Requirement prevents exceeding memory bounds.
 MM2104,MM2104,"Upon receipt of a Dump to File command, MM shall write the data associated with the command-specified RAM address , command-specified number of bytes and calculated <MISSION_DEFINED> CRC  to the command-specified file.",Standard dump from RAM memory to a file.
 MM2104.1,MM2104.1,"If the command-specified number of bytes exceeds <PLATFORM_DEFINED, TBD> then the command shall be rejected.",Keep from running beyond memory type address range.
 MM2300,MM2300,"Upon receipt of a Fill command, MM shall fill RAM with the contents based on the following command-specified parameters:
-a) Destination Address  
+a) Destination Address
 b) Destination Memory Type
 c) Number of Bytes to Fill
 d) 32-bit Fill Pattern","Easy way to write a simple pattern to memory (or tables/data structures). Use Load from File if using a more complicated pattern. SET filled unused memory with the TRAP instruction (if the processor gets lost and wanders off into the weeds, the TRAP instruction will immediately cause an exception/interrupt)"
@@ -48,15 +48,15 @@ MM2300.1,MM2300.1,"If the command-specified number of bytes exceeds <PLATFORM_DE
 MM2500,MM2500,"When writing data to RAM memory, MM shall write a maximum of <PLATFORM_DEFINED, TBD> bytes  per execution cycle",Segments the load in order to prevent CPU hogging.
 MM2501,MM2501,"When writing RAM data to a file, MM shall write a maximum of <PLATFORM_DEFINED, TBD> bytes per execution cycle",Writing to a file can be very slow. Need to segment writing the file.
 MM3000,MM3000,"Upon receipt of a Poke command , MM shall write 8, 16, or 32 bits of data to the command-specified EEPROM address",Memory poke to any EEPROM address. Typically the peek function is used to verify the poke.
-MM3000.1,MM3000.1,"MM shall confirm a write to the EEPROM address  by issuing an event message which includes:
+MM3000.1,MM3000.1,"MM shall confirm a write to the EEPROM address and telemeter the following information in the HK packet + issue an event message containing:
 a) address written
 b) length of data written
 c) value of the data written",Confirms memory poke operations
-MM3001,MM3001,"Upon receipt of a Peek command,  MM shall read 8, 16, or 32 bits of data from the command-specified EEPROM address  and generate an event message containing the following data:
+MM3001,MM3001,"Upon receipt of a Peek command, MM shall read 8, 16, or 32 bits of data from the command-specified EEPROM address and telemeter the following information in the HK packet + issue an event message containing:
 a) address read
 b) length of data read
 c) value of the data read",Memory peek to any Memory Type
-MM3002,MM3002,"Upon receipt of a Read command,  MM shall read the command-specified number of consecutive bytes from the command-specified EEPROM memory address  and generate an event message containing the data.",Dump in event message in order to provide a quick display (alleviates post processing)
+MM3002,MM3002,"Upon receipt of a Read command,  MM shall read the command-specified number of consecutive bytes from the command-specified EEPROM memory address and generate an event message containing the data.",Dump in event message in order to provide a quick display (alleviates post processing)
 MM3002.1,MM3002.1,If the number of bytes exceeds the maximum event message size then the command shall be rejected.,Cannot exceed the event message size maximum
 MM3100,MM3100,"Upon receipt of a Load from File command, MM shall load EEPROM memory based on the following information contained in the command-specified ""file:""
 a) Destination Address
@@ -67,10 +67,10 @@ MM3100.1,MM3100.1,"If the CRC contained in the file fails validation,  MM shall 
 MM3100.2,MM3100.2,"If the number of bytes exceeds <PLATFORM_DEFINED, TBD> then the command shall be rejected.",Keeps from running beyond memory type address range. Need to be able to load largest app
 MM3104,MM3104,"Upon receipt of a Dump to File command, MM shall write the data associated with the command-specified EEPROM address ,command-specified number of bytes and calculated <MISSION_DEFINED> CRC to the command-specified file.",Standard dump from EEPROM memory to a file.
 MM3104.1,MM3104.1,"If the command-specified number of bytes exceeds <PLATFORM_DEFINED, TBD> then the command shall be rejected.",Keep from running beyond memory type address range.
-MM3200,MM3200,"Upon receipt of a Fill command, MM shall fill EEPROM memory with the contents based on the following command-specified parameters: 
-a) Destination Address 
-b) Destination Memory Type 
-c) Number of Bytes to Fill 
+MM3200,MM3200,"Upon receipt of a Fill command, MM shall fill EEPROM memory with the contents based on the following command-specified parameters:
+a) Destination Address
+b) Destination Memory Type
+c) Number of Bytes to Fill
 d) 32-bit  Fill Pattern","Easy way to write a simple pattern to memory (or tables/data structures). Use Load from File if using a more complicated pattern. SET filled unused memory with the TRAP instruction (if the processor gets lost and wanders off into the weeds, the TRAP instruction will immediately cause an exception/interrupt)"
 MM3200.1,MM3200.1,"If the command-specified number of bytes exceeds <PLATFORM_DEFINED, TBD> then the command shall be rejected.",Keeps from running beyond memory type address range
 MM3300,MM3300,"When writing data to EEPROM memory, MM shall write a maximum of <PLATFORM_DEFINED, TBD> bytes  per execution cycle",Segments the load in order to prevent CPU hogging.
@@ -78,15 +78,14 @@ MM3301,MM3301,"When writing EEPROM data to a file, MM shall write a maximum of <
 MM3400,MM3400,"Upon receipt of an Enable EEPROM command, MM shall enable the command specified bank of EEPROM for writing.",
 MM3500,MM3500,"Upon receipt of a Disable EEPROM command, MM shall disable/lock the command specified bank of EEPROM from being written to.",
 MM5000,MM5000,"Upon receipt of a Poke command , MM shall write <PLATFORM_DEFINED> bytes of data to the command-specified Memory Mapped I/O address","Memory poke to any Memory Mapped I/O address. The data is written in the required data sizes (8, 16, or 32). Typically the peek function is used to verify the poke."
-MM5000.1,MM5000.1,"MM shall confirm a write to the Memory Mapped I/O address by issuing an event message which includes:
+MM5000.1,MM5000.1,"MM shall confirm a write to the Memory Mapped I/O address by telemetering the following information in the HK packet + issuing an event message containing:
 a) address written
 b) length of data written
 c) value of the data written",Confirms memory poke operations
-MM5002,MM5002,"Upon receipt of a Peek command,  MM shall read <PLATFORM_DEFINED> bytes of data from the command-specified Memory Mapped I/O address and generate an event message containing the following data:
+MM5002,MM5002,"Upon receipt of a Peek command,  MM shall read <PLATFORM_DEFINED> bytes of data from the command-specified Memory Mapped I/O address and telemeter the following information in the HK packet + issue an event message containing:
 a) address read
 b) length of data read
 c) value of the data read
-
 ",Memory peek to any Memory Type
 MM5004,MM5004,"Upon receipt of a Read command,  MM shall read the command-specified number of consecutive bytes from the command-specified Memory Mapped I/O memory address and generate an event message containing the data.",Dump in event message in order to provide a quick display (alleviates post processing)
 MM5004.1,MM5004.1,If the number of bytes exceeds the maximum event message size then the command shall be rejected.,Cannot exceed the event message size maximum
