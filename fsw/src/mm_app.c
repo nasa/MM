@@ -170,7 +170,8 @@ CFE_Status_t MM_AppInit(void)
     Status = CFE_SB_CreatePipe(&MM_AppData.CmdPipe, MM_CMD_PIPE_DEPTH, "MM_CMD_PIPE");
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(MM_CR_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, "Error Creating SB Pipe, RC = 0x%08X", Status);
+        CFE_EVS_SendEvent(MM_CR_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, "Error Creating SB Pipe, RC = 0x%08X",
+                          (unsigned int)Status);
         return Status;
     }
 
@@ -181,7 +182,7 @@ CFE_Status_t MM_AppInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(MM_HK_SUB_ERR_EID, CFE_EVS_EventType_ERROR, "Error Subscribing to HK Request, RC = 0x%08X",
-                          Status);
+                          (unsigned int)Status);
         return Status;
     }
 
@@ -192,7 +193,7 @@ CFE_Status_t MM_AppInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(MM_CMD_SUB_ERR_EID, CFE_EVS_EventType_ERROR, "Error Subscribing to MM Command, RC = 0x%08X",
-                          Status);
+                          (unsigned int)Status);
         return Status;
     }
 
@@ -332,7 +333,7 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
                     }
                     break;
 
-                 case MM_ENABLE_EEPROM_WRITE_CC:
+                case MM_ENABLE_EEPROM_WRITE_CC:
                     if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_EepromWriteEnaCmd_t)))
                     {
                         CmdResult = MM_EepromWriteEnaCmd(BufPtr);
@@ -386,15 +387,15 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void MM_HousekeepingCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-        /*
-        ** Send housekeeping telemetry packet
-        */
-        CFE_SB_TimeStampMsg(&MM_AppData.HkPacket.TlmHeader.Msg);
-        CFE_SB_TransmitMsg(&MM_AppData.HkPacket.TlmHeader.Msg, true);
+    /*
+    ** Send housekeeping telemetry packet
+    */
+    CFE_SB_TimeStampMsg(&MM_AppData.HkPacket.TlmHeader.Msg);
+    CFE_SB_TransmitMsg(&MM_AppData.HkPacket.TlmHeader.Msg, true);
 
-        /*
-        ** This command does not affect the command execution counter
-        */
+    /*
+    ** This command does not affect the command execution counter
+    */
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -404,12 +405,12 @@ void MM_HousekeepingCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_NoopCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    bool   Result         = false;
-        MM_AppData.HkPacket.Payload.LastAction = MM_NOOP;
-        Result                         = true;
+    bool Result                            = false;
+    MM_AppData.HkPacket.Payload.LastAction = MM_NOOP;
+    Result                                 = true;
 
-        CFE_EVS_SendEvent(MM_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op command. Version %d.%d.%d.%d",
-                          MM_MAJOR_VERSION, MM_MINOR_VERSION, MM_REVISION, MM_MISSION_REV);
+    CFE_EVS_SendEvent(MM_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op command. Version %d.%d.%d.%d",
+                      MM_MAJOR_VERSION, MM_MINOR_VERSION, MM_REVISION, MM_MISSION_REV);
 
     return Result;
 }
@@ -421,13 +422,13 @@ bool MM_NoopCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_ResetCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    bool   Result         = false;
-        MM_AppData.HkPacket.Payload.LastAction = MM_RESET;
-        MM_AppData.HkPacket.Payload.CmdCounter = 0;
-        MM_AppData.HkPacket.Payload.ErrCounter = 0;
+    bool Result                            = false;
+    MM_AppData.HkPacket.Payload.LastAction = MM_RESET;
+    MM_AppData.HkPacket.Payload.CmdCounter = 0;
+    MM_AppData.HkPacket.Payload.ErrCounter = 0;
 
-        CFE_EVS_SendEvent(MM_RESET_INF_EID, CFE_EVS_EventType_INFORMATION, "Reset counters command received");
-        Result = true;
+    CFE_EVS_SendEvent(MM_RESET_INF_EID, CFE_EVS_EventType_INFORMATION, "Reset counters command received");
+    Result = true;
 
     return Result;
 }
@@ -441,46 +442,46 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
 {
     int32   OS_Status    = OS_ERROR; /* Set to error instead of success since we explicitly test for success */
     cpuaddr ResolvedAddr = 0;
-    const MM_LookupSymCmd_t *CmdPtr         = NULL;
-    bool                     Result         = false;
+    const MM_LookupSymCmd_t *CmdPtr = NULL;
+    bool                     Result = false;
     char                     SymName[OS_MAX_SYM_LEN];
 
-        CmdPtr = ((MM_LookupSymCmd_t *)BufPtr);
+    CmdPtr = ((MM_LookupSymCmd_t *)BufPtr);
 
-        /* Make sure string is null terminated before attempting to process it */
-        CFE_SB_MessageStringGet(SymName, CmdPtr->Payload.SymName, NULL, sizeof(SymName), sizeof(CmdPtr->Payload.SymName));
+    /* Make sure string is null terminated before attempting to process it */
+    CFE_SB_MessageStringGet(SymName, CmdPtr->Payload.SymName, NULL, sizeof(SymName), sizeof(CmdPtr->Payload.SymName));
 
+    /*
+    ** Check if the symbol name string is a nul string
+    */
+    if (strlen(SymName) == 0)
+    {
+        CFE_EVS_SendEvent(MM_SYMNAME_NUL_ERR_EID, CFE_EVS_EventType_ERROR,
+                          "NUL (empty) string specified as symbol name");
+    }
+    else
+    {
         /*
-        ** Check if the symbol name string is a nul string
+        ** If symbol name is not an empty string look it up using the OSAL API
         */
-        if (strlen(SymName) == 0)
+        OS_Status = OS_SymbolLookup(&ResolvedAddr, SymName);
+        if (OS_Status == OS_SUCCESS)
         {
-            CFE_EVS_SendEvent(MM_SYMNAME_NUL_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "NUL (empty) string specified as symbol name");
+            /* Update telemetry */
+            MM_AppData.HkPacket.Payload.LastAction = MM_SYM_LOOKUP;
+            MM_AppData.HkPacket.Payload.Address    = ResolvedAddr;
+
+            CFE_EVS_SendEvent(MM_SYM_LOOKUP_INF_EID, CFE_EVS_EventType_INFORMATION,
+                              "Symbol Lookup Command: Name = '%s' Addr = %p", SymName, (void *)ResolvedAddr);
+            Result = true;
         }
         else
         {
-            /*
-            ** If symbol name is not an empty string look it up using the OSAL API
-            */
-            OS_Status = OS_SymbolLookup(&ResolvedAddr, SymName);
-            if (OS_Status == OS_SUCCESS)
-            {
-                /* Update telemetry */
-                MM_AppData.HkPacket.Payload.LastAction = MM_SYM_LOOKUP;
-                MM_AppData.HkPacket.Payload.Address    = ResolvedAddr;
+            CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "Symbolic address can't be resolved: Name = '%s'", SymName);
+        }
 
-                CFE_EVS_SendEvent(MM_SYM_LOOKUP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                  "Symbol Lookup Command: Name = '%s' Addr = %p", SymName, (void *)ResolvedAddr);
-                Result = true;
-            }
-            else
-            {
-                CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Symbolic address can't be resolved: Name = '%s'", SymName);
-            }
-
-        } /* end strlen(CmdPtr->Payload.SymName) == 0 else */
+    } /* end strlen(CmdPtr->Payload.SymName) == 0 else */
 
     return Result;
 }
@@ -494,43 +495,44 @@ bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
 {
     int32 OS_Status = OS_ERROR; /* Set to error instead of success since we explicitly test for success */
     char  FileName[OS_MAX_PATH_LEN];
-    const MM_SymTblToFileCmd_t *CmdPtr         = NULL;
-    bool                        Result         = false;
+    const MM_SymTblToFileCmd_t *CmdPtr = NULL;
+    bool                        Result = false;
 
-        CmdPtr = ((MM_SymTblToFileCmd_t *)BufPtr);
+    CmdPtr = ((MM_SymTblToFileCmd_t *)BufPtr);
 
-        /* Make sure string is null terminated before attempting to process it */
-        CFE_SB_MessageStringGet(FileName, CmdPtr->Payload.FileName, NULL, sizeof(FileName), sizeof(CmdPtr->Payload.FileName));
+    /* Make sure string is null terminated before attempting to process it */
+    CFE_SB_MessageStringGet(FileName, CmdPtr->Payload.FileName, NULL, sizeof(FileName),
+                            sizeof(CmdPtr->Payload.FileName));
 
-        /*
-        ** Check if the filename string is a nul string
-        */
-        if (strlen(FileName) == 0)
+    /*
+    ** Check if the filename string is a nul string
+    */
+    if (strlen(FileName) == 0)
+    {
+        CFE_EVS_SendEvent(MM_SYMFILENAME_NUL_ERR_EID, CFE_EVS_EventType_ERROR,
+                          "NUL (empty) string specified as symbol dump file name");
+    }
+    else
+    {
+        OS_Status = OS_SymbolTableDump(FileName, MM_MAX_DUMP_FILE_DATA_SYMTBL);
+        if (OS_Status == OS_SUCCESS)
         {
-            CFE_EVS_SendEvent(MM_SYMFILENAME_NUL_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "NUL (empty) string specified as symbol dump file name");
+            /* Update telemetry */
+            MM_AppData.HkPacket.Payload.LastAction = MM_SYMTBL_SAVE;
+            strncpy(MM_AppData.HkPacket.Payload.FileName, FileName, OS_MAX_PATH_LEN);
+
+            CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
+                              "Symbol Table Dump to File Started: Name = '%s'", FileName);
+            Result = true;
         }
         else
         {
-            OS_Status = OS_SymbolTableDump(FileName, MM_MAX_DUMP_FILE_DATA_SYMTBL);
-            if (OS_Status == OS_SUCCESS)
-            {
-                /* Update telemetry */
-                MM_AppData.HkPacket.Payload.LastAction = MM_SYMTBL_SAVE;
-                strncpy(MM_AppData.HkPacket.Payload.FileName, FileName, OS_MAX_PATH_LEN);
+            CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_FAIL_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "Error dumping symbol table, OS_Status= 0x%X, File='%s'", (unsigned int)OS_Status,
+                              FileName);
+        }
 
-                CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                  "Symbol Table Dump to File Started: Name = '%s'", FileName);
-                Result = true;
-            }
-            else
-            {
-                CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_FAIL_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Error dumping symbol table, OS_Status= 0x%X, File='%s'", (unsigned int)OS_Status,
-                                  FileName);
-            }
-
-        } /* end strlen(FileName) == 0 else */
+    } /* end strlen(FileName) == 0 else */
 
     return Result;
 }
@@ -542,33 +544,33 @@ bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_EepromWriteEnaCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    CFE_Status_t            cFE_Status     = CFE_PSP_ERROR; /* Set to error since we explicitly test for success */
-    MM_EepromWriteEnaCmd_t *CmdPtr         = NULL;
-    bool                    Result         = false;
+    CFE_Status_t            cFE_Status = CFE_PSP_ERROR; /* Set to error since we explicitly test for success */
+    MM_EepromWriteEnaCmd_t *CmdPtr     = NULL;
+    bool                    Result     = false;
 
-        CmdPtr = ((MM_EepromWriteEnaCmd_t *)BufPtr);
+    CmdPtr = ((MM_EepromWriteEnaCmd_t *)BufPtr);
 
-        /*
-        ** Call the cFE to write-enable the requested bank
-        */
-        cFE_Status = CFE_PSP_EepromWriteEnable(CmdPtr->Payload.Bank);
-        if (cFE_Status == CFE_PSP_SUCCESS)
-        {
-            /* Update telemetry */
-            MM_AppData.HkPacket.Payload.LastAction = MM_EEPROMWRITE_ENA;
-            MM_AppData.HkPacket.Payload.MemType    = MM_EEPROM;
+    /*
+    ** Call the cFE to write-enable the requested bank
+    */
+    cFE_Status = CFE_PSP_EepromWriteEnable(CmdPtr->Payload.Bank);
+    if (cFE_Status == CFE_PSP_SUCCESS)
+    {
+        /* Update telemetry */
+        MM_AppData.HkPacket.Payload.LastAction = MM_EEPROMWRITE_ENA;
+        MM_AppData.HkPacket.Payload.MemType    = MM_EEPROM;
 
-            CFE_EVS_SendEvent(MM_EEPROM_WRITE_ENA_INF_EID, CFE_EVS_EventType_INFORMATION,
-                              "EEPROM bank %d write enabled, cFE_Status= 0x%X", (int)CmdPtr->Payload.Bank,
-                              (unsigned int)cFE_Status);
-            Result = true;
-        }
-        else
-        {
-            CFE_EVS_SendEvent(MM_EEPROM_WRITE_ENA_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Error requesting EEPROM bank %d write enable, cFE_Status= 0x%X", (int)CmdPtr->Payload.Bank,
-                              (unsigned int)cFE_Status);
-        }
+        CFE_EVS_SendEvent(MM_EEPROM_WRITE_ENA_INF_EID, CFE_EVS_EventType_INFORMATION,
+                          "EEPROM bank %d write enabled, cFE_Status= 0x%X", (int)CmdPtr->Payload.Bank,
+                          (unsigned int)cFE_Status);
+        Result = true;
+    }
+    else
+    {
+        CFE_EVS_SendEvent(MM_EEPROM_WRITE_ENA_ERR_EID, CFE_EVS_EventType_ERROR,
+                          "Error requesting EEPROM bank %d write enable, cFE_Status= 0x%X", (int)CmdPtr->Payload.Bank,
+                          (unsigned int)cFE_Status);
+    }
 
     return Result;
 }
@@ -580,32 +582,32 @@ bool MM_EepromWriteEnaCmd(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 bool MM_EepromWriteDisCmd(const CFE_SB_Buffer_t *BufPtr)
 {
-    CFE_Status_t            cFE_Status     = CFE_PSP_ERROR; /* Set to error since we explicitly test for success */
-    MM_EepromWriteDisCmd_t *CmdPtr         = NULL;
-    bool                    Result         = false;
+    CFE_Status_t            cFE_Status = CFE_PSP_ERROR; /* Set to error since we explicitly test for success */
+    MM_EepromWriteDisCmd_t *CmdPtr     = NULL;
+    bool                    Result     = false;
 
-        CmdPtr = ((MM_EepromWriteDisCmd_t *)BufPtr);
+    CmdPtr = ((MM_EepromWriteDisCmd_t *)BufPtr);
 
-        /*
-        ** Call the cFE to write-enable the requested bank
-        */
-        cFE_Status = CFE_PSP_EepromWriteDisable(CmdPtr->Payload.Bank);
-        if (cFE_Status == CFE_PSP_SUCCESS)
-        {
-            /* Update telemetry */
-            MM_AppData.HkPacket.Payload.LastAction = MM_EEPROMWRITE_DIS;
-            MM_AppData.HkPacket.Payload.MemType    = MM_EEPROM;
-            Result                         = true;
-            CFE_EVS_SendEvent(MM_EEPROM_WRITE_DIS_INF_EID, CFE_EVS_EventType_INFORMATION,
-                              "EEPROM bank %d write disabled, cFE_Status= 0x%X", (int)CmdPtr->Payload.Bank,
-                              (unsigned int)cFE_Status);
-        }
-        else
-        {
-            CFE_EVS_SendEvent(MM_EEPROM_WRITE_DIS_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Error requesting EEPROM bank %d write disable, cFE_Status= 0x%X", (int)CmdPtr->Payload.Bank,
-                              (unsigned int)cFE_Status);
-        }
+    /*
+    ** Call the cFE to write-enable the requested bank
+    */
+    cFE_Status = CFE_PSP_EepromWriteDisable(CmdPtr->Payload.Bank);
+    if (cFE_Status == CFE_PSP_SUCCESS)
+    {
+        /* Update telemetry */
+        MM_AppData.HkPacket.Payload.LastAction = MM_EEPROMWRITE_DIS;
+        MM_AppData.HkPacket.Payload.MemType    = MM_EEPROM;
+        Result                                 = true;
+        CFE_EVS_SendEvent(MM_EEPROM_WRITE_DIS_INF_EID, CFE_EVS_EventType_INFORMATION,
+                          "EEPROM bank %d write disabled, cFE_Status= 0x%X", (int)CmdPtr->Payload.Bank,
+                          (unsigned int)cFE_Status);
+    }
+    else
+    {
+        CFE_EVS_SendEvent(MM_EEPROM_WRITE_DIS_ERR_EID, CFE_EVS_EventType_ERROR,
+                          "Error requesting EEPROM bank %d write disable, cFE_Status= 0x%X", (int)CmdPtr->Payload.Bank,
+                          (unsigned int)cFE_Status);
+    }
 
     return Result;
 }

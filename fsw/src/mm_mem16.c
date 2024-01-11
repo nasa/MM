@@ -115,7 +115,7 @@ bool MM_LoadMem16FromFile(osal_id_t FileHandle, const char *FileName, const MM_L
     /* Update last action statistics */
     if (BytesProcessed == FileHeader->NumOfBytes)
     {
-        Valid                              = true;
+        Valid                                      = true;
         MM_AppData.HkPacket.Payload.LastAction     = MM_LOAD_FROM_FILE;
         MM_AppData.HkPacket.Payload.MemType        = MM_MEM16;
         MM_AppData.HkPacket.Payload.Address        = DestAddress;
@@ -235,8 +235,8 @@ bool MM_FillMem16(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
     {
         NewBytesRemaining = BytesRemaining - (BytesRemaining % 2);
         CFE_EVS_SendEvent(MM_FILL_MEM16_ALIGN_WARN_INF_EID, CFE_EVS_EventType_INFORMATION,
-                          "MM_FillMem16 NumOfBytes not multiple of 2. Reducing from %d to %d.", BytesRemaining,
-                          NewBytesRemaining);
+                          "MM_FillMem16 NumOfBytes not multiple of 2. Reducing from %u to %u.",
+                          (unsigned int)BytesRemaining, (unsigned int)NewBytesRemaining);
         BytesRemaining = NewBytesRemaining;
     }
 
