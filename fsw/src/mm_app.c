@@ -170,7 +170,7 @@ CFE_Status_t MM_AppInit(void)
     Status = CFE_SB_CreatePipe(&MM_AppData.CmdPipe, MM_CMD_PIPE_DEPTH, "MM_CMD_PIPE");
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(MM_CR_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, "Error Creating SB Pipe, RC = 0x%08X", Status);
+        CFE_EVS_SendEvent(MM_CR_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, "Error Creating SB Pipe, RC = 0x%08X", (unsigned int)Status);
         return Status;
     }
 
@@ -181,7 +181,7 @@ CFE_Status_t MM_AppInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(MM_HK_SUB_ERR_EID, CFE_EVS_EventType_ERROR, "Error Subscribing to HK Request, RC = 0x%08X",
-                          Status);
+                          (unsigned int)Status);
         return Status;
     }
 
@@ -192,7 +192,7 @@ CFE_Status_t MM_AppInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(MM_CMD_SUB_ERR_EID, CFE_EVS_EventType_ERROR, "Error Subscribing to MM Command, RC = 0x%08X",
-                          Status);
+                          (unsigned int)Status);
         return Status;
     }
 

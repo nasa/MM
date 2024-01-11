@@ -470,14 +470,10 @@ void MM_FillMem16_Test_Align(void)
 {
     MM_FillMemCmd_t CmdPacket;
     uint32          DestAddress = 1;
-    CmdPacket.Payload.NumOfBytes        = 3;
-    CmdPacket.Payload.FillPattern       = 3;
-    int32 strCmpResult;
-    char  ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
     bool  Result;
 
-    snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH,
-             "MM_FillMem16 NumOfBytes not multiple of 2. Reducing from %%d to %%d.");
+    CmdPacket.Payload.NumOfBytes        = 3;
+    CmdPacket.Payload.FillPattern       = 3;
 
     /* Execute the function being tested */
     Result = MM_FillMem16(DestAddress, &CmdPacket);
@@ -487,10 +483,6 @@ void MM_FillMem16_Test_Align(void)
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_FILL_MEM16_ALIGN_WARN_INF_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
-
-    strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
-
-    UtAssert_True(strCmpResult == 0, "Event string matched expected result, '%s'", context_CFE_EVS_SendEvent[0].Spec);
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 

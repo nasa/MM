@@ -235,8 +235,8 @@ bool MM_FillMem16(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
     {
         NewBytesRemaining = BytesRemaining - (BytesRemaining % 2);
         CFE_EVS_SendEvent(MM_FILL_MEM16_ALIGN_WARN_INF_EID, CFE_EVS_EventType_INFORMATION,
-                          "MM_FillMem16 NumOfBytes not multiple of 2. Reducing from %d to %d.", BytesRemaining,
-                          NewBytesRemaining);
+                          "MM_FillMem16 NumOfBytes not multiple of 2. Reducing from %u to %u.", (unsigned int)BytesRemaining,
+                          (unsigned int)NewBytesRemaining);
         BytesRemaining = NewBytesRemaining;
     }
 

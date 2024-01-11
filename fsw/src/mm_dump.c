@@ -169,7 +169,7 @@ bool MM_PeekMem(const MM_PeekCmd_t *CmdPtr, cpuaddr SrcAddress)
     else
     {
         CFE_EVS_SendEvent(MM_PSP_READ_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "PSP read memory error: RC=%d, Address=%p, MemType=MEM%u", PSP_Status, (void *)SrcAddress,
+                          "PSP read memory error: RC=%d, Address=%p, MemType=MEM%u", (int)PSP_Status, (void *)SrcAddress,
                           (unsigned int)DataSize);
     }
 
@@ -395,7 +395,7 @@ bool MM_DumpMemToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadD
         {
             BytesRemaining = 0;
             CFE_EVS_SendEvent(MM_OS_WRITE_EXP_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "OS_write error received: RC = %d, Expected = %u, File = '%s'", OS_Status,
+                              "OS_write error received: RC = %d, Expected = %u, File = '%s'", (int)OS_Status,
                               (unsigned int)SegmentSize, FileName);
         }
     }
@@ -434,7 +434,7 @@ bool MM_WriteFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Head
         /* We either got an error or didn't write as much data as expected */
         Valid = false;
         CFE_EVS_SendEvent(MM_CFE_FS_WRITEHDR_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "CFE_FS_WriteHeader error received: RC = %d Expected = %d File = '%s'", OS_Status,
+                          "CFE_FS_WriteHeader error received: RC = %d Expected = %d File = '%s'", (int)OS_Status,
                           (int)sizeof(CFE_FS_Header_t), FileName);
 
     } /* end CFE_FS_WriteHeader if */
@@ -449,7 +449,7 @@ bool MM_WriteFileHeaders(const char *FileName, osal_id_t FileHandle, CFE_FS_Head
             /* We either got an error or didn't read as much data as expected */
             Valid = false;
             CFE_EVS_SendEvent(MM_OS_WRITE_EXP_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "OS_write error received: RC = %d Expected = %u File = '%s'", OS_Status,
+                              "OS_write error received: RC = %d Expected = %u File = '%s'", (int)OS_Status,
                               (unsigned int)sizeof(MM_LoadDumpFileHeader_t), FileName);
 
         } /* end OS_write if */
@@ -593,7 +593,7 @@ bool MM_FillDumpInEventBuffer(cpuaddr SrcAddress, const MM_DumpInEventCmd_t *Cmd
                     /* CFE_PSP_MemRead32 error */
                     Valid = false;
                     CFE_EVS_SendEvent(MM_PSP_READ_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "PSP read memory error: RC=%d, Src=%p, Tgt=%p, Type=MEM32", PSP_Status,
+                                      "PSP read memory error: RC=%d, Src=%p, Tgt=%p, Type=MEM32", (int)PSP_Status,
                                       (void *)SrcAddress, (void *)DumpBuffer);
                     /* Stop load dump buffer loop */
                     break;
@@ -617,7 +617,7 @@ bool MM_FillDumpInEventBuffer(cpuaddr SrcAddress, const MM_DumpInEventCmd_t *Cmd
                     /* CFE_PSP_MemRead16 error */
                     Valid = false;
                     CFE_EVS_SendEvent(MM_PSP_READ_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "PSP read memory error: RC=%d, Src=%p, Tgt=%p, Type=MEM16", PSP_Status,
+                                      "PSP read memory error: RC=%d, Src=%p, Tgt=%p, Type=MEM16", (int)PSP_Status,
                                       (void *)SrcAddress, (void *)DumpBuffer);
                     /* Stop load dump buffer loop */
                     break;
@@ -641,7 +641,7 @@ bool MM_FillDumpInEventBuffer(cpuaddr SrcAddress, const MM_DumpInEventCmd_t *Cmd
                     /* CFE_PSP_MemRead8 error */
                     Valid = false;
                     CFE_EVS_SendEvent(MM_PSP_READ_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "PSP read memory error: RC=%d, Src=%p, Tgt=%p, Type=MEM8", PSP_Status,
+                                      "PSP read memory error: RC=%d, Src=%p, Tgt=%p, Type=MEM8", (int)PSP_Status,
                                       (void *)SrcAddress, (void *)DumpBuffer);
                     /* Stop load dump buffer loop */
                     break;

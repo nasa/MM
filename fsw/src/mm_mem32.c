@@ -91,7 +91,7 @@ bool MM_LoadMem32FromFile(osal_id_t FileHandle, const char *FileName, const MM_L
                     /* CFE_PSP_MemWrite32 error */
                     BytesRemaining = 0;
                     CFE_EVS_SendEvent(MM_PSP_WRITE_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "PSP write memory error: RC=%d, Address=%p, MemType=MEM32", PSP_Status,
+                                      "PSP write memory error: RC=%d, Address=%p, MemType=MEM32", (int)PSP_Status,
                                       (void *)DataPointer32);
                     /* Stop load segment loop */
                     break;
@@ -236,8 +236,8 @@ bool MM_FillMem32(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
     {
         NewBytesRemaining = BytesRemaining - (BytesRemaining % 4);
         CFE_EVS_SendEvent(MM_FILL_MEM32_ALIGN_WARN_INF_EID, CFE_EVS_EventType_INFORMATION,
-                          "MM_FillMem32 NumOfBytes not multiple of 4. Reducing from %d to %d.", BytesRemaining,
-                          NewBytesRemaining);
+                          "MM_FillMem32 NumOfBytes not multiple of 4. Reducing from %d to %d.", (int)BytesRemaining,
+                          (int)NewBytesRemaining);
         BytesRemaining = NewBytesRemaining;
     }
 
