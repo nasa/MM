@@ -115,7 +115,7 @@ bool MM_LoadMem32FromFile(osal_id_t FileHandle, const char *FileName, const MM_L
     /* Update last action statistics */
     if (BytesProcessed == FileHeader->NumOfBytes)
     {
-        Valid                              = true;
+        Valid                                      = true;
         MM_AppData.HkPacket.Payload.LastAction     = MM_LOAD_FROM_FILE;
         MM_AppData.HkPacket.Payload.MemType        = MM_MEM32;
         MM_AppData.HkPacket.Payload.Address        = DestAddress;
