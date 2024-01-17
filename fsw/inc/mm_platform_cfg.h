@@ -91,7 +91,7 @@
 #define MM_MAX_LOAD_FILE_DATA_EEPROM (128 * 1024)
 
 /**
- * \brief Maximum number of bytes for an uninterruptable load
+ * \brief Maximum number of bytes for an uninterruptible load
  *
  *  \par Description:
  *       Maximum number of bytes that can be loaded with the

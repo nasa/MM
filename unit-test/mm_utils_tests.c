@@ -54,7 +54,7 @@ uint8 call_count_CFE_EVS_SendEvent;
  * Function Definitions
  */
 
-void MM_ResetHk_Test(void)
+void MM_ResetHkData_Test(void)
 {
     MM_AppData.HkPacket.Payload.LastAction     = 1;
     MM_AppData.HkPacket.Payload.MemType        = 2;
@@ -64,7 +64,7 @@ void MM_ResetHk_Test(void)
     MM_AppData.HkPacket.Payload.FileName[0]    = 6;
 
     /* Execute the function being tested */
-    MM_ResetHk();
+    MM_ResetHkData();
 
     /* Verify results */
     UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_NOACTION, "MM_AppData.HkPacket.Payload.LastAction == MM_NOACTION");
@@ -3571,7 +3571,7 @@ void MM_ComputeCRCFromFile_Test(void)
  */
 void UtTest_Setup(void)
 {
-    UtTest_Add(MM_ResetHk_Test, MM_Test_Setup, MM_Test_TearDown, "MM_ResetHk_Test");
+    UtTest_Add(MM_ResetHkData_Test, MM_Test_Setup, MM_Test_TearDown, "MM_ResetHkData_Test");
     UtTest_Add(MM_VerifyCmdLength_Test_Nominal, MM_Test_Setup, MM_Test_TearDown, "MM_VerifyCmdLength_Test_Nominal");
     UtTest_Add(MM_VerifyCmdLength_Test_HKRequestLengthError, MM_Test_Setup, MM_Test_TearDown,
                "MM_VerifyCmdLength_Test_HKRequestLengthError");

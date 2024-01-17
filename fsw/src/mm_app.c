@@ -137,16 +137,13 @@ CFE_Status_t MM_AppInit(void)
     ** If this changes add it here as shown in the qq_app.c template
     */
 
+    /* Zero out the global data structure */
+    memset(&MM_AppData, 0, sizeof(MM_AppData));
+
     /*
     ** Setup the RunStatus variable
     */
     MM_AppData.RunStatus = CFE_ES_RunStatus_APP_RUN;
-
-    /*
-    ** Initialize application command execution counters
-    */
-    MM_AppData.HkPacket.Payload.CmdCounter = 0;
-    MM_AppData.HkPacket.Payload.ErrCounter = 0;
 
     /*
     ** Register for event services
@@ -210,7 +207,7 @@ CFE_Status_t MM_AppInit(void)
     /*
     ** Initialize MM housekeeping information
     */
-    MM_ResetHk();
+    MM_ResetHkData();
 
     /*
     ** Application startup event message
@@ -251,7 +248,7 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
         ** MM ground commands
         */
         case MM_CMD_MID:
-            MM_ResetHk(); /* Clear all "Last Action" data */
+            MM_ResetHkData(); /* Clear all "Last Action" data */
 
             CFE_MSG_GetFcnCode(&BufPtr->Msg, &CommandCode);
             switch (CommandCode)
@@ -326,7 +323,7 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
                     }
                     break;
 
-                case MM_SYMTBL_TO_FILE_CC:
+                case MM_SYM_TBL_TO_FILE_CC:
                     if (MM_VerifyCmdLength(&BufPtr->Msg, sizeof(MM_SymTblToFileCmd_t)))
                     {
                         CmdResult = MM_SymTblToFileCmd(BufPtr);

@@ -205,7 +205,7 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *msg);
  *
  *  \param[in] msg Pointer to Software Bus buffer
  *
- *  \sa #MM_SYMTBL_TO_FILE_CC
+ *  \sa #MM_SYM_TBL_TO_FILE_CC
  */
 bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *msg);
 

@@ -913,7 +913,7 @@ void MM_AppPipe_Test_LookupSymbolFail(void)
 void MM_AppPipe_Test_SymTblToFileSuccess(void)
 {
     CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
-    CFE_MSG_FcnCode_t FcnCode   = MM_SYMTBL_TO_FILE_CC;
+    CFE_MSG_FcnCode_t FcnCode   = MM_SYM_TBL_TO_FILE_CC;
     size_t            MsgSize   = sizeof(UT_CmdBuf.SymTblToFileCmd);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
@@ -945,7 +945,7 @@ void MM_AppPipe_Test_SymTblToFileSuccess(void)
 void MM_AppPipe_Test_SymTblToFileFail(void)
 {
     CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
-    CFE_MSG_FcnCode_t FcnCode   = MM_SYMTBL_TO_FILE_CC;
+    CFE_MSG_FcnCode_t FcnCode   = MM_SYM_TBL_TO_FILE_CC;
     size_t            MsgSize   = sizeof(UT_CmdBuf.SymTblToFileCmd);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
@@ -1321,7 +1321,7 @@ void MM_LookupSymbolCmd_Test_SymbolLookupError(void)
 void MM_SymTblToFileCmd_Test_Nominal(void)
 {
     CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
-    CFE_MSG_FcnCode_t FcnCode   = MM_SYMTBL_TO_FILE_CC;
+    CFE_MSG_FcnCode_t FcnCode   = MM_SYM_TBL_TO_FILE_CC;
     size_t            MsgSize   = sizeof(UT_CmdBuf.SymTblToFileCmd);
     int32             strCmpResult;
     char              ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
@@ -1367,7 +1367,7 @@ void MM_SymTblToFileCmd_Test_Nominal(void)
 void MM_SymTblToFileCmd_Test_SymbolFilenameNull(void)
 {
     CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
-    CFE_MSG_FcnCode_t FcnCode   = MM_SYMTBL_TO_FILE_CC;
+    CFE_MSG_FcnCode_t FcnCode   = MM_SYM_TBL_TO_FILE_CC;
     size_t            MsgSize   = sizeof(UT_CmdBuf.SymTblToFileCmd);
     int32             strCmpResult;
     char              ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
@@ -1407,7 +1407,7 @@ void MM_SymTblToFileCmd_Test_SymbolFilenameNull(void)
 void MM_SymTblToFileCmd_Test_SymbolTableDumpError(void)
 {
     CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
-    CFE_MSG_FcnCode_t FcnCode   = MM_SYMTBL_TO_FILE_CC;
+    CFE_MSG_FcnCode_t FcnCode   = MM_SYM_TBL_TO_FILE_CC;
     size_t            MsgSize   = sizeof(UT_CmdBuf.SymTblToFileCmd);
     int32             strCmpResult;
     char              ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
@@ -1602,7 +1602,7 @@ void MM_EepromWriteDisCmd_Test_Error(void)
     /* ignore dummy message length check */
     UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
 
-    /* Set to generate error message MM_EEPROM_WRITE_DISA_ERR_EID */
+    /* Set to generate error message MM_EEPROM_WRITE_DIS_ERR_EID */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_EepromWriteDisable), 1, -1);
 
     /* Execute the function being tested */

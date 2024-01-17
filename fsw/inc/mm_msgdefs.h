@@ -601,7 +601,7 @@
  *  \par Criticality
  *       None
  *
- *  \sa #MM_SYMTBL_TO_FILE_CC
+ *  \sa #MM_SYM_TBL_TO_FILE_CC
  */
 #define MM_LOOKUP_SYM_CC 9
 
@@ -644,7 +644,7 @@
  *
  *  \sa #MM_LOOKUP_SYM_CC
  */
-#define MM_SYMTBL_TO_FILE_CC 10
+#define MM_SYM_TBL_TO_FILE_CC 10
 
 /**
  * \brief EEPROM Write Enable
