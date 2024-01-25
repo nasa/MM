@@ -162,7 +162,8 @@ CFE_Status_t MM_AppInit(void)
     /*
     ** Initialize the local housekeeping telemetry packet (clear user data area)
     */
-    CFE_MSG_Init(&MM_AppData.HkPacket.TlmHeader.Msg, CFE_SB_ValueToMsgId(MM_HK_TLM_MID), sizeof(MM_HkPacket_t));
+    CFE_MSG_Init(CFE_MSG_PTR(MM_AppData.HkPacket.TelemetryHeader), CFE_SB_ValueToMsgId(MM_HK_TLM_MID),
+                 sizeof(MM_HkPacket_t));
 
     /*
     ** Create Software Bus message pipe
@@ -390,8 +391,8 @@ void MM_HousekeepingCmd(const CFE_SB_Buffer_t *BufPtr)
     /*
     ** Send housekeeping telemetry packet
     */
-    CFE_SB_TimeStampMsg(&MM_AppData.HkPacket.TlmHeader.Msg);
-    CFE_SB_TransmitMsg(&MM_AppData.HkPacket.TlmHeader.Msg, true);
+    CFE_SB_TimeStampMsg(CFE_MSG_PTR(MM_AppData.HkPacket.TelemetryHeader));
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(MM_AppData.HkPacket.TelemetryHeader), true);
 
     /*
     ** This command does not affect the command execution counter

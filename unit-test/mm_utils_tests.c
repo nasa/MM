@@ -67,9 +67,12 @@ void MM_ResetHk_Test(void)
     MM_ResetHk();
 
     /* Verify results */
-    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_NOACTION, "MM_AppData.HkPacket.Payload.LastAction == MM_NOACTION");
-    UtAssert_True(MM_AppData.HkPacket.Payload.MemType == MM_NOMEMTYPE, "MM_AppData.HkPacket.Payload.MemType == MM_NOMEMTYPE");
-    UtAssert_True(MM_AppData.HkPacket.Payload.Address == MM_CLEAR_ADDR, "MM_AppData.HkPacket.Payload.Address == MM_CLEAR_ADDR");
+    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_NOACTION,
+                  "MM_AppData.HkPacket.Payload.LastAction == MM_NOACTION");
+    UtAssert_True(MM_AppData.HkPacket.Payload.MemType == MM_NOMEMTYPE,
+                  "MM_AppData.HkPacket.Payload.MemType == MM_NOMEMTYPE");
+    UtAssert_True(MM_AppData.HkPacket.Payload.Address == MM_CLEAR_ADDR,
+                  "MM_AppData.HkPacket.Payload.Address == MM_CLEAR_ADDR");
     UtAssert_True(MM_AppData.HkPacket.Payload.DataValue == MM_CLEAR_PATTERN,
                   "MM_AppData.HkPacket.Payload.DataValue == MM_CLEAR_PATTERN");
     UtAssert_True(MM_AppData.HkPacket.Payload.BytesProcessed == 0, "MM_AppData.BytesProcessed == 0");
@@ -102,7 +105,7 @@ void MM_VerifyCmdLength_Test_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
     /* Execute the function being tested */
-    Result = MM_VerifyCmdLength(&UT_CmdBuf.PeekCmd.CmdHeader.Msg, ExpectedLength);
+    Result = MM_VerifyCmdLength(CFE_MSG_PTR(UT_CmdBuf.PeekCmd.CommandHeader), ExpectedLength);
 
     /* Verify results */
     UtAssert_True(Result == true, "Result == true");
@@ -135,7 +138,7 @@ void MM_VerifyCmdLength_Test_HKRequestLengthError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
     /* Execute the function being tested */
-    Result = MM_VerifyCmdLength(&UT_CmdBuf.PeekCmd.CmdHeader.Msg, ExpectedLength);
+    Result = MM_VerifyCmdLength(CFE_MSG_PTR(UT_CmdBuf.PeekCmd.CommandHeader), ExpectedLength);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
@@ -175,7 +178,7 @@ void MM_VerifyCmdLength_Test_LengthError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
 
     /* Execute the function being tested */
-    Result = MM_VerifyCmdLength(&UT_CmdBuf.PeekCmd.CmdHeader.Msg, ExpectedLength);
+    Result = MM_VerifyCmdLength(CFE_MSG_PTR(UT_CmdBuf.PeekCmd.CommandHeader), ExpectedLength);
 
     /* Verify results */
     UtAssert_True(Result == false, "Result == false");
