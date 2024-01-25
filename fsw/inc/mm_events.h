@@ -228,7 +228,7 @@
  *  This event message is issued when a software bus message is received
  *  with an invalid command code.
  */
-#define MM_CC1_ERR_EID 17
+#define MM_CC_ERR_EID 17
 
 /**
  * \brief MM Command Message Length Invalid Event ID
@@ -240,7 +240,7 @@
  *  This event message is issued when command message is received with a message
  *  length that doesn't match the expected value.
  */
-#define MM_LEN_ERR_EID 18
+#define MM_CMD_LEN_ERR_EID 18
 
 /**
  * \brief MM Commanded Memory Type Invalid Event ID

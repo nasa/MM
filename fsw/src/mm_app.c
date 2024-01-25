@@ -350,7 +350,7 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
 
                 default:
                     CmdResult = false;
-                    CFE_EVS_SendEvent(MM_CC1_ERR_EID, CFE_EVS_EventType_ERROR,
+                    CFE_EVS_SendEvent(MM_CC_ERR_EID, CFE_EVS_EventType_ERROR,
                                       "Invalid ground command code: ID = 0x%08lX, CC = %d",
                                       (unsigned long)CFE_SB_MsgIdToValue(MessageID), CommandCode);
                     break;
