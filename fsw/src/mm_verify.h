@@ -58,7 +58,7 @@
 #endif
 
 /*
- *  Maximum number of bytes for an uninterruptable load
+ *  Maximum number of bytes for an uninterruptible load
  */
 #if MM_MAX_UNINTERRUPTIBLE_DATA < 1
 #error MM_MAX_UNINTERRUPTIBLE_DATA cannot be less than 1

@@ -49,7 +49,7 @@ extern MM_AppData_t MM_AppData;
 /* Reset the local housekeeping variables to default parameters    */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void MM_ResetHk(void)
+void MM_ResetHkData(void)
 {
     MM_AppData.HkPacket.Payload.LastAction     = MM_NOACTION;
     MM_AppData.HkPacket.Payload.MemType        = MM_NOMEMTYPE;
@@ -541,7 +541,7 @@ bool MM_ResolveSymAddr(MM_SymAddr_t *SymAddr, cpuaddr *ResolvedAddr)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
 /* Compute the CRC of data in a file                               */
-/* Operates from the current location of the file poiner to EOF    */
+/* Operates from the current location of the file pointer to EOF   */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 int32 MM_ComputeCRCFromFile(osal_id_t FileHandle, uint32 *CrcPtr, uint32 TypeCRC)

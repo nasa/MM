@@ -1669,7 +1669,7 @@ void MM_DumpInEventCmd_Test_Nominal(void)
     char              ExpectedEventString[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
     bool              Result;
 
-    /* The event string is dynamically generated with string contatentation
+    /* The event string is dynamically generated with string concatenation
        and is reported in context_CFE_EVS_SendEvent as a single string.
        The event string cannot be matched to a preformatted value. */
     snprintf(ExpectedEventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, "%%s");
