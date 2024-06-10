@@ -348,6 +348,7 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, size_t SizeI
                     MaxSize = MM_MAX_FILL_DATA_RAM;
                 }
                 PSP_MemType = CFE_PSP_MEM_RAM;
+                /* SAD: No need to check snprintf return value; buffer size can store "MEM_RAM" without overflow */
                 snprintf(MemTypeStr, MM_MAX_MEM_TYPE_STR_LEN, "%s", "MEM_RAM");
                 break;
             case MM_EEPROM:
@@ -364,6 +365,7 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, size_t SizeI
                     MaxSize = MM_MAX_FILL_DATA_EEPROM;
                 }
                 PSP_MemType = CFE_PSP_MEM_EEPROM;
+                /* SAD: No need to check snprintf return value; buffer size can store "MEM_EEPROM" without overflow */
                 snprintf(MemTypeStr, MM_MAX_MEM_TYPE_STR_LEN, "%s", "MEM_EEPROM");
                 break;
 #ifdef MM_OPT_CODE_MEM32_MEMTYPE
@@ -381,6 +383,7 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, size_t SizeI
                     MaxSize = MM_MAX_FILL_DATA_MEM32;
                 }
                 PSP_MemType = CFE_PSP_MEM_RAM;
+                /* SAD: No need to check snprintf return value; buffer size can store "MEM32" without overflow */
                 snprintf(MemTypeStr, MM_MAX_MEM_TYPE_STR_LEN, "%s", "MEM32");
                 if (MM_Verify32Aligned(Address, SizeInBytes) != true)
                 {
@@ -406,6 +409,7 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, size_t SizeI
                     MaxSize = MM_MAX_FILL_DATA_MEM16;
                 }
                 PSP_MemType = CFE_PSP_MEM_RAM;
+                /* SAD: No need to check snprintf return value; buffer size can store "MEM16" without overflow */
                 snprintf(MemTypeStr, MM_MAX_MEM_TYPE_STR_LEN, "%s", "MEM16");
                 if (MM_Verify16Aligned(Address, SizeInBytes) != true)
                 {
@@ -431,6 +435,7 @@ bool MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_t MemType, size_t SizeI
                     MaxSize = MM_MAX_FILL_DATA_MEM8;
                 }
                 PSP_MemType = CFE_PSP_MEM_RAM;
+                /* SAD: No need to check snprintf return value; buffer size can store "MEM8" without overflow */
                 snprintf(MemTypeStr, MM_MAX_MEM_TYPE_STR_LEN, "%s", "MEM8");
                 break;
 #endif
@@ -515,7 +520,7 @@ bool MM_ResolveSymAddr(MM_SymAddr_t *SymAddr, cpuaddr *ResolvedAddr)
     ** If the symbol name string is a nul string
     ** we use the offset as the absolute address
     */
-    if (strlen(SymAddr->SymName) == 0)
+    if (OS_strnlen(SymAddr->SymName, OS_MAX_SYM_LEN) == 0)
     {
         *ResolvedAddr = SymAddr->Offset;
         Valid         = true;

@@ -455,7 +455,7 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
     /*
     ** Check if the symbol name string is a nul string
     */
-    if (strlen(SymName) == 0)
+    if (OS_strnlen(SymName, OS_MAX_SYM_LEN) == 0)
     {
         CFE_EVS_SendEvent(MM_SYMNAME_NUL_ERR_EID, CFE_EVS_EventType_ERROR,
                           "NUL (empty) string specified as symbol name");
@@ -482,7 +482,7 @@ bool MM_LookupSymbolCmd(const CFE_SB_Buffer_t *BufPtr)
                               "Symbolic address can't be resolved: Name = '%s'", SymName);
         }
 
-    } /* end strlen(CmdPtr->Payload.SymName) == 0 else */
+    } /* end OS_strnlen(CmdPtr->Payload.SymName, OS_MAX_SYM_LEN) == 0 else */
 
     return Result;
 }
@@ -508,7 +508,7 @@ bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
     /*
     ** Check if the filename string is a nul string
     */
-    if (strlen(FileName) == 0)
+    if (OS_strnlen(FileName, OS_MAX_PATH_LEN) == 0)
     {
         CFE_EVS_SendEvent(MM_SYMFILENAME_NUL_ERR_EID, CFE_EVS_EventType_ERROR,
                           "NUL (empty) string specified as symbol dump file name");
@@ -520,7 +520,7 @@ bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
         {
             /* Update telemetry */
             MM_AppData.HkPacket.Payload.LastAction = MM_SYMTBL_SAVE;
-            strncpy(MM_AppData.HkPacket.Payload.FileName, FileName, OS_MAX_PATH_LEN);
+            snprintf(MM_AppData.HkPacket.Payload.FileName, OS_MAX_PATH_LEN, "%s", FileName);
 
             CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_INF_EID, CFE_EVS_EventType_INFORMATION,
                               "Symbol Table Dump to File Started: Name = '%s'", FileName);
@@ -533,7 +533,7 @@ bool MM_SymTblToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                               FileName);
         }
 
-    } /* end strlen(FileName) == 0 else */
+    } /* end OS_strnlen(FileName, OS_MAX_PATH_LEN) == 0 else */
 
     return Result;
 }
