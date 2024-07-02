@@ -318,7 +318,7 @@ bool MM_DumpMemToFileCmd(const CFE_SB_Buffer_t *BufPtr)
                         ** Update last action statistics
                         */
                         MM_AppData.HkPacket.Payload.LastAction = MM_DUMP_TO_FILE;
-                        strncpy(MM_AppData.HkPacket.Payload.FileName, FileName, OS_MAX_PATH_LEN);
+                        snprintf(MM_AppData.HkPacket.Payload.FileName, OS_MAX_PATH_LEN, "%s", FileName);
                         MM_AppData.HkPacket.Payload.MemType        = CmdPtr->Payload.MemType;
                         MM_AppData.HkPacket.Payload.Address        = SrcAddress;
                         MM_AppData.HkPacket.Payload.BytesProcessed = CmdPtr->Payload.NumOfBytes;
@@ -512,7 +512,7 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
                 */
                 CFE_SB_MessageStringGet(&EventString[EventStringTotalLength], HeaderString, NULL,
                                         sizeof(EventString) - EventStringTotalLength, sizeof(HeaderString));
-                EventStringTotalLength = strlen(EventString);
+                EventStringTotalLength = OS_strnlen(EventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
 
                 /*
                 ** Build dump data string
@@ -522,10 +522,12 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
                 BytePtr = (uint8 *)DumpBuffer;
                 for (i = 0; i < CmdPtr->Payload.NumOfBytes; i++)
                 {
+                    /* SAD: No need to check snprintf return; CFE_SB_MessageStringGet() handles safe concatenation and
+                     * prevents overflow */
                     snprintf(TempString, MM_DUMPINEVENT_TEMP_CHARS, "0x%02X ", *BytePtr);
                     CFE_SB_MessageStringGet(&EventString[EventStringTotalLength], TempString, NULL,
                                             sizeof(EventString) - EventStringTotalLength, sizeof(TempString));
-                    EventStringTotalLength = strlen(EventString);
+                    EventStringTotalLength = OS_strnlen(EventString, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);
                     BytePtr++;
                 }
 
@@ -533,6 +535,8 @@ bool MM_DumpInEventCmd(const CFE_SB_Buffer_t *BufPtr)
                 ** Append tail
                 ** This adds up to 33 characters depending on pointer representation including the NUL terminator
                 */
+                /* SAD: No need to check snprintf return; CFE_SB_MessageStringGet() handles safe concatenation and
+                 * prevents overflow */
                 snprintf(TempString, MM_DUMPINEVENT_TEMP_CHARS, "from address: %p", (void *)SrcAddress);
                 CFE_SB_MessageStringGet(&EventString[EventStringTotalLength], TempString, NULL,
                                         sizeof(EventString) - EventStringTotalLength, sizeof(TempString));

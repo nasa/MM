@@ -451,7 +451,8 @@ void MM_AppPipe_Test_NoopSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_NOOP, "MM_AppData.HkPacket.Payload.LastAction == MM_NOOP");
+    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_NOOP,
+                  "MM_AppData.HkPacket.Payload.LastAction == MM_NOOP");
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 1);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
@@ -518,7 +519,8 @@ void MM_AppPipe_Test_ResetSuccess(void)
     MM_AppPipe(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_RESET, "MM_AppData.HkPacket.Payload.LastAction == MM_RESET");
+    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_RESET,
+                  "MM_AppData.HkPacket.Payload.LastAction == MM_RESET");
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
@@ -565,8 +567,8 @@ void MM_AppPipe_Test_ResetFail(void)
 
 void MM_AppPipe_Test_PeekSuccess(void)
 {
-    CFE_SB_MsgId_t    TestMsgId             = CFE_SB_ValueToMsgId(MM_CMD_MID);
-    CFE_MSG_FcnCode_t FcnCode               = MM_PEEK_CC;
+    CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
+    CFE_MSG_FcnCode_t FcnCode   = MM_PEEK_CC;
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
@@ -585,8 +587,8 @@ void MM_AppPipe_Test_PeekSuccess(void)
 
 void MM_AppPipe_Test_PeekFail(void)
 {
-    CFE_SB_MsgId_t    TestMsgId             = CFE_SB_ValueToMsgId(MM_CMD_MID);
-    CFE_MSG_FcnCode_t FcnCode               = MM_PEEK_CC;
+    CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
+    CFE_MSG_FcnCode_t FcnCode   = MM_PEEK_CC;
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
@@ -1183,8 +1185,9 @@ void MM_HousekeepingCmd_Test(void)
     UtAssert_True(MM_AppData.HkPacket.Payload.DataValue == 6, "MM_AppData.HkPacket.Payload.DataValue == 6");
     UtAssert_True(MM_AppData.HkPacket.Payload.BytesProcessed == 7, "MM_AppData.HkPacket.Payload.BytesProcessed == 7");
 
-    UtAssert_True(strncmp(MM_AppData.HkPacket.Payload.FileName, MM_AppData.HkPacket.Payload.FileName, OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.Payload.FileName, MM_AppData.HkPacket.Payload.FileName, OS_MAX_PATH_LEN) == 0");
+    UtAssert_True(
+        strncmp(MM_AppData.HkPacket.Payload.FileName, MM_AppData.HkPacket.Payload.FileName, OS_MAX_PATH_LEN) == 0,
+        "strncmp(MM_AppData.HkPacket.Payload.FileName, MM_AppData.HkPacket.Payload.FileName, OS_MAX_PATH_LEN) == 0");
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1218,7 +1221,8 @@ void MM_LookupSymbolCmd_Test_Nominal(void)
     MM_LookupSymbolCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_SYM_LOOKUP, "MM_AppData.HkPacket.Payload.LastAction == MM_SYM_LOOKUP");
+    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_SYM_LOOKUP,
+                  "MM_AppData.HkPacket.Payload.LastAction == MM_SYM_LOOKUP");
     UtAssert_True(MM_AppData.HkPacket.Payload.Address == 0, "MM_AppData.HkPacket.Payload.Address == 0");
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
@@ -1345,9 +1349,12 @@ void MM_SymTblToFileCmd_Test_Nominal(void)
     MM_SymTblToFileCmd(&UT_CmdBuf.Buf);
 
     /* Verify results */
-    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_SYMTBL_SAVE, "MM_AppData.HkPacket.Payload.LastAction == MM_SYMTBL_SAVE");
-    UtAssert_True(strncmp(MM_AppData.HkPacket.Payload.FileName, UT_CmdBuf.SymTblToFileCmd.Payload.FileName, OS_MAX_PATH_LEN) == 0,
-                  "strncmp(MM_AppData.HkPacket.Payload.FileName, UT_CmdBuf.SymTblToFileCmd.Payload.FileName, OS_MAX_PATH_LEN) == 0");
+    UtAssert_True(MM_AppData.HkPacket.Payload.LastAction == MM_SYMTBL_SAVE,
+                  "MM_AppData.HkPacket.Payload.LastAction == MM_SYMTBL_SAVE");
+    UtAssert_True(
+        strncmp(MM_AppData.HkPacket.Payload.FileName, UT_CmdBuf.SymTblToFileCmd.Payload.FileName, OS_MAX_PATH_LEN) == 0,
+        "strncmp(MM_AppData.HkPacket.Payload.FileName, UT_CmdBuf.SymTblToFileCmd.Payload.FileName, OS_MAX_PATH_LEN) == "
+        "0");
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
 
