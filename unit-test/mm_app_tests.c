@@ -1102,7 +1102,7 @@ void MM_AppPipe_Test_InvalidCommandCode(void)
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 1);
 
-    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_CC1_ERR_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_CC_ERR_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_ERROR);
 
     strCmpResult = strncmp(ExpectedEventString, context_CFE_EVS_SendEvent[0].Spec, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH);

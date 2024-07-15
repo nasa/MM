@@ -79,7 +79,7 @@ void MM_SegmentBreak(void);
  *  \retval true  Length matches expected
  *  \retval false Length does not match expected
  *
- *  \sa #MM_LEN_ERR_EID
+ *  \sa #MM_CMD_LEN_ERR_EID
  */
 bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
 

@@ -99,7 +99,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *
  *  \par Criticality
  *       None
@@ -131,7 +131,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *
  *  \par Criticality
  *       None
@@ -176,7 +176,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *       - Error specific event message #MM_DATA_SIZE_BITS_ERR_EID
  *       - Error specific event message #MM_MEMTYPE_ERR_EID
@@ -235,7 +235,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *       - Error specific event message #MM_DATA_SIZE_BITS_ERR_EID
  *       - Error specific event message #MM_MEMTYPE_ERR_EID
@@ -295,7 +295,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *       - Error specific event message #MM_LOAD_WID_CRC_ERR_EID
  *       - Error specific event message #MM_OS_MEMVALIDATE_ERR_EID
@@ -359,7 +359,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *       - Error specific event message #MM_OS_OPEN_ERR_EID
  *       - Error specific event message #MM_OS_CLOSE_ERR_EID
  *       - Error specific event message #MM_OS_READ_EXP_ERR_EID
@@ -432,7 +432,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *       - Error specific event message #MM_OS_CREAT_ERR_EID
  *       - Error specific event message #MM_CFE_FS_WRITEHDR_ERR_EID
@@ -490,7 +490,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *       - Error specific event message #MM_OS_MEMVALIDATE_ERR_EID
  *       - Error specific event message #MM_DATA_SIZE_BYTES_ERR_EID
@@ -544,7 +544,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *       - Error specific event message #MM_OS_MEMVALIDATE_ERR_EID
  *       - Error specific event message #MM_DATA_SIZE_BYTES_ERR_EID
@@ -594,7 +594,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *       - Error specific event message #MM_SYMNAME_NUL_ERR_EID
  *       - Error specific event message #MM_SYMNAME_ERR_EID
  *
@@ -632,7 +632,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *       - Error specific event message #MM_SYMFILENAME_NUL_ERR_EID
  *       - Error specific event message #MM_SYMTBL_TO_FILE_FAIL_ERR_EID
  *
@@ -670,7 +670,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *       - Error specific event message #MM_EEPROM_WRITE_ENA_ERR_EID
  *
  *  \par Criticality
@@ -708,7 +708,7 @@
  *
  *  \par Evidence of failure may be found in the following telemetry:
  *       - #MM_HkPacket_Payload_t.ErrCounter will increment
- *       - Error specific event message #MM_LEN_ERR_EID
+ *       - Error specific event message #MM_CMD_LEN_ERR_EID
  *       - Error specific event message #MM_EEPROM_WRITE_DIS_ERR_EID
  *
  *  \par Criticality
