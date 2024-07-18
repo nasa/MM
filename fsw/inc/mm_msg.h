@@ -277,7 +277,7 @@ typedef struct
 /**
  *  \brief Save Symbol Table To File Command
  *
- *  For command details see #MM_SYMTBL_TO_FILE_CC
+ *  For command details see #MM_SYM_TBL_TO_FILE_CC
  */
 typedef struct
 {

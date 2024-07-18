@@ -38,9 +38,9 @@
 #include "utassert.h"
 #include "utstubs.h"
 
-void MM_ResetHk(void)
+void MM_ResetHkData(void)
 {
-    UT_DEFAULT_IMPL(MM_ResetHk);
+    UT_DEFAULT_IMPL(MM_ResetHkData);
 }
 
 void MM_SegmentBreak(void)

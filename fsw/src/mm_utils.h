@@ -45,7 +45,7 @@
  *       This function does not zero the command execution counter
  *       or the command error counter
  */
-void MM_ResetHk(void);
+void MM_ResetHkData(void);
 
 /**
  * \brief Segment break
