@@ -95,7 +95,7 @@ void MM_AppMain(void)
             /* Process Software Bus message */
             MM_TaskPipe(BufPtr);
         }
-        else if (Status == CFE_SB_TIME_OUT)
+        else if (Status == CFE_SB_TIME_OUT || Status == CFE_SB_NO_MESSAGE)
         {
             /* No action, but also no error */
         }
