@@ -96,8 +96,11 @@ void MM_Test_TearDown(void)
 }
 
 /*
- * Placeholder stubs until PSP UT implementation is available
+ * The PSP should now provide these stubs as of the Equuleus build.
+ * Including in an OMIT_DEPRECATED block temporarily should allow
+ * backward compatibility to ease the transition.
  */
+#ifndef OMIT_DEPRECATED
 
 int32 CFE_PSP_EepromWriteEnable(uint32 Bank)
 {
@@ -168,3 +171,5 @@ int32 CFE_PSP_MemWrite32(cpuaddr MemoryAddress, uint32 uint32Value)
     status = UT_DEFAULT_IMPL(CFE_PSP_MemWrite32);
     return status;
 }
+
+#endif /* OMIT_DEPRECATED */
