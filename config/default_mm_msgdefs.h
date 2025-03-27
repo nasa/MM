@@ -168,6 +168,26 @@ typedef struct
                                                              applicable */
 } MM_HkTlm_Payload_t;
 
+/**
+ *  \brief Peek Packet Payload
+ */
+typedef struct
+{
+    MM_MemType_Enum_t MemType;        /**< \brief Memory type */
+    uint32            DataValue;      /**< \brief Data from peek */
+    MM_MemAddress_t   Address;        /**< \brief Fully resolved address */
+    MM_MemSize_t      BytesProcessed; /**< \brief Bytes processed */
+} MM_PeekPacket_Payload_t;
+
+/**
+ *  \brief Symbol Lookup Packet Payload
+ */
+typedef struct
+{
+    char            SymName[CFE_MISSION_MAX_API_LEN]; /**< \brief Symbol name */
+    MM_MemAddress_t Address;                          /**< \brief Fully resolved address */
+} MM_SymLookupPacket_Payload_t;
+
 #endif /* DEFAULT_MM_MSGDEFS_H */
 
 /**\}*/
