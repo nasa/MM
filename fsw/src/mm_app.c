@@ -147,6 +147,7 @@ CFE_Status_t MM_AppInit(void)
     */
     MM_AppData.HkPacket.Payload.CmdCounter = 0;
     MM_AppData.HkPacket.Payload.ErrCounter = 0;
+    MM_AppData.EepromWriteEnabledMask      = 0; /* Initialize all EEPROM banks as write-disabled */
 
     /*
     ** Register for event services
@@ -389,6 +390,11 @@ void MM_AppPipe(const CFE_SB_Buffer_t *BufPtr)
 void MM_HousekeepingCmd(const CFE_SB_Buffer_t *BufPtr)
 {
     /*
+    ** Get the latest EEPROM bank write-enable status
+    */
+    MM_AppData.HkPacket.Payload.EepromWriteEnabledMask = MM_AppData.EepromWriteEnabledMask;
+
+    /*
     ** Send housekeeping telemetry packet
     */
     CFE_SB_TimeStampMsg(CFE_MSG_PTR(MM_AppData.HkPacket.TelemetryHeader));
@@ -561,6 +567,12 @@ bool MM_EepromWriteEnaCmd(const CFE_SB_Buffer_t *BufPtr)
         MM_AppData.HkPacket.Payload.LastAction = MM_EEPROMWRITE_ENA;
         MM_AppData.HkPacket.Payload.MemType    = MM_EEPROM;
 
+        /* Update EEPROM write-enable status mask (set the bit for this bank) */
+        if (CmdPtr->Payload.Bank < 8)
+        {
+            MM_AppData.EepromWriteEnabledMask |= (1 << CmdPtr->Payload.Bank);
+        }
+
         CFE_EVS_SendEvent(MM_EEPROM_WRITE_ENA_INF_EID, CFE_EVS_EventType_INFORMATION,
                           "EEPROM bank %d write enabled, cFE_Status= 0x%X", (int)CmdPtr->Payload.Bank,
                           (unsigned int)cFE_Status);
@@ -599,6 +611,13 @@ bool MM_EepromWriteDisCmd(const CFE_SB_Buffer_t *BufPtr)
         MM_AppData.HkPacket.Payload.LastAction = MM_EEPROMWRITE_DIS;
         MM_AppData.HkPacket.Payload.MemType    = MM_EEPROM;
         Result                                 = true;
+
+        /* Update EEPROM write-enable status mask (clear the bit for this bank) */
+        if (CmdPtr->Payload.Bank < 8)
+        {
+            MM_AppData.EepromWriteEnabledMask &= ~(1 << CmdPtr->Payload.Bank);
+        }
+
         CFE_EVS_SendEvent(MM_EEPROM_WRITE_DIS_INF_EID, CFE_EVS_EventType_INFORMATION,
                           "EEPROM bank %d write disabled, cFE_Status= 0x%X", (int)CmdPtr->Payload.Bank,
                           (unsigned int)cFE_Status);

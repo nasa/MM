@@ -322,7 +322,7 @@ typedef struct
     uint8        CmdCounter;                /**< \brief MM Application Command Counter */
     uint8        ErrCounter;                /**< \brief MM Application Command Error Counter */
     uint8        LastAction;                /**< \brief Last command action executed */
-    uint8        Padding;                   /**< \brief Last command action executed */
+    uint8        EepromWriteEnabledMask;    /**< \brief EEPROM bank write-enable status (bit mask) */
     MM_MemType_t MemType;                   /**< \brief Memory type for last command */
     cpuaddr      Address;                   /**< \brief Fully resolved address used for last command */
     uint32       DataValue;                 /**< \brief Last command data (fill pattern or peek/poke value) */

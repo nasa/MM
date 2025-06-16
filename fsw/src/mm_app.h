@@ -75,6 +75,9 @@ typedef struct
 
     uint32 RunStatus; /**< \brief Application run status */
 
+    uint8 EepromWriteEnabledMask; /**< \brief EEPROM bank write-enable status. Max 8 banks */
+    uint8 Padding[3];             /**< \brief Structure padding for clear 32-bit alignment */
+
     uint32 LoadBuffer[MM_MAX_LOAD_DATA_SEG / 4]; /**< \brief Load file i/o buffer */
     uint32 DumpBuffer[MM_MAX_DUMP_DATA_SEG / 4]; /**< \brief Dump file i/o buffer */
     uint32 FillBuffer[MM_MAX_FILL_DATA_SEG / 4]; /**< \brief Fill memory buffer   */

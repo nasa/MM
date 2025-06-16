@@ -75,7 +75,7 @@ void MM_AppMain_Test_Nominal(void)
     CFE_MSG_FcnCode_t FcnCode     = MM_NOOP_CC;
     size_t            forced_Size = sizeof(UT_CmdBuf.NoArgsCmd);
     CFE_SB_Buffer_t   Buf;
-    CFE_SB_Buffer_t * BufPtr = &Buf;
+    CFE_SB_Buffer_t  *BufPtr = &Buf;
 
     /* Set to exit loop after first run */
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RunLoop), 1, true);
@@ -237,6 +237,7 @@ void MM_AppInit_Test_Nominal(void)
     UtAssert_True(MM_AppData.RunStatus == CFE_ES_RunStatus_APP_RUN, "MM_AppData.RunStatus == CFE_ES_RunStatus_APP_RUN");
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
+    UtAssert_True(MM_AppData.EepromWriteEnabledMask == 0, "MM_AppData.EepromWriteEnabledMask initialized to 0");
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_INIT_INF_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
@@ -1173,6 +1174,9 @@ void MM_HousekeepingCmd_Test(void)
 
     strncpy(MM_AppData.HkPacket.Payload.FileName, "name", sizeof(MM_AppData.HkPacket.Payload.FileName) - 1);
 
+    /* Set the EEPROM write-enable mask to test a couple of values */
+    MM_AppData.EepromWriteEnabledMask = 0x05; /* Banks 0 and 2 enabled */
+
     /* Execute the function being tested */
     MM_HousekeepingCmd(&UT_CmdBuf.Buf);
 
@@ -1188,6 +1192,10 @@ void MM_HousekeepingCmd_Test(void)
     UtAssert_True(
         strncmp(MM_AppData.HkPacket.Payload.FileName, MM_AppData.HkPacket.Payload.FileName, OS_MAX_PATH_LEN) == 0,
         "strncmp(MM_AppData.HkPacket.Payload.FileName, MM_AppData.HkPacket.Payload.FileName, OS_MAX_PATH_LEN) == 0");
+
+    /* Verify that the EEPROM write-enable mask was copied to HK packet correctly */
+    UtAssert_True(MM_AppData.HkPacket.Payload.EepromWriteEnabledMask == 0x05,
+                  "MM_AppData.HkPacket.Payload.EepromWriteEnabledMask == 0x05");
 
     call_count_CFE_EVS_SendEvent = UT_GetStubCount(UT_KEY(CFE_EVS_SendEvent));
 
@@ -1485,6 +1493,8 @@ void MM_EepromWriteEnaCmd_Test_Nominal(void)
     UtAssert_True(MM_AppData.HkPacket.Payload.MemType == MM_EEPROM, "MM_AppData.HkPacket.Payload.MemType == MM_EEPROM");
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
+    UtAssert_True(MM_AppData.EepromWriteEnabledMask == 0x01,
+                  "MM_AppData.EepromWriteEnabledMask == 0x01 (bank 0 enabled)");
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_EEPROM_WRITE_ENA_INF_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
@@ -1574,6 +1584,8 @@ void MM_EepromWriteDisCmd_Test_Nominal(void)
     UtAssert_True(MM_AppData.HkPacket.Payload.MemType == MM_EEPROM, "MM_AppData.HkPacket.Payload.MemType == MM_EEPROM");
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.CmdCounter, 0);
     UtAssert_INT32_EQ(MM_AppData.HkPacket.Payload.ErrCounter, 0);
+    UtAssert_True(MM_AppData.EepromWriteEnabledMask == 0x00,
+                  "MM_AppData.EepromWriteEnabledMask == 0x00 (bank 0 disabled)");
 
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_EEPROM_WRITE_DIS_INF_EID);
     UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
@@ -1630,6 +1642,73 @@ void MM_EepromWriteDisCmd_Test_Error(void)
 
     UtAssert_True(call_count_CFE_EVS_SendEvent == 1, "CFE_EVS_SendEvent was called %u time(s), expected 1",
                   call_count_CFE_EVS_SendEvent);
+}
+
+void MM_EepromWriteEnaCmd_Test_MultipleBanks(void)
+{
+    CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
+    CFE_MSG_FcnCode_t FcnCode   = MM_ENABLE_EEPROM_WRITE_CC;
+    size_t            MsgSize   = sizeof(UT_CmdBuf.EepromWriteEnaCmd);
+
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_EepromWriteEnable), CFE_PSP_SUCCESS);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_EepromWriteDisable), CFE_PSP_SUCCESS);
+
+    /* Enable bank 3 */
+    UT_CmdBuf.EepromWriteEnaCmd.Payload.Bank = 3;
+    MM_EepromWriteEnaCmd(&UT_CmdBuf.Buf);
+    UtAssert_True(MM_AppData.EepromWriteEnabledMask == 0x08,
+                  "MM_AppData.EepromWriteEnabledMask == 0x08 (bank 3 enabled)");
+
+    /* Enable bank 5 (should now have both banks 3 and 5) */
+    UT_CmdBuf.EepromWriteEnaCmd.Payload.Bank = 5;
+    MM_EepromWriteEnaCmd(&UT_CmdBuf.Buf);
+    UtAssert_True(MM_AppData.EepromWriteEnabledMask == 0x28,
+                  "MM_AppData.EepromWriteEnabledMask == 0x28 (banks 3 and 5 enabled)");
+
+    /* Disable bank 3 (should now only have bank 5 enabled)*/
+    UT_CmdBuf.EepromWriteDisCmd.Payload.Bank = 3;
+    MM_EepromWriteDisCmd(&UT_CmdBuf.Buf);
+    UtAssert_True(MM_AppData.EepromWriteEnabledMask == 0x20,
+                  "MM_AppData.EepromWriteEnabledMask == 0x20 (only bank 5 enabled)");
+
+    /* Test bank above 8 (should not modify mask) */
+    UT_CmdBuf.EepromWriteEnaCmd.Payload.Bank = 9;
+    MM_EepromWriteEnaCmd(&UT_CmdBuf.Buf);
+    UtAssert_True(MM_AppData.EepromWriteEnabledMask == 0x20,
+                  "MM_AppData.EepromWriteEnabledMask == 0x20 (unchanged for bank >= 8)");
+}
+
+void MM_EepromWriteDisCmd_Test_BankNumberAboveMaskMax(void)
+{
+    CFE_SB_MsgId_t    TestMsgId = CFE_SB_ValueToMsgId(MM_CMD_MID);
+    CFE_MSG_FcnCode_t FcnCode   = MM_DISABLE_EEPROM_WRITE_CC;
+    size_t            MsgSize   = sizeof(UT_CmdBuf.EepromWriteDisCmd);
+
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &TestMsgId, sizeof(TestMsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
+
+    UT_SetDefaultReturnValue(UT_KEY(MM_VerifyCmdLength), true);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_EepromWriteDisable), CFE_PSP_SUCCESS);
+
+    /* Enable banks 0 and 1 */
+    MM_AppData.EepromWriteEnabledMask = 0x03;
+
+    /* Test bank above 8 (should not modify mask) */
+    UT_CmdBuf.EepromWriteDisCmd.Payload.Bank = 10;
+    MM_EepromWriteDisCmd(&UT_CmdBuf.Buf);
+
+    UtAssert_True(MM_AppData.EepromWriteEnabledMask == 0x03,
+                  "MM_AppData.EepromWriteEnabledMask == 0x03 (unchanged for bank >= 8)");
+
+    /* Verify success event */
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventID, MM_EEPROM_WRITE_DIS_INF_EID);
+    UtAssert_INT32_EQ(context_CFE_EVS_SendEvent[0].EventType, CFE_EVS_EventType_INFORMATION);
 }
 
 /*
@@ -1705,7 +1784,11 @@ void UtTest_Setup(void)
 
     UtTest_Add(MM_EepromWriteEnaCmd_Test_Nominal, MM_Test_Setup, MM_Test_TearDown, "MM_EepromWriteEnaCmd_Test_Nominal");
     UtTest_Add(MM_EepromWriteEnaCmd_Test_Error, MM_Test_Setup, MM_Test_TearDown, "MM_EepromWriteEnaCmd_Test_Error");
+    UtTest_Add(MM_EepromWriteEnaCmd_Test_MultipleBanks, MM_Test_Setup, MM_Test_TearDown,
+               "MM_EepromWriteEnaCmd_Test_MultipleBanks");
 
     UtTest_Add(MM_EepromWriteDisCmd_Test_Nominal, MM_Test_Setup, MM_Test_TearDown, "MM_EepromWriteDisCmd_Test_Nominal");
     UtTest_Add(MM_EepromWriteDisCmd_Test_Error, MM_Test_Setup, MM_Test_TearDown, "MM_EepromWriteDisCmd_Test_Error");
+    UtTest_Add(MM_EepromWriteDisCmd_Test_BankNumberAboveMaskMax, MM_Test_Setup, MM_Test_TearDown,
+               "MM_EepromWriteDisCmd_Test_BankNumberAboveMaskMax");
 }
