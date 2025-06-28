@@ -27,7 +27,6 @@
 *************************************************************************/
 #include "mm_app.h"
 #include "mm_utils.h"
-#include "mm_perfids.h"
 #include "mm_msgids.h"
 #include "mm_events.h"
 #include "mm_dump.h"
@@ -67,19 +66,9 @@ void MM_ResetHk(void)
 void MM_SegmentBreak(void)
 {
     /*
-    ** Performance Log entry stamp
-    */
-    CFE_ES_PerfLogEntry(MM_SEGBREAK_PERF_ID);
-
-    /*
     ** Give something else the chance to run
     */
     OS_TaskDelay(MM_PROCESSOR_CYCLE);
-
-    /*
-    ** Performance Log exit stamp
-    */
-    CFE_ES_PerfLogExit(MM_SEGBREAK_PERF_ID);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
