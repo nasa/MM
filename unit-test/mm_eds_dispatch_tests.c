@@ -46,23 +46,24 @@
 **********************************************************************************
 */
 
-void Test_MM_TaskPipe(void) {
-  /*
-   * Test Case For:
-   * void MM_TaskPipe
-   */
-  CFE_SB_Buffer_t UtBuf;
+void Test_MM_TaskPipe(void)
+{
+    /*
+     * Test Case For:
+     * void MM_TaskPipe
+     */
+    CFE_SB_Buffer_t UtBuf;
 
-  UT_SetDeferredRetcode(UT_KEY(CFE_EDSMSG_Dispatch), 1, CFE_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_EDSMSG_Dispatch), 1, CFE_SUCCESS);
 
-  memset(&UtBuf, 0, sizeof(UtBuf));
-  UtAssert_VOIDCALL(MM_TaskPipe(&UtBuf));
+    memset(&UtBuf, 0, sizeof(UtBuf));
+    UtAssert_VOIDCALL(MM_TaskPipe(&UtBuf));
 }
 
 /*
  * Register the test cases to execute with the unit test tool
  */
-void UtTest_Setup(void) {
-  UtTest_Add(Test_MM_TaskPipe, MM_Test_Setup, MM_Test_TearDown,
-             "Test_MM_TaskPipe");
+void UtTest_Setup(void)
+{
+    UtTest_Add(Test_MM_TaskPipe, MM_Test_Setup, MM_Test_TearDown, "Test_MM_TaskPipe");
 }

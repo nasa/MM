@@ -33,9 +33,7 @@
 /* Macros */
 /* ====== */
 
-#define MM_CMD_PLATFORM_MIDVAL(x)                                              \
-  CFE_PLATFORM_CMD_TOPICID_TO_MIDV(MM_MISSION_##x##_TOPICID)
-#define MM_TLM_PLATFORM_MIDVAL(x)                                              \
-  CFE_PLATFORM_TLM_TOPICID_TO_MIDV(MM_MISSION_##x##_TOPICID)
+#define MM_CMD_PLATFORM_MIDVAL(x) CFE_PLATFORM_CMD_TOPICID_TO_MIDV(MM_MISSION_##x##_TOPICID)
+#define MM_TLM_PLATFORM_MIDVAL(x) CFE_PLATFORM_TLM_TOPICID_TO_MIDV(MM_MISSION_##x##_TOPICID)
 
 #endif

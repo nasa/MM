@@ -40,16 +40,14 @@
  * \name MM Command verification selection
  * \{
  */
-#define MM_VERIFY_DUMP 0  /**< \brief Verify dump parameters */
-#define MM_VERIFY_LOAD 1  /**< \brief Verify load parameters */
+#define MM_VERIFY_DUMP  0 /**< \brief Verify dump parameters */
+#define MM_VERIFY_LOAD  1 /**< \brief Verify load parameters */
 #define MM_VERIFY_EVENT 2 /**< \brief Verify dump in event parameters */
-#define MM_VERIFY_FILL 3  /**< \brief Verify fill parameters */
-#define MM_VERIFY_WID                                                          \
-  4 /**< \brief Verify write interrupts disabled parameters */
+#define MM_VERIFY_FILL  3 /**< \brief Verify fill parameters */
+#define MM_VERIFY_WID   4 /**< \brief Verify write interrupts disabled parameters */
 /**\}*/
 
-#define MM_MAX_MEM_TYPE_STR_LEN                                                \
-  11 /**< \brief Maximum memory type string length */
+#define MM_MAX_MEM_TYPE_STR_LEN 11 /**< \brief Maximum memory type string length */
 
 /************************************************************************
  * Type Definitions
@@ -58,19 +56,17 @@
 /**
  *  \brief MM global data structure
  */
-typedef struct {
-  MM_HkTlm_t HkTlm; /**< \brief Housekeeping telemetry packet */
+typedef struct
+{
+    MM_HkTlm_t HkTlm; /**< \brief Housekeeping telemetry packet */
 
-  CFE_SB_PipeId_t CmdPipe; /**< \brief Command pipe ID */
+    CFE_SB_PipeId_t CmdPipe; /**< \brief Command pipe ID */
 
-  uint32 RunStatus; /**< \brief Application run status */
+    uint32 RunStatus; /**< \brief Application run status */
 
-  size_t LoadBuffer[MM_INTERNAL_MAX_LOAD_DATA_SEG /
-                    4]; /**< \brief Load file i/o buffer */
-  size_t DumpBuffer[MM_INTERNAL_MAX_DUMP_DATA_SEG /
-                    4]; /**< \brief Dump file i/o buffer */
-  size_t FillBuffer[MM_INTERNAL_MAX_FILL_DATA_SEG /
-                    4]; /**< \brief Fill memory buffer   */
+    size_t LoadBuffer[MM_INTERNAL_MAX_LOAD_DATA_SEG / 4]; /**< \brief Load file i/o buffer */
+    size_t DumpBuffer[MM_INTERNAL_MAX_DUMP_DATA_SEG / 4]; /**< \brief Dump file i/o buffer */
+    size_t FillBuffer[MM_INTERNAL_MAX_FILL_DATA_SEG / 4]; /**< \brief Fill memory buffer   */
 } MM_AppData_t;
 
 /** \brief Memory Manager application global */

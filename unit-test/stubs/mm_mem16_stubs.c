@@ -30,18 +30,17 @@
  * Generated stub function for MM_DumpMem16ToFile()
  * ----------------------------------------------------
  */
-int32 MM_DumpMem16ToFile(osal_id_t FileHandle, const char *FileName,
-                         const MM_LoadDumpFileHeader_t *FileHeader) {
-  UT_GenStub_SetupReturnBuffer(MM_DumpMem16ToFile, int32);
+int32 MM_DumpMem16ToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader)
+{
+    UT_GenStub_SetupReturnBuffer(MM_DumpMem16ToFile, int32);
 
-  UT_GenStub_AddParam(MM_DumpMem16ToFile, osal_id_t, FileHandle);
-  UT_GenStub_AddParam(MM_DumpMem16ToFile, const char *, FileName);
-  UT_GenStub_AddParam(MM_DumpMem16ToFile, const MM_LoadDumpFileHeader_t *,
-                      FileHeader);
+    UT_GenStub_AddParam(MM_DumpMem16ToFile, osal_id_t, FileHandle);
+    UT_GenStub_AddParam(MM_DumpMem16ToFile, const char *, FileName);
+    UT_GenStub_AddParam(MM_DumpMem16ToFile, const MM_LoadDumpFileHeader_t *, FileHeader);
 
-  UT_GenStub_Execute(MM_DumpMem16ToFile, Basic, NULL);
+    UT_GenStub_Execute(MM_DumpMem16ToFile, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_DumpMem16ToFile, int32);
+    return UT_GenStub_GetReturnValue(MM_DumpMem16ToFile, int32);
 }
 
 /*
@@ -49,15 +48,16 @@ int32 MM_DumpMem16ToFile(osal_id_t FileHandle, const char *FileName,
  * Generated stub function for MM_FillMem16()
  * ----------------------------------------------------
  */
-int32 MM_FillMem16(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr) {
-  UT_GenStub_SetupReturnBuffer(MM_FillMem16, int32);
+int32 MM_FillMem16(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
+{
+    UT_GenStub_SetupReturnBuffer(MM_FillMem16, int32);
 
-  UT_GenStub_AddParam(MM_FillMem16, cpuaddr, DestAddress);
-  UT_GenStub_AddParam(MM_FillMem16, const MM_FillMemCmd_t *, CmdPtr);
+    UT_GenStub_AddParam(MM_FillMem16, cpuaddr, DestAddress);
+    UT_GenStub_AddParam(MM_FillMem16, const MM_FillMemCmd_t *, CmdPtr);
 
-  UT_GenStub_Execute(MM_FillMem16, Basic, NULL);
+    UT_GenStub_Execute(MM_FillMem16, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_FillMem16, int32);
+    return UT_GenStub_GetReturnValue(MM_FillMem16, int32);
 }
 
 /*
@@ -65,18 +65,19 @@ int32 MM_FillMem16(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr) {
  * Generated stub function for MM_LoadMem16FromFile()
  * ----------------------------------------------------
  */
-int32 MM_LoadMem16FromFile(osal_id_t FileHandle, const char *FileName,
+int32 MM_LoadMem16FromFile(osal_id_t                      FileHandle,
+                           const char                    *FileName,
                            const MM_LoadDumpFileHeader_t *FileHeader,
-                           cpuaddr DestAddress) {
-  UT_GenStub_SetupReturnBuffer(MM_LoadMem16FromFile, int32);
+                           cpuaddr                        DestAddress)
+{
+    UT_GenStub_SetupReturnBuffer(MM_LoadMem16FromFile, int32);
 
-  UT_GenStub_AddParam(MM_LoadMem16FromFile, osal_id_t, FileHandle);
-  UT_GenStub_AddParam(MM_LoadMem16FromFile, const char *, FileName);
-  UT_GenStub_AddParam(MM_LoadMem16FromFile, const MM_LoadDumpFileHeader_t *,
-                      FileHeader);
-  UT_GenStub_AddParam(MM_LoadMem16FromFile, cpuaddr, DestAddress);
+    UT_GenStub_AddParam(MM_LoadMem16FromFile, osal_id_t, FileHandle);
+    UT_GenStub_AddParam(MM_LoadMem16FromFile, const char *, FileName);
+    UT_GenStub_AddParam(MM_LoadMem16FromFile, const MM_LoadDumpFileHeader_t *, FileHeader);
+    UT_GenStub_AddParam(MM_LoadMem16FromFile, cpuaddr, DestAddress);
 
-  UT_GenStub_Execute(MM_LoadMem16FromFile, Basic, NULL);
+    UT_GenStub_Execute(MM_LoadMem16FromFile, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_LoadMem16FromFile, int32);
+    return UT_GenStub_GetReturnValue(MM_LoadMem16FromFile, int32);
 }

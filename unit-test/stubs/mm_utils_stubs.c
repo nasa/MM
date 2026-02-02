@@ -30,17 +30,17 @@
  * Generated stub function for MM_ComputeCRCFromFile()
  * ----------------------------------------------------
  */
-int32 MM_ComputeCRCFromFile(osal_id_t FileHandle, uint32 *CrcPtr,
-                            uint32 TypeCRC) {
-  UT_GenStub_SetupReturnBuffer(MM_ComputeCRCFromFile, int32);
+int32 MM_ComputeCRCFromFile(osal_id_t FileHandle, uint32 *CrcPtr, uint32 TypeCRC)
+{
+    UT_GenStub_SetupReturnBuffer(MM_ComputeCRCFromFile, int32);
 
-  UT_GenStub_AddParam(MM_ComputeCRCFromFile, osal_id_t, FileHandle);
-  UT_GenStub_AddParam(MM_ComputeCRCFromFile, uint32 *, CrcPtr);
-  UT_GenStub_AddParam(MM_ComputeCRCFromFile, uint32, TypeCRC);
+    UT_GenStub_AddParam(MM_ComputeCRCFromFile, osal_id_t, FileHandle);
+    UT_GenStub_AddParam(MM_ComputeCRCFromFile, uint32 *, CrcPtr);
+    UT_GenStub_AddParam(MM_ComputeCRCFromFile, uint32, TypeCRC);
 
-  UT_GenStub_Execute(MM_ComputeCRCFromFile, Basic, NULL);
+    UT_GenStub_Execute(MM_ComputeCRCFromFile, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_ComputeCRCFromFile, int32);
+    return UT_GenStub_GetReturnValue(MM_ComputeCRCFromFile, int32);
 }
 
 /*
@@ -48,22 +48,26 @@ int32 MM_ComputeCRCFromFile(osal_id_t FileHandle, uint32 *CrcPtr,
  * Generated stub function for MM_ResetHk()
  * ----------------------------------------------------
  */
-void MM_ResetHk(void) { UT_GenStub_Execute(MM_ResetHk, Basic, NULL); }
+void MM_ResetHk(void)
+{
+    UT_GenStub_Execute(MM_ResetHk, Basic, NULL);
+}
 
 /*
  * ----------------------------------------------------
  * Generated stub function for MM_ResolveSymAddr()
  * ----------------------------------------------------
  */
-int32 MM_ResolveSymAddr(MM_SymAddr_t *SymAddr, cpuaddr *ResolvedAddr) {
-  UT_GenStub_SetupReturnBuffer(MM_ResolveSymAddr, int32);
+int32 MM_ResolveSymAddr(MM_SymAddr_t *SymAddr, cpuaddr *ResolvedAddr)
+{
+    UT_GenStub_SetupReturnBuffer(MM_ResolveSymAddr, int32);
 
-  UT_GenStub_AddParam(MM_ResolveSymAddr, MM_SymAddr_t *, SymAddr);
-  UT_GenStub_AddParam(MM_ResolveSymAddr, cpuaddr *, ResolvedAddr);
+    UT_GenStub_AddParam(MM_ResolveSymAddr, MM_SymAddr_t *, SymAddr);
+    UT_GenStub_AddParam(MM_ResolveSymAddr, cpuaddr *, ResolvedAddr);
 
-  UT_GenStub_Execute(MM_ResolveSymAddr, Basic, NULL);
+    UT_GenStub_Execute(MM_ResolveSymAddr, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_ResolveSymAddr, int32);
+    return UT_GenStub_GetReturnValue(MM_ResolveSymAddr, int32);
 }
 
 /*
@@ -71,22 +75,26 @@ int32 MM_ResolveSymAddr(MM_SymAddr_t *SymAddr, cpuaddr *ResolvedAddr) {
  * Generated stub function for MM_SegmentBreak()
  * ----------------------------------------------------
  */
-void MM_SegmentBreak(void) { UT_GenStub_Execute(MM_SegmentBreak, Basic, NULL); }
+void MM_SegmentBreak(void)
+{
+    UT_GenStub_Execute(MM_SegmentBreak, Basic, NULL);
+}
 
 /*
  * ----------------------------------------------------
  * Generated stub function for MM_Verify16Aligned()
  * ----------------------------------------------------
  */
-bool MM_Verify16Aligned(cpuaddr Address, size_t Size) {
-  UT_GenStub_SetupReturnBuffer(MM_Verify16Aligned, bool);
+bool MM_Verify16Aligned(cpuaddr Address, size_t Size)
+{
+    UT_GenStub_SetupReturnBuffer(MM_Verify16Aligned, bool);
 
-  UT_GenStub_AddParam(MM_Verify16Aligned, cpuaddr, Address);
-  UT_GenStub_AddParam(MM_Verify16Aligned, size_t, Size);
+    UT_GenStub_AddParam(MM_Verify16Aligned, cpuaddr, Address);
+    UT_GenStub_AddParam(MM_Verify16Aligned, size_t, Size);
 
-  UT_GenStub_Execute(MM_Verify16Aligned, Basic, NULL);
+    UT_GenStub_Execute(MM_Verify16Aligned, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_Verify16Aligned, bool);
+    return UT_GenStub_GetReturnValue(MM_Verify16Aligned, bool);
 }
 
 /*
@@ -94,15 +102,16 @@ bool MM_Verify16Aligned(cpuaddr Address, size_t Size) {
  * Generated stub function for MM_Verify32Aligned()
  * ----------------------------------------------------
  */
-bool MM_Verify32Aligned(cpuaddr Address, size_t Size) {
-  UT_GenStub_SetupReturnBuffer(MM_Verify32Aligned, bool);
+bool MM_Verify32Aligned(cpuaddr Address, size_t Size)
+{
+    UT_GenStub_SetupReturnBuffer(MM_Verify32Aligned, bool);
 
-  UT_GenStub_AddParam(MM_Verify32Aligned, cpuaddr, Address);
-  UT_GenStub_AddParam(MM_Verify32Aligned, size_t, Size);
+    UT_GenStub_AddParam(MM_Verify32Aligned, cpuaddr, Address);
+    UT_GenStub_AddParam(MM_Verify32Aligned, size_t, Size);
 
-  UT_GenStub_Execute(MM_Verify32Aligned, Basic, NULL);
+    UT_GenStub_Execute(MM_Verify32Aligned, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_Verify32Aligned, bool);
+    return UT_GenStub_GetReturnValue(MM_Verify32Aligned, bool);
 }
 
 /*
@@ -110,18 +119,18 @@ bool MM_Verify32Aligned(cpuaddr Address, size_t Size) {
  * Generated stub function for MM_VerifyLoadDumpParams()
  * ----------------------------------------------------
  */
-int32 MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_Enum_t MemType,
-                              size_t SizeInBytes, uint8 VerifyType) {
-  UT_GenStub_SetupReturnBuffer(MM_VerifyLoadDumpParams, int32);
+int32 MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_Enum_t MemType, size_t SizeInBytes, uint8 VerifyType)
+{
+    UT_GenStub_SetupReturnBuffer(MM_VerifyLoadDumpParams, int32);
 
-  UT_GenStub_AddParam(MM_VerifyLoadDumpParams, cpuaddr, Address);
-  UT_GenStub_AddParam(MM_VerifyLoadDumpParams, MM_MemType_Enum_t, MemType);
-  UT_GenStub_AddParam(MM_VerifyLoadDumpParams, size_t, SizeInBytes);
-  UT_GenStub_AddParam(MM_VerifyLoadDumpParams, uint8, VerifyType);
+    UT_GenStub_AddParam(MM_VerifyLoadDumpParams, cpuaddr, Address);
+    UT_GenStub_AddParam(MM_VerifyLoadDumpParams, MM_MemType_Enum_t, MemType);
+    UT_GenStub_AddParam(MM_VerifyLoadDumpParams, size_t, SizeInBytes);
+    UT_GenStub_AddParam(MM_VerifyLoadDumpParams, uint8, VerifyType);
 
-  UT_GenStub_Execute(MM_VerifyLoadDumpParams, Basic, NULL);
+    UT_GenStub_Execute(MM_VerifyLoadDumpParams, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_VerifyLoadDumpParams, int32);
+    return UT_GenStub_GetReturnValue(MM_VerifyLoadDumpParams, int32);
 }
 
 /*
@@ -129,15 +138,15 @@ int32 MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_Enum_t MemType,
  * Generated stub function for MM_VerifyPeekPokeParams()
  * ----------------------------------------------------
  */
-int32 MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_Enum_t MemType,
-                              size_t SizeInBits) {
-  UT_GenStub_SetupReturnBuffer(MM_VerifyPeekPokeParams, int32);
+int32 MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_Enum_t MemType, size_t SizeInBits)
+{
+    UT_GenStub_SetupReturnBuffer(MM_VerifyPeekPokeParams, int32);
 
-  UT_GenStub_AddParam(MM_VerifyPeekPokeParams, cpuaddr, Address);
-  UT_GenStub_AddParam(MM_VerifyPeekPokeParams, MM_MemType_Enum_t, MemType);
-  UT_GenStub_AddParam(MM_VerifyPeekPokeParams, size_t, SizeInBits);
+    UT_GenStub_AddParam(MM_VerifyPeekPokeParams, cpuaddr, Address);
+    UT_GenStub_AddParam(MM_VerifyPeekPokeParams, MM_MemType_Enum_t, MemType);
+    UT_GenStub_AddParam(MM_VerifyPeekPokeParams, size_t, SizeInBits);
 
-  UT_GenStub_Execute(MM_VerifyPeekPokeParams, Basic, NULL);
+    UT_GenStub_Execute(MM_VerifyPeekPokeParams, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_VerifyPeekPokeParams, int32);
+    return UT_GenStub_GetReturnValue(MM_VerifyPeekPokeParams, int32);
 }

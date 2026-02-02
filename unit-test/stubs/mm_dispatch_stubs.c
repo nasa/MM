@@ -31,10 +31,11 @@
  * Generated stub function for MM_ProcessGroundCommand()
  * ----------------------------------------------------
  */
-void MM_ProcessGroundCommand(const CFE_SB_Buffer_t *BufPtr) {
-  UT_GenStub_AddParam(MM_ProcessGroundCommand, const CFE_SB_Buffer_t *, BufPtr);
+void MM_ProcessGroundCommand(const CFE_SB_Buffer_t *BufPtr)
+{
+    UT_GenStub_AddParam(MM_ProcessGroundCommand, const CFE_SB_Buffer_t *, BufPtr);
 
-  UT_GenStub_Execute(MM_ProcessGroundCommand, Basic, NULL);
+    UT_GenStub_Execute(MM_ProcessGroundCommand, Basic, NULL);
 }
 
 /*
@@ -42,10 +43,11 @@ void MM_ProcessGroundCommand(const CFE_SB_Buffer_t *BufPtr) {
  * Generated stub function for MM_TaskPipe()
  * ----------------------------------------------------
  */
-void MM_TaskPipe(const CFE_SB_Buffer_t *BufPtr) {
-  UT_GenStub_AddParam(MM_TaskPipe, const CFE_SB_Buffer_t *, BufPtr);
+void MM_TaskPipe(const CFE_SB_Buffer_t *BufPtr)
+{
+    UT_GenStub_AddParam(MM_TaskPipe, const CFE_SB_Buffer_t *, BufPtr);
 
-  UT_GenStub_Execute(MM_TaskPipe, Basic, NULL);
+    UT_GenStub_Execute(MM_TaskPipe, Basic, NULL);
 }
 
 /*
@@ -53,14 +55,14 @@ void MM_TaskPipe(const CFE_SB_Buffer_t *BufPtr) {
  * Generated stub function for MM_VerifyCmdLength()
  * ----------------------------------------------------
  */
-bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr,
-                        size_t ExpectedLength) {
-  UT_GenStub_SetupReturnBuffer(MM_VerifyCmdLength, bool);
+bool MM_VerifyCmdLength(const CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
+{
+    UT_GenStub_SetupReturnBuffer(MM_VerifyCmdLength, bool);
 
-  UT_GenStub_AddParam(MM_VerifyCmdLength, const CFE_MSG_Message_t *, MsgPtr);
-  UT_GenStub_AddParam(MM_VerifyCmdLength, size_t, ExpectedLength);
+    UT_GenStub_AddParam(MM_VerifyCmdLength, const CFE_MSG_Message_t *, MsgPtr);
+    UT_GenStub_AddParam(MM_VerifyCmdLength, size_t, ExpectedLength);
 
-  UT_GenStub_Execute(MM_VerifyCmdLength, Basic, NULL);
+    UT_GenStub_Execute(MM_VerifyCmdLength, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_VerifyCmdLength, bool);
+    return UT_GenStub_GetReturnValue(MM_VerifyCmdLength, bool);
 }

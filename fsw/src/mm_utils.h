@@ -82,8 +82,7 @@ void MM_SegmentBreak(void);
  *
  *  \return Execution status
  */
-int32 MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_Enum_t MemType,
-                              size_t SizeInBits);
+int32 MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_Enum_t MemType, size_t SizeInBits);
 
 /**
  * \brief Verify memory load and dump parameters
@@ -106,8 +105,7 @@ int32 MM_VerifyPeekPokeParams(cpuaddr Address, MM_MemType_Enum_t MemType,
  *
  *  \return Execution status
  */
-int32 MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_Enum_t MemType,
-                              size_t SizeInBytes, uint8 VerifyType);
+int32 MM_VerifyLoadDumpParams(cpuaddr Address, MM_MemType_Enum_t MemType, size_t SizeInBytes, uint8 VerifyType);
 
 /**
  * \brief Verify 32 bit alignment
@@ -197,7 +195,6 @@ int32 MM_ResolveSymAddr(MM_SymAddr_t *SymAddr, cpuaddr *ResolvedAddr);
  *
  *  \sa #CFE_ES_CalculateCRC, #OS_read
  */
-int32 MM_ComputeCRCFromFile(osal_id_t FileHandle, uint32 *CrcPtr,
-                            uint32 TypeCRC);
+int32 MM_ComputeCRCFromFile(osal_id_t FileHandle, uint32 *CrcPtr, uint32 TypeCRC);
 
 #endif
