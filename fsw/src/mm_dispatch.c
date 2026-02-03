@@ -192,29 +192,46 @@ void MM_ProcessGroundCommand(const CFE_SB_Buffer_t *BufPtr)
 /* * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * *  * *  * * * * */
 void MM_TaskPipe(const CFE_SB_Buffer_t *BufPtr)
 {
+    static CFE_SB_MsgId_t CMD_MID     = CFE_SB_MSGID_RESERVED;
+    static CFE_SB_MsgId_t SEND_HK_MID = CFE_SB_MSGID_RESERVED;
+
     CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
+
+    /* cache the local MID Values here, this avoids repeat lookups */
+    if (!CFE_SB_IsValidMsgId(CMD_MID))
+    {
+        /*
+        ** Initialize application MID values
+        */
+        CMD_MID     = CFE_SB_ValueToMsgId(MM_CMD_MID);
+        SEND_HK_MID = CFE_SB_ValueToMsgId(MM_SEND_HK_MID);
+    }
 
     CFE_MSG_GetMsgId(&BufPtr->Msg, &MsgId);
 
-    switch (CFE_SB_MsgIdToValue(MsgId))
+    if (CFE_SB_MsgId_Equal(MsgId, CMD_MID))
     {
-        case MM_CMD_MID:
-            MM_ProcessGroundCommand(BufPtr);
-            break;
-
-        case MM_SEND_HK_MID:
-            MM_SendHkCmd((MM_SendHkCmd_t *)BufPtr);
-            break;
-
-        default:
-            /*
-            ** Unrecognized Message ID
-            */
-            MM_AppData.HkTlm.Payload.ErrCounter++;
-            CFE_EVS_SendEvent(MM_MID_ERR_EID,
-                              CFE_EVS_EventType_ERROR,
-                              "Invalid command pipe message ID: 0x%08lX",
-                              (unsigned long)CFE_SB_MsgIdToValue(MsgId));
-            break;
+        /*
+        ** MM ground commands
+        */
+        MM_ProcessGroundCommand(BufPtr);
+    }
+    else if (CFE_SB_MsgId_Equal(MsgId, SEND_HK_MID))
+    {
+        /*
+        ** Housekeeping telemetry request
+        */
+        MM_SendHkCmd((MM_SendHkCmd_t *)BufPtr);
+    }
+    else
+    {
+        /*
+        ** Unrecognized Message ID
+        */
+        MM_AppData.HkTlm.Payload.ErrCounter++;
+        CFE_EVS_SendEvent(MM_MID_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "Invalid command pipe message ID: 0x%08lX",
+                          (unsigned long)CFE_SB_MsgIdToValue(MsgId));
     }
 }
