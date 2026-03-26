@@ -80,8 +80,8 @@ void MM_LoadMem32FromFile_Test_Nominal(void)
 
     /* No command-handling function should be updating the cmd or err counter
      * itself */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -117,8 +117,8 @@ void MM_LoadMem32FromFile_Test_CPUHogging(void)
 
     /* No command-handling function should be updating the cmd or err counter
      * itself */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -143,8 +143,8 @@ void MM_LoadMem32FromFile_Test_ReadError(void)
 
     /* No command-handling function should be updating the cmd or err counter
      * itself */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -180,8 +180,8 @@ void MM_LoadMem32FromFile_Test_WriteError(void)
 
     /* No command-handling function should be updating the cmd or err counter
      * itself */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -221,8 +221,8 @@ void MM_DumpMem32ToFile_Test_Nominal(void)
 
     /* No command-handling function should be updating the cmd or err counter
      * itself */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -256,8 +256,8 @@ void MM_DumpMem32ToFile_Test_CPUHogging(void)
 
     /* No command-handling function should be updating the cmd or err counter
      * itself */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -283,8 +283,8 @@ void MM_DumpMem32ToFile_Test_ReadError(void)
 
     /* No command-handling function should be updating the cmd or err counter
      * itself */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -314,8 +314,8 @@ void MM_DumpMem32ToFile_Test_WriteError(void)
 
     /* No command-handling function should be updating the cmd or err counter
      * itself */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -351,8 +351,8 @@ void MM_FillMem32_Test_Nominal(void)
 
     /* No command-handling function should be updating the cmd or err counter
      * itself */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -384,8 +384,8 @@ void MM_FillMem32_Test_CPUHogging(void)
 
     /* No command-handling function should be updating the cmd or err counter
      * itself */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -411,8 +411,8 @@ void MM_FillMem32_Test_WriteError(void)
 
     /* No command-handling function should be updating the cmd or err counter
      * itself */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -437,8 +437,8 @@ void MM_FillMem32_Test_Align(void)
 
     /* No command-handling function should be updating the cmd or err counter
      * itself */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,

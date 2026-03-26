@@ -154,10 +154,10 @@ typedef struct
  */
 typedef struct
 {
-    uint8             CmdCounter;                         /**< \brief MM Application Command Counter */
-    uint8             ErrCounter;                         /**< \brief MM Application Command Error Counter */
-    uint8             LastAction;                         /**< \brief Last command action executed */
-    uint8             Padding;                            /**< \brief Last command action executed */
+    uint8             CommandCounter;      /**< \brief MM Application Command Counter */
+    uint8             CommandErrorCounter; /**< \brief MM Application Command Error Counter */
+    uint8             LastAction;          /**< \brief Last command action executed */
+    uint8             Padding;
     MM_MemType_Enum_t MemType;                            /**< \brief Memory type for last command */
     MM_MemAddress_t   Address;                            /**< \brief Fully resolved address used for last command */
     uint32            DataValue;                          /**< \brief Last command data (fill pattern or peek/poke

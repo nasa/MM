@@ -80,7 +80,7 @@ void MM_TaskPipe(const CFE_SB_Buffer_t *BufPtr)
         CFE_MSG_GetMsgId(&BufPtr->Msg, &MsgId);
         CFE_MSG_GetSize(&BufPtr->Msg, &MsgSize);
         CFE_MSG_GetFcnCode(&BufPtr->Msg, &MsgFc);
-        ++MM_AppData.HkTlm.Payload.ErrCounter;
+        ++MM_AppData.HkTlm.Payload.CommandErrorCounter;
 
         if (Status == CFE_STATUS_UNKNOWN_MSG_ID)
         {

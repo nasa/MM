@@ -36,7 +36,7 @@
 
             <!-- STRINGS -->
 
-            <StringDataType name="SymName" length="${CFE_MISSION/CORE_API_MAX_API_LEN}" shortDescription="Symbol name string"/>
+            <StringDataType name="SymName" length="${CFE_MISSION/CORE_API_MAX_PATH_LEN}" shortDescription="Symbol name string"/>
 
             <!-- TYPEDEFS -->
 
@@ -197,9 +197,10 @@
 
             <ContainerDataType name="HkTlm_Payload" shortDescription="Housekeeping Packet Payload Structure">
                 <EntryList>
-                    <Entry name="CmdCounter" type="BASE_TYPES/uint8" shortDescription="MM Application Command Counter"/>
-                    <Entry name="ErrCounter" type="BASE_TYPES/uint8" shortDescription="MM Application Command Error Counter"/>
+                    <Entry name="CommandCounter" type="BASE_TYPES/uint8" shortDescription="MM Application Command Counter"/>
+                    <Entry name="CommandErrorCounter" type="BASE_TYPES/uint8" shortDescription="MM Application Command Error Counter"/>
                     <Entry name="LastAction" type="LastAction" shortDescription="Last command action executed"/>
+                    <PaddingEntry sizeInBits="8" shortDescription="32-bit alignment padding"/>
                     <Entry name="MemType" type="MemType" shortDescription="Memory type for last command"/>
                     <Entry name="Address" type="MemAddress" shortDescription="Fully resolved address used for last command"/>
                     <Entry name="DataValue" type="BASE_TYPES/uint32" shortDescription="Last command data (fill pattern or peek/poke value)"/>
@@ -212,7 +213,7 @@
 
             <ContainerDataType name="CommandBase" baseType="CFE_HDR/CommandHeader"/>
 
-            <ContainerDataType name="SendHkCmd" baseType="CommandBase" shortDescription="Housekeeping Request command packet structure"/>
+            <ContainerDataType name="SendHkCmd" baseType="CFE_HDR/CommandHeader" shortDescription="Housekeeping Request command packet structure"/>
 
             <ContainerDataType name="NoopCmd" baseType="CommandBase">
                 <ConstraintSet>

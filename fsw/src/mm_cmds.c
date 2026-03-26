@@ -80,7 +80,7 @@ CFE_Status_t MM_SendHkCmd(const MM_SendHkCmd_t *Msg)
 CFE_Status_t MM_NoopCmd(const MM_NoopCmd_t *Msg)
 {
     MM_AppData.HkTlm.Payload.LastAction = MM_LastAction_NOOP;
-    MM_AppData.HkTlm.Payload.CmdCounter++;
+    MM_AppData.HkTlm.Payload.CommandCounter++;
 
     CFE_EVS_SendEvent(MM_NOOP_INF_EID,
                       CFE_EVS_EventType_INFORMATION,
@@ -101,9 +101,9 @@ CFE_Status_t MM_NoopCmd(const MM_NoopCmd_t *Msg)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 CFE_Status_t MM_ResetCountersCmd(const MM_ResetCountersCmd_t *Msg)
 {
-    MM_AppData.HkTlm.Payload.LastAction = MM_LastAction_RESET;
-    MM_AppData.HkTlm.Payload.CmdCounter = 0;
-    MM_AppData.HkTlm.Payload.ErrCounter = 0;
+    MM_AppData.HkTlm.Payload.LastAction          = MM_LastAction_RESET;
+    MM_AppData.HkTlm.Payload.CommandCounter      = 0;
+    MM_AppData.HkTlm.Payload.CommandErrorCounter = 0;
 
     CFE_EVS_SendEvent(MM_RESET_INF_EID, CFE_EVS_EventType_INFORMATION, "Reset counters command received");
 
@@ -130,7 +130,7 @@ CFE_Status_t MM_LookupSymCmd(const MM_LookupSymCmd_t *Msg)
     */
     if (OS_strnlen(SymName, CFE_MISSION_MAX_PATH_LEN) == 0)
     {
-        MM_AppData.HkTlm.Payload.ErrCounter++;
+        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         CFE_EVS_SendEvent(MM_SYMNAME_NUL_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "NUL (empty) string specified as symbol name");
@@ -147,7 +147,7 @@ CFE_Status_t MM_LookupSymCmd(const MM_LookupSymCmd_t *Msg)
             MM_AppData.HkTlm.Payload.LastAction = MM_LastAction_SYM_LOOKUP;
             MM_AppData.HkTlm.Payload.Address    = CFE_ES_MEMADDRESS_C(ResolvedAddr);
 
-            MM_AppData.HkTlm.Payload.CmdCounter++;
+            MM_AppData.HkTlm.Payload.CommandCounter++;
             CFE_EVS_SendEvent(MM_SYM_LOOKUP_INF_EID,
                               CFE_EVS_EventType_INFORMATION,
                               "Symbol Lookup Command: Name = '%s' Addr = %p",
@@ -156,7 +156,7 @@ CFE_Status_t MM_LookupSymCmd(const MM_LookupSymCmd_t *Msg)
         }
         else
         {
-            MM_AppData.HkTlm.Payload.ErrCounter++;
+            MM_AppData.HkTlm.Payload.CommandErrorCounter++;
             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID,
                               CFE_EVS_EventType_ERROR,
                               "Symbolic address can't be resolved: Name = '%s'",
@@ -188,7 +188,7 @@ CFE_Status_t MM_SymTblToFileCmd(const MM_SymTblToFileCmd_t *Msg)
     */
     if (OS_strnlen(FileName, CFE_MISSION_MAX_PATH_LEN) == 0)
     {
-        MM_AppData.HkTlm.Payload.ErrCounter++;
+        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         CFE_EVS_SendEvent(MM_SYMFILENAME_NUL_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "NUL (empty) string specified as symbol dump file name");
@@ -202,7 +202,7 @@ CFE_Status_t MM_SymTblToFileCmd(const MM_SymTblToFileCmd_t *Msg)
             MM_AppData.HkTlm.Payload.LastAction = MM_LastAction_SYMTBL_SAVE;
             snprintf(MM_AppData.HkTlm.Payload.FileName, CFE_MISSION_MAX_PATH_LEN, "%s", FileName);
 
-            MM_AppData.HkTlm.Payload.CmdCounter++;
+            MM_AppData.HkTlm.Payload.CommandCounter++;
             CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_INF_EID,
                               CFE_EVS_EventType_INFORMATION,
                               "Symbol Table Dump to File Started: Name = '%s'",
@@ -210,7 +210,7 @@ CFE_Status_t MM_SymTblToFileCmd(const MM_SymTblToFileCmd_t *Msg)
         }
         else
         {
-            MM_AppData.HkTlm.Payload.ErrCounter++;
+            MM_AppData.HkTlm.Payload.CommandErrorCounter++;
             CFE_EVS_SendEvent(MM_SYMTBL_TO_FILE_FAIL_ERR_EID,
                               CFE_EVS_EventType_ERROR,
                               "Error dumping symbol table, OS_Status= 0x%X, File='%s'",
@@ -242,7 +242,7 @@ CFE_Status_t MM_EepromWriteEnaCmd(const MM_EepromWriteEnaCmd_t *Msg)
         MM_AppData.HkTlm.Payload.LastAction = MM_LastAction_EEPROMWRITE_ENA;
         MM_AppData.HkTlm.Payload.MemType    = MM_MemType_EEPROM;
 
-        MM_AppData.HkTlm.Payload.CmdCounter++;
+        MM_AppData.HkTlm.Payload.CommandCounter++;
         CFE_EVS_SendEvent(MM_EEPROM_WRITE_ENA_INF_EID,
                           CFE_EVS_EventType_INFORMATION,
                           "EEPROM bank %d write enabled, cFE_Status= 0x%X",
@@ -251,7 +251,7 @@ CFE_Status_t MM_EepromWriteEnaCmd(const MM_EepromWriteEnaCmd_t *Msg)
     }
     else
     {
-        MM_AppData.HkTlm.Payload.ErrCounter++;
+        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         CFE_EVS_SendEvent(MM_EEPROM_WRITE_ENA_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "Error requesting EEPROM bank %d write enable, cFE_Status= 0x%X",
@@ -282,7 +282,7 @@ CFE_Status_t MM_EepromWriteDisCmd(const MM_EepromWriteDisCmd_t *Msg)
         MM_AppData.HkTlm.Payload.LastAction = MM_LastAction_EEPROMWRITE_DIS;
         MM_AppData.HkTlm.Payload.MemType    = MM_MemType_EEPROM;
 
-        MM_AppData.HkTlm.Payload.CmdCounter++;
+        MM_AppData.HkTlm.Payload.CommandCounter++;
         CFE_EVS_SendEvent(MM_EEPROM_WRITE_DIS_INF_EID,
                           CFE_EVS_EventType_INFORMATION,
                           "EEPROM bank %d write disabled, cFE_Status= 0x%X",
@@ -291,7 +291,7 @@ CFE_Status_t MM_EepromWriteDisCmd(const MM_EepromWriteDisCmd_t *Msg)
     }
     else
     {
-        MM_AppData.HkTlm.Payload.ErrCounter++;
+        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         CFE_EVS_SendEvent(MM_EEPROM_WRITE_DIS_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "Error requesting EEPROM bank %d write disable, cFE_Status= 0x%X",
@@ -343,21 +343,21 @@ CFE_Status_t MM_PokeCmd(const MM_PokeCmd_t *Msg)
 
             if (Status == CFE_PSP_SUCCESS)
             {
-                MM_AppData.HkTlm.Payload.CmdCounter++;
+                MM_AppData.HkTlm.Payload.CommandCounter++;
             }
             else
             {
-                MM_AppData.HkTlm.Payload.ErrCounter++;
+                MM_AppData.HkTlm.Payload.CommandErrorCounter++;
             }
         }
         else
         {
-            MM_AppData.HkTlm.Payload.ErrCounter++;
+            MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         } /* end MM_VerifyPeekPokeParams if */
     } /* end MM_ResolveSymAddr */
     else
     {
-        MM_AppData.HkTlm.Payload.ErrCounter++;
+        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "Symbolic address can't be resolved: Name = '%s'",
@@ -404,7 +404,7 @@ CFE_Status_t MM_LoadMemWIDCmd(const MM_LoadMemWIDCmd_t *Msg)
                 /* Load input data to input memory address */
                 memcpy((void *)DestAddress, Msg->Payload.DataArray, Msg->Payload.NumOfBytes);
 
-                MM_AppData.HkTlm.Payload.CmdCounter++;
+                MM_AppData.HkTlm.Payload.CommandCounter++;
                 CFE_EVS_SendEvent(MM_LOAD_WID_INF_EID,
                                   CFE_EVS_EventType_INFORMATION,
                                   "Load Memory WID Command: Wrote %d bytes to address: %p",
@@ -419,7 +419,7 @@ CFE_Status_t MM_LoadMemWIDCmd(const MM_LoadMemWIDCmd_t *Msg)
             }
             else
             {
-                MM_AppData.HkTlm.Payload.ErrCounter++;
+                MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                 CFE_EVS_SendEvent(MM_LOAD_WID_CRC_ERR_EID,
                                   CFE_EVS_EventType_ERROR,
                                   "Interrupts Disabled Load CRC failure: Expected = "
@@ -430,12 +430,12 @@ CFE_Status_t MM_LoadMemWIDCmd(const MM_LoadMemWIDCmd_t *Msg)
         }
         else
         {
-            MM_AppData.HkTlm.Payload.ErrCounter++;
+            MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         } /* end MM_VerifyLoadWIDParams */
     } /* end MM_ResolveSymAddr if */
     else
     {
-        MM_AppData.HkTlm.Payload.ErrCounter++;
+        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "Symbolic address can't be resolved: Name = '%s'",
@@ -547,7 +547,7 @@ CFE_Status_t MM_LoadMemFromFileCmd(const MM_LoadMemFromFileCmd_t *Msg)
 
                                 if (Status == OS_SUCCESS)
                                 {
-                                    MM_AppData.HkTlm.Payload.CmdCounter++;
+                                    MM_AppData.HkTlm.Payload.CommandCounter++;
                                     CFE_EVS_SendEvent(MM_LD_MEM_FILE_INF_EID,
                                                       CFE_EVS_EventType_INFORMATION,
                                                       "Load Memory From File Command: Loaded %d bytes to "
@@ -558,12 +558,12 @@ CFE_Status_t MM_LoadMemFromFileCmd(const MM_LoadMemFromFileCmd_t *Msg)
                                 }
                                 else
                                 {
-                                    MM_AppData.HkTlm.Payload.ErrCounter++;
+                                    MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                                 }
                             } /* end MM_VerifyFileLoadParams if */
                             else
                             {
-                                MM_AppData.HkTlm.Payload.ErrCounter++;
+                                MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                                 CFE_EVS_SendEvent(MM_FILE_LOAD_PARAMS_ERR_EID,
                                                   CFE_EVS_EventType_ERROR,
                                                   "Load file failed parameters check: File = '%s'",
@@ -572,7 +572,7 @@ CFE_Status_t MM_LoadMemFromFileCmd(const MM_LoadMemFromFileCmd_t *Msg)
                         } /* end MM_ResolveSymAddr if */
                         else
                         {
-                            MM_AppData.HkTlm.Payload.ErrCounter++;
+                            MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                             CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID,
                                               CFE_EVS_EventType_ERROR,
                                               "Symbolic address can't be resolved: Name = '%s'",
@@ -582,7 +582,7 @@ CFE_Status_t MM_LoadMemFromFileCmd(const MM_LoadMemFromFileCmd_t *Msg)
                     } /* end ComputedCRC == MMFileHeader.Crc if */
                     else
                     {
-                        MM_AppData.HkTlm.Payload.ErrCounter++;
+                        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                         CFE_EVS_SendEvent(MM_LOAD_FILE_CRC_ERR_EID,
                                           CFE_EVS_EventType_ERROR,
                                           "Load file CRC failure: Expected = 0x%X "
@@ -595,7 +595,7 @@ CFE_Status_t MM_LoadMemFromFileCmd(const MM_LoadMemFromFileCmd_t *Msg)
                 } /* end MM_ComputeCRCFromFile if */
                 else
                 {
-                    MM_AppData.HkTlm.Payload.ErrCounter++;
+                    MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                     CFE_EVS_SendEvent(MM_COMPUTECRCFROMFILE_ERR_EID,
                                       CFE_EVS_EventType_ERROR,
                                       "MM_ComputeCRCFromFile error received: RC = 0x%08X File = '%s'",
@@ -605,19 +605,19 @@ CFE_Status_t MM_LoadMemFromFileCmd(const MM_LoadMemFromFileCmd_t *Msg)
             }
             else
             {
-                MM_AppData.HkTlm.Payload.ErrCounter++;
+                MM_AppData.HkTlm.Payload.CommandErrorCounter++;
             } /* end MM_VerifyLoadFileSize */
         }
         else
         {
-            MM_AppData.HkTlm.Payload.ErrCounter++;
+            MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         } /* end MM_ReadFileHeaders if */
 
         /* Close the load file for all cases after the open call succeeds */
         Status = OS_close(FileHandle);
         if (Status != OS_SUCCESS)
         {
-            MM_AppData.HkTlm.Payload.ErrCounter++;
+            MM_AppData.HkTlm.Payload.CommandErrorCounter++;
             CFE_EVS_SendEvent(MM_OS_CLOSE_ERR_EID,
                               CFE_EVS_EventType_ERROR,
                               "OS_close error received: RC = 0x%08X File = '%s'",
@@ -628,7 +628,7 @@ CFE_Status_t MM_LoadMemFromFileCmd(const MM_LoadMemFromFileCmd_t *Msg)
     } /* end OS_OpenCreate if */
     else
     {
-        MM_AppData.HkTlm.Payload.ErrCounter++;
+        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         CFE_EVS_SendEvent(MM_OS_OPEN_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "OS_OpenCreate error received: RC = %d File = '%s'",
@@ -696,7 +696,7 @@ CFE_Status_t MM_FillMemCmd(const MM_FillMemCmd_t *Msg)
             {
                 if (MM_AppData.HkTlm.Payload.LastAction == MM_LastAction_FILL)
                 {
-                    MM_AppData.HkTlm.Payload.CmdCounter++;
+                    MM_AppData.HkTlm.Payload.CommandCounter++;
                     CFE_EVS_SendEvent(MM_FILL_INF_EID,
                                       CFE_EVS_EventType_INFORMATION,
                                       "Fill Memory Command: Filled %d bytes at address: "
@@ -707,22 +707,22 @@ CFE_Status_t MM_FillMemCmd(const MM_FillMemCmd_t *Msg)
                 }
                 else
                 {
-                    MM_AppData.HkTlm.Payload.ErrCounter++;
+                    MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                 }
             }
             else
             {
-                MM_AppData.HkTlm.Payload.CmdCounter++;
+                MM_AppData.HkTlm.Payload.CommandCounter++;
             }
         }
         else
         {
-            MM_AppData.HkTlm.Payload.ErrCounter++;
+            MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         }
     }
     else
     {
-        MM_AppData.HkTlm.Payload.ErrCounter++;
+        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "Symbolic address can't be resolved: Name = '%s'",
@@ -764,21 +764,21 @@ CFE_Status_t MM_PeekCmd(const MM_PeekCmd_t *Msg)
             Status = MM_PeekMem(Msg, SrcAddress);
             if (Status == CFE_PSP_SUCCESS)
             {
-                MM_AppData.HkTlm.Payload.CmdCounter++;
+                MM_AppData.HkTlm.Payload.CommandCounter++;
             }
             else
             {
-                MM_AppData.HkTlm.Payload.ErrCounter++;
+                MM_AppData.HkTlm.Payload.CommandErrorCounter++;
             }
         }
         else
         {
-            MM_AppData.HkTlm.Payload.ErrCounter++;
+            MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         }
     } /* end MM_ResolveSymAddr if */
     else
     {
-        MM_AppData.HkTlm.Payload.ErrCounter++;
+        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "Symbolic address can't be resolved: Name = '%s'",
@@ -889,7 +889,7 @@ CFE_Status_t MM_DumpMemToFileCmd(const MM_DumpMemToFileCmd_t *Msg)
                                           OS_SEEK_SET);
                         if (Status != (sizeof(CFE_FS_Header_t) + sizeof(MM_LoadDumpFileHeader_t)))
                         {
-                            MM_AppData.HkTlm.Payload.ErrCounter++;
+                            MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                         }
                         else
                         {
@@ -919,7 +919,7 @@ CFE_Status_t MM_DumpMemToFileCmd(const MM_DumpMemToFileCmd_t *Msg)
                                              "%s",
                                              FileName);
 
-                                    MM_AppData.HkTlm.Payload.CmdCounter++;
+                                    MM_AppData.HkTlm.Payload.CommandCounter++;
                                     CFE_EVS_SendEvent(MM_DMP_MEM_FILE_INF_EID,
                                                       CFE_EVS_EventType_INFORMATION,
                                                       "Dump Memory To File Command: Dumped %d bytes from "
@@ -930,13 +930,13 @@ CFE_Status_t MM_DumpMemToFileCmd(const MM_DumpMemToFileCmd_t *Msg)
                                 }
                                 else
                                 {
-                                    MM_AppData.HkTlm.Payload.ErrCounter++;
+                                    MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                                 }
 
                             } /* end MM_ComputeCRCFromFile if */
                             else
                             {
-                                MM_AppData.HkTlm.Payload.ErrCounter++;
+                                MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                                 CFE_EVS_SendEvent(MM_COMPUTECRCFROMFILE_ERR_EID,
                                                   CFE_EVS_EventType_ERROR,
                                                   "MM_ComputeCRCFromFile error received: RC = "
@@ -948,18 +948,18 @@ CFE_Status_t MM_DumpMemToFileCmd(const MM_DumpMemToFileCmd_t *Msg)
                     }
                     else
                     {
-                        MM_AppData.HkTlm.Payload.ErrCounter++;
+                        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                     }
                 }
                 else
                 {
-                    MM_AppData.HkTlm.Payload.ErrCounter++;
+                    MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                 } /* end MM_WriteFileHeaders if */
 
                 /* Close dump file */
                 if ((Status = OS_close(FileHandle)) != OS_SUCCESS)
                 {
-                    MM_AppData.HkTlm.Payload.ErrCounter++;
+                    MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                     CFE_EVS_SendEvent(MM_OS_CLOSE_ERR_EID,
                                       CFE_EVS_EventType_ERROR,
                                       "OS_close error received: RC = 0x%08X File = '%s'",
@@ -970,7 +970,7 @@ CFE_Status_t MM_DumpMemToFileCmd(const MM_DumpMemToFileCmd_t *Msg)
             } /* end OS_OpenCreate if */
             else
             {
-                MM_AppData.HkTlm.Payload.ErrCounter++;
+                MM_AppData.HkTlm.Payload.CommandErrorCounter++;
                 CFE_EVS_SendEvent(MM_OS_CREAT_ERR_EID,
                                   CFE_EVS_EventType_ERROR,
                                   "OS_OpenCreate error received: RC = %d File = '%s'",
@@ -980,12 +980,12 @@ CFE_Status_t MM_DumpMemToFileCmd(const MM_DumpMemToFileCmd_t *Msg)
         }
         else
         {
-            MM_AppData.HkTlm.Payload.ErrCounter++;
+            MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         } /* end MM_VerifyFileLoadDumpParams if */
     } /* end MM_ResolveSymAddr if */
     else
     {
-        MM_AppData.HkTlm.Payload.ErrCounter++;
+        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "Symbolic address can't be resolved: Name = '%s'",
@@ -1090,21 +1090,21 @@ CFE_Status_t MM_DumpInEventCmd(const MM_DumpInEventCmd_t *Msg)
                 MM_AppData.HkTlm.Payload.MemType        = Msg->Payload.MemType;
                 MM_AppData.HkTlm.Payload.Address        = CFE_ES_MEMADDRESS_C(SrcAddress);
                 MM_AppData.HkTlm.Payload.BytesProcessed = Msg->Payload.NumOfBytes;
-                MM_AppData.HkTlm.Payload.CmdCounter++;
+                MM_AppData.HkTlm.Payload.CommandCounter++;
             }
             else
             {
-                MM_AppData.HkTlm.Payload.ErrCounter++;
+                MM_AppData.HkTlm.Payload.CommandErrorCounter++;
             } /* end MM_FillDumpInEventBuffer if */
         }
         else
         {
-            MM_AppData.HkTlm.Payload.ErrCounter++;
+            MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         } /* end MM_VerifyFileLoadDumpParams if */
     } /* end MM_ResolveSymAddr if */
     else
     {
-        MM_AppData.HkTlm.Payload.ErrCounter++;
+        MM_AppData.HkTlm.Payload.CommandErrorCounter++;
         CFE_EVS_SendEvent(MM_SYMNAME_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "Symbolic address can't be resolved: Name = '%s'",

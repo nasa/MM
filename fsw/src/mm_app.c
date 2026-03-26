@@ -147,8 +147,8 @@ CFE_Status_t MM_AppInit(void)
     /*
     ** Initialize application command execution counters
     */
-    MM_AppData.HkTlm.Payload.CmdCounter = 0;
-    MM_AppData.HkTlm.Payload.ErrCounter = 0;
+    MM_AppData.HkTlm.Payload.CommandCounter      = 0;
+    MM_AppData.HkTlm.Payload.CommandErrorCounter = 0;
 
     /*
     ** Register for event services

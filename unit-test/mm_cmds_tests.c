@@ -63,8 +63,8 @@ void Test_MM_SendHkCmd_Nominal(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
     UtAssert_STUB_COUNT(CFE_SB_TimeStampMsg, 1);
@@ -88,8 +88,8 @@ void Test_MM_NoopCmd_Nominal(void)
     UtAssert_EQ(CFE_Status_t, Status, CFE_SUCCESS);
 
     UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.LastAction, MM_LastAction_NOOP);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0, MM_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op command. Version %d.%d.%d.%d");
@@ -103,9 +103,9 @@ void Test_MM_ResetCountersCmd_Nominal(void)
     memset((void *)&ResetCountersCmd, 0, sizeof(MM_ResetCountersCmd_t));
 
     /* Set up values to evaluate against */
-    MM_AppData.HkTlm.Payload.LastAction = MM_LastAction_NOACTION;
-    MM_AppData.HkTlm.Payload.CmdCounter = 1;
-    MM_AppData.HkTlm.Payload.ErrCounter = 1;
+    MM_AppData.HkTlm.Payload.LastAction          = MM_LastAction_NOACTION;
+    MM_AppData.HkTlm.Payload.CommandCounter      = 1;
+    MM_AppData.HkTlm.Payload.CommandErrorCounter = 1;
 
     /* Run function under test */
     Status = MM_ResetCountersCmd(&ResetCountersCmd);
@@ -114,8 +114,8 @@ void Test_MM_ResetCountersCmd_Nominal(void)
     UtAssert_EQ(CFE_Status_t, Status, CFE_SUCCESS);
 
     UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.LastAction, MM_LastAction_RESET);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0, MM_RESET_INF_EID, CFE_EVS_EventType_INFORMATION, "Reset counters command received");
@@ -143,8 +143,8 @@ void Test_MM_LookupSymCmd_Nominal(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.LastAction, MM_LastAction_SYM_LOOKUP);
     UtAssert_ADDRESS_EQ(CFE_ES_MEMADDRESS_TO_PTR(MM_AppData.HkTlm.Payload.Address), ResolvedAddr);
@@ -167,8 +167,8 @@ void Test_MM_LookupSymCmd_SymbolNameNull(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -190,8 +190,8 @@ void Test_MM_LookupSymCmd_SymbolLookupError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -216,8 +216,8 @@ void Test_MM_SymTblToFileCmd_Nominal(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.LastAction, MM_LastAction_SYMTBL_SAVE);
     UtAssert_StrnCmp(MM_AppData.HkTlm.Payload.FileName,
@@ -246,8 +246,8 @@ void Test_MM_SymTblToFileCmd_SymbolFilenameNull(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -269,8 +269,8 @@ void Test_MM_SymTblToFileCmd_SymbolTableDumpError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -291,8 +291,8 @@ void Test_MM_EepromWriteEnaCmd_Nominal(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.LastAction, MM_LastAction_EEPROMWRITE_ENA);
     UtAssert_EQ(MM_MemType_Enum_t, MM_AppData.HkTlm.Payload.MemType, MM_MemType_EEPROM);
@@ -317,8 +317,8 @@ void Test_MM_EepromWriteEnaCmd_Error(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -339,8 +339,8 @@ void Test_MM_EepromWriteDisCmd_Nominal(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.LastAction, MM_LastAction_EEPROMWRITE_DIS);
     UtAssert_EQ(MM_MemType_Enum_t, MM_AppData.HkTlm.Payload.MemType, MM_MemType_EEPROM);
@@ -365,8 +365,8 @@ void Test_MM_EepromWriteDisCmd_Error(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -393,8 +393,8 @@ void Test_MM_PokeCmd_EEPROM(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_PokeEeprom, 1);
 
@@ -420,8 +420,8 @@ void Test_MM_PokeCmd_NonEEPROM(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_PokeMem, 1);
 
@@ -441,8 +441,8 @@ void Test_MM_PokeCmd_SymNameError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -464,8 +464,8 @@ void Test_MM_PokeCmd_NoVerifyPeekPokeParams(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -487,8 +487,8 @@ void Test_MM_PokeCmd_PokeErr(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Status, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(MM_PokeEeprom, 1);
 
@@ -522,8 +522,8 @@ void Test_MM_LoadMemWIDCmd_Nominal(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.LastAction, MM_LastAction_LOAD_WID);
     UtAssert_ADDRESS_EQ(CFE_ES_MEMADDRESS_TO_PTR(MM_AppData.HkTlm.Payload.Address), SymAddr);
@@ -557,8 +557,8 @@ void Test_MM_LoadMemWIDCmd_CRCError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -580,8 +580,8 @@ void Test_MM_LoadMemWIDCmd_SymNameErr(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -603,8 +603,8 @@ void Test_MM_LoadMemWIDCmd_NoVerifyLoadWIDParams(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -640,8 +640,8 @@ void Test_MM_LoadMemFromFileCmd_RAM(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -681,8 +681,8 @@ void Test_MM_LoadMemFromFileCmd_BadType(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -718,8 +718,8 @@ void Test_MM_LoadMemFromFileCmd_EEPROM(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -760,8 +760,8 @@ void Test_MM_LoadMemFromFileCmd_MEM32(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_LoadMem32FromFile, 1);
 
@@ -804,8 +804,8 @@ void Test_MM_LoadMemFromFileCmd_MEM32Invalid(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(MM_LoadMem32FromFile, 1);
 
@@ -843,8 +843,8 @@ void Test_MM_LoadMemFromFileCmd_MEM16(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_LoadMem16FromFile, 1);
 
@@ -887,8 +887,8 @@ void Test_MM_LoadMemFromFileCmd_MEM8(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_LoadMem8FromFile, 1);
 
@@ -913,8 +913,8 @@ void Test_MM_LoadMemFromFileCmd_NoReadFileHeaders(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -933,8 +933,8 @@ void Test_MM_LoadMemFromFileCmd_NoVerifyLoadFileSize(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -964,8 +964,8 @@ void Test_MM_LoadMemFromFileCmd_lseekError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1001,8 +1001,8 @@ void Test_MM_LoadMemFromFileCmd_LoadParamsError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1037,8 +1037,8 @@ void Test_MM_LoadMemFromFileCmd_SymNameError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1072,8 +1072,8 @@ void Test_MM_LoadMemFromFileCmd_LoadFileCRCError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1098,8 +1098,8 @@ void Test_MM_LoadMemFromFileCmd_ComputeCRCError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1125,8 +1125,8 @@ void Test_MM_LoadMemFromFileCmd_CloseError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 2);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 2);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1147,8 +1147,8 @@ void Test_MM_LoadMemFromFileCmd_OpenError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1176,8 +1176,8 @@ void Test_MM_FillMemCmd_RAM(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1206,8 +1206,8 @@ void Test_MM_FillMemCmd_EEPROM(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1236,8 +1236,8 @@ void Test_MM_FillMemCmd_MEM32(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_FillMem32, 1);
 
@@ -1268,8 +1268,8 @@ void Test_MM_FillMemCmd_MEM16(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_FillMem16, 1);
 
@@ -1300,8 +1300,8 @@ void Test_MM_FillMemCmd_MEM8(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_FillMem8, 1);
 
@@ -1325,8 +1325,8 @@ void Test_MM_FillMemCmd_SymNameError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1353,8 +1353,8 @@ void Test_MM_FillMemCmd_NoLastActionFill(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -1372,8 +1372,8 @@ void Test_MM_FillMemCmd_NoVerifyLoadDump(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -1396,8 +1396,8 @@ void Test_MM_FillMemCmd_BadType(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -1416,8 +1416,8 @@ void Test_MM_PeekCmd_Nominal(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -1434,8 +1434,8 @@ void Test_MM_PeekCmd_SymNameError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1457,8 +1457,8 @@ void Test_MM_PeekCmd_NoVerifyPeekPokeParams(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -1477,8 +1477,8 @@ void Test_MM_PeekCmd_PeekErr(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -1524,8 +1524,8 @@ void Test_MM_DumpMemToFileCmd_RAM(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_DumpMemToFile, 1);
 
@@ -1578,8 +1578,8 @@ void Test_MM_DumpMemToFileCmd_EEPROM(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_DumpMemToFile, 1);
 
@@ -1632,8 +1632,8 @@ void Test_MM_DumpMemToFileCmd_MEM32(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_DumpMem32ToFile, 1);
 
@@ -1686,8 +1686,8 @@ void Test_MM_DumpMemToFileCmd_MEM16(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_DumpMem16ToFile, 1);
 
@@ -1740,8 +1740,8 @@ void Test_MM_DumpMemToFileCmd_MEM8(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(MM_DumpMem8ToFile, 1);
 
@@ -1780,8 +1780,8 @@ void Test_MM_DumpMemToFileCmd_ComputeCRCError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1812,8 +1812,8 @@ void Test_MM_DumpMemToFileCmd_CloseError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 2);
 
@@ -1843,8 +1843,8 @@ void Test_MM_DumpMemToFileCmd_CreatError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1873,8 +1873,8 @@ void Test_MM_DumpMemToFileCmd_InvalidDumpResult(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -1900,8 +1900,8 @@ void Test_MM_DumpMemToFileCmd_lseekError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -1918,8 +1918,8 @@ void Test_MM_DumpMemToFileCmd_SymNameError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -1941,8 +1941,8 @@ void Test_MM_DumpMemToFileCmd_NoVerifyDumpParams(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -1962,8 +1962,8 @@ void Test_MM_DumpMemToFileCmd_NoWriteHeaders(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 }
 
 void Test_MM_DumpMemToFileCmd_BadType(void)
@@ -1986,8 +1986,8 @@ void Test_MM_DumpMemToFileCmd_BadType(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -2021,8 +2021,8 @@ void Test_MM_DumpMemToFileCmd_ReWriteHeadersErr(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -2050,8 +2050,8 @@ void Test_MM_DumpInEventCmd_Nominal(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 1);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_UINT8_EQ(MM_AppData.HkTlm.Payload.LastAction, MM_LastAction_DUMP_INEVENT);
     UtAssert_EQ(MM_MemType_Enum_t, MM_AppData.HkTlm.Payload.MemType, DumpInEventCmd.Payload.MemType);
@@ -2075,8 +2075,8 @@ void Test_MM_DumpInEventCmd_SymNameError(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0,
@@ -2098,8 +2098,8 @@ void Test_MM_DumpInEventCmd_NoVerifyDumpParams(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
 }
@@ -2118,8 +2118,8 @@ void Test_MM_DumpInEventCmd_FillDumpInvalid(void)
 
     /* Verify results */
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.ErrCounter, 1);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_EQ(uint8, MM_AppData.HkTlm.Payload.CommandErrorCounter, 1);
 
     /* Error event is issued in MM_FillDumpInEventBuffer and thus not visible here
      */

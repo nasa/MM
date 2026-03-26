@@ -62,8 +62,8 @@ void MM_AppMain_Test_Nominal(void)
     MM_AppMain();
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     UtAssert_STUB_COUNT(CFE_ES_ExitApp, 1);
@@ -100,8 +100,8 @@ void MM_AppMain_Test_SBError(void)
     MM_AppMain();
 
     /* Verify results */
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 2);
     MM_Test_Verify_Event(1, MM_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, "SB Pipe Read Error, App will exit. RC = 0x%08X");
@@ -129,8 +129,8 @@ void MM_AppInit_Test_Nominal(void)
 
     /* Initialize command counters to 1, in order verify that MM_AppInit actually
      * initializes them */
-    MM_AppData.HkTlm.Payload.CmdCounter = 1;
-    MM_AppData.HkTlm.Payload.ErrCounter = 1;
+    MM_AppData.HkTlm.Payload.CommandCounter      = 1;
+    MM_AppData.HkTlm.Payload.CommandErrorCounter = 1;
 
     /* Execute the function being tested */
     Result = MM_AppInit();
@@ -139,8 +139,8 @@ void MM_AppInit_Test_Nominal(void)
     UtAssert_EQ(CFE_Status_t, Result, CFE_SUCCESS);
 
     UtAssert_INT32_EQ(MM_AppData.RunStatus, CFE_ES_RunStatus_APP_RUN);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     MM_Test_Verify_Event(0, MM_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "MM Initialized. Version %d.%d.%d.%d");
@@ -152,8 +152,8 @@ void MM_AppInit_Test_EVSRegisterError(void)
 
     /* Initialize command counters to 1, in order verify that MM_AppInit actually
      * initializes them */
-    MM_AppData.HkTlm.Payload.CmdCounter = 1;
-    MM_AppData.HkTlm.Payload.ErrCounter = 1;
+    MM_AppData.HkTlm.Payload.CommandCounter      = 1;
+    MM_AppData.HkTlm.Payload.CommandErrorCounter = 1;
 
     /* Set to generate system log message "MM App: Error Registering For Event
      * Services " */
@@ -166,8 +166,8 @@ void MM_AppInit_Test_EVSRegisterError(void)
     UtAssert_EQ(CFE_Status_t, Result, CFE_ES_BAD_ARGUMENT);
 
     UtAssert_INT32_EQ(MM_AppData.RunStatus, CFE_ES_RunStatus_APP_RUN);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 0);
     UtAssert_StrnCmp("MM App: Error Registering For Event Services, RC = 0x%08X\n",
@@ -183,8 +183,8 @@ void MM_AppInit_Test_SBCreatePipeError(void)
 
     /* Initialize command counters to 1, in order verify that MM_AppInit actually
      * initializes them */
-    MM_AppData.HkTlm.Payload.CmdCounter = 1;
-    MM_AppData.HkTlm.Payload.ErrCounter = 1;
+    MM_AppData.HkTlm.Payload.CommandCounter      = 1;
+    MM_AppData.HkTlm.Payload.CommandErrorCounter = 1;
 
     /* Set to generate system log message "MM App: Error Creating SB Pipe" */
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_CreatePipe), CFE_SB_PIPE_CR_ERR);
@@ -196,8 +196,8 @@ void MM_AppInit_Test_SBCreatePipeError(void)
     UtAssert_EQ(CFE_Status_t, Result, CFE_SB_PIPE_CR_ERR);
 
     UtAssert_INT32_EQ(MM_AppData.RunStatus, CFE_ES_RunStatus_APP_RUN);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     UtAssert_StrnCmp("Error Creating SB Pipe, RC = 0x%08X",
@@ -213,8 +213,8 @@ void MM_AppInit_Test_SBSubscribeHKError(void)
 
     /* Initialize command counters to 1, in order verify that MM_AppInit actually
      * initializes them */
-    MM_AppData.HkTlm.Payload.CmdCounter = 1;
-    MM_AppData.HkTlm.Payload.ErrCounter = 1;
+    MM_AppData.HkTlm.Payload.CommandCounter      = 1;
+    MM_AppData.HkTlm.Payload.CommandErrorCounter = 1;
 
     /* Set to generate system log message "MM App: Error Subscribing to HK
      * Request" */
@@ -227,8 +227,8 @@ void MM_AppInit_Test_SBSubscribeHKError(void)
     UtAssert_EQ(CFE_Status_t, Result, CFE_SB_BAD_ARGUMENT);
 
     UtAssert_INT32_EQ(MM_AppData.RunStatus, CFE_ES_RunStatus_APP_RUN);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     UtAssert_StrnCmp("Error Subscribing to HK Request, RC = 0x%08X",
@@ -244,8 +244,8 @@ void MM_AppInit_Test_SBSubscribeMMError(void)
 
     /* Initialize command counters to 1, in order verify that MM_AppInit actually
      * initializes them */
-    MM_AppData.HkTlm.Payload.CmdCounter = 1;
-    MM_AppData.HkTlm.Payload.ErrCounter = 1;
+    MM_AppData.HkTlm.Payload.CommandCounter      = 1;
+    MM_AppData.HkTlm.Payload.CommandErrorCounter = 1;
 
     /* Set to generate system log message "MM App: Error Subscribing to MM
      * Command" */
@@ -258,8 +258,8 @@ void MM_AppInit_Test_SBSubscribeMMError(void)
     UtAssert_EQ(CFE_Status_t, Result, CFE_SB_BAD_ARGUMENT);
 
     UtAssert_INT32_EQ(MM_AppData.RunStatus, CFE_ES_RunStatus_APP_RUN);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CmdCounter, 0);
-    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.ErrCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandCounter, 0);
+    UtAssert_INT32_EQ(MM_AppData.HkTlm.Payload.CommandErrorCounter, 0);
 
     UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
     UtAssert_StrnCmp("Error Subscribing to MM Command, RC = 0x%08X",
