@@ -2647,6 +2647,8 @@ void Test_MM_ResolveSymAddr_SymLookupErr(void)
 
     UT_SetDefaultReturnValue(UT_KEY(OS_SymbolLookup), OS_ERROR);
 
+    memset(&SymAddr, 0xEE, sizeof(SymAddr));
+
     /* Execute the function being tested */
     Result = MM_ResolveSymAddr(&SymAddr, &ResolvedAddr);
 
