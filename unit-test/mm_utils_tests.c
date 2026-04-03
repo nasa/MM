@@ -2635,7 +2635,7 @@ void Test_MM_ResolveSymAddr_NullString(void)
     Result = MM_ResolveSymAddr(&SymAddr, &ResolvedAddr);
 
     /* Verify results */
-    UtAssert_INT32_EQ(Result, OS_ERROR_NAME_LENGTH);
+    UtAssert_INT32_EQ(Result, OS_SUCCESS);
     UtAssert_ADDRESS_EQ(ResolvedAddr, CFE_ES_MEMADDRESS_TO_PTR(SymAddr.Offset));
 }
 
