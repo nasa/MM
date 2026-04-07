@@ -30,12 +30,13 @@
  * Generated stub function for MM_AppInit()
  * ----------------------------------------------------
  */
-CFE_Status_t MM_AppInit(void) {
-  UT_GenStub_SetupReturnBuffer(MM_AppInit, CFE_Status_t);
+CFE_Status_t MM_AppInit(void)
+{
+    UT_GenStub_SetupReturnBuffer(MM_AppInit, CFE_Status_t);
 
-  UT_GenStub_Execute(MM_AppInit, Basic, NULL);
+    UT_GenStub_Execute(MM_AppInit, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_AppInit, CFE_Status_t);
+    return UT_GenStub_GetReturnValue(MM_AppInit, CFE_Status_t);
 }
 
 /*
@@ -43,4 +44,7 @@ CFE_Status_t MM_AppInit(void) {
  * Generated stub function for MM_AppMain()
  * ----------------------------------------------------
  */
-void MM_AppMain(void) { UT_GenStub_Execute(MM_AppMain, Basic, NULL); }
+void MM_AppMain(void)
+{
+    UT_GenStub_Execute(MM_AppMain, Basic, NULL);
+}

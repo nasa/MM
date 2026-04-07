@@ -30,18 +30,17 @@
  * Generated stub function for MM_DumpMem32ToFile()
  * ----------------------------------------------------
  */
-int32 MM_DumpMem32ToFile(osal_id_t FileHandle, const char *FileName,
-                         const MM_LoadDumpFileHeader_t *FileHeader) {
-  UT_GenStub_SetupReturnBuffer(MM_DumpMem32ToFile, int32);
+int32 MM_DumpMem32ToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader)
+{
+    UT_GenStub_SetupReturnBuffer(MM_DumpMem32ToFile, int32);
 
-  UT_GenStub_AddParam(MM_DumpMem32ToFile, osal_id_t, FileHandle);
-  UT_GenStub_AddParam(MM_DumpMem32ToFile, const char *, FileName);
-  UT_GenStub_AddParam(MM_DumpMem32ToFile, const MM_LoadDumpFileHeader_t *,
-                      FileHeader);
+    UT_GenStub_AddParam(MM_DumpMem32ToFile, osal_id_t, FileHandle);
+    UT_GenStub_AddParam(MM_DumpMem32ToFile, const char *, FileName);
+    UT_GenStub_AddParam(MM_DumpMem32ToFile, const MM_LoadDumpFileHeader_t *, FileHeader);
 
-  UT_GenStub_Execute(MM_DumpMem32ToFile, Basic, NULL);
+    UT_GenStub_Execute(MM_DumpMem32ToFile, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_DumpMem32ToFile, int32);
+    return UT_GenStub_GetReturnValue(MM_DumpMem32ToFile, int32);
 }
 
 /*
@@ -49,15 +48,16 @@ int32 MM_DumpMem32ToFile(osal_id_t FileHandle, const char *FileName,
  * Generated stub function for MM_FillMem32()
  * ----------------------------------------------------
  */
-int32 MM_FillMem32(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr) {
-  UT_GenStub_SetupReturnBuffer(MM_FillMem32, int32);
+int32 MM_FillMem32(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr)
+{
+    UT_GenStub_SetupReturnBuffer(MM_FillMem32, int32);
 
-  UT_GenStub_AddParam(MM_FillMem32, cpuaddr, DestAddress);
-  UT_GenStub_AddParam(MM_FillMem32, const MM_FillMemCmd_t *, CmdPtr);
+    UT_GenStub_AddParam(MM_FillMem32, cpuaddr, DestAddress);
+    UT_GenStub_AddParam(MM_FillMem32, const MM_FillMemCmd_t *, CmdPtr);
 
-  UT_GenStub_Execute(MM_FillMem32, Basic, NULL);
+    UT_GenStub_Execute(MM_FillMem32, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_FillMem32, int32);
+    return UT_GenStub_GetReturnValue(MM_FillMem32, int32);
 }
 
 /*
@@ -65,18 +65,19 @@ int32 MM_FillMem32(cpuaddr DestAddress, const MM_FillMemCmd_t *CmdPtr) {
  * Generated stub function for MM_LoadMem32FromFile()
  * ----------------------------------------------------
  */
-int32 MM_LoadMem32FromFile(osal_id_t FileHandle, const char *FileName,
+int32 MM_LoadMem32FromFile(osal_id_t                      FileHandle,
+                           const char                    *FileName,
                            const MM_LoadDumpFileHeader_t *FileHeader,
-                           cpuaddr DestAddress) {
-  UT_GenStub_SetupReturnBuffer(MM_LoadMem32FromFile, int32);
+                           cpuaddr                        DestAddress)
+{
+    UT_GenStub_SetupReturnBuffer(MM_LoadMem32FromFile, int32);
 
-  UT_GenStub_AddParam(MM_LoadMem32FromFile, osal_id_t, FileHandle);
-  UT_GenStub_AddParam(MM_LoadMem32FromFile, const char *, FileName);
-  UT_GenStub_AddParam(MM_LoadMem32FromFile, const MM_LoadDumpFileHeader_t *,
-                      FileHeader);
-  UT_GenStub_AddParam(MM_LoadMem32FromFile, cpuaddr, DestAddress);
+    UT_GenStub_AddParam(MM_LoadMem32FromFile, osal_id_t, FileHandle);
+    UT_GenStub_AddParam(MM_LoadMem32FromFile, const char *, FileName);
+    UT_GenStub_AddParam(MM_LoadMem32FromFile, const MM_LoadDumpFileHeader_t *, FileHeader);
+    UT_GenStub_AddParam(MM_LoadMem32FromFile, cpuaddr, DestAddress);
 
-  UT_GenStub_Execute(MM_LoadMem32FromFile, Basic, NULL);
+    UT_GenStub_Execute(MM_LoadMem32FromFile, Basic, NULL);
 
-  return UT_GenStub_GetReturnValue(MM_LoadMem32FromFile, int32);
+    return UT_GenStub_GetReturnValue(MM_LoadMem32FromFile, int32);
 }

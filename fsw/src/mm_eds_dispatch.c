@@ -66,33 +66,44 @@ static const EdsDispatchTable_EdsComponent_MM_Application_CFE_SB_Telecommand_t M
 /*     command pipe.                                                          */
 /*                                                                            */
 /* * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * *  * *  * * * * */
-void MM_TaskPipe(const CFE_SB_Buffer_t *BufPtr) {
-  CFE_Status_t Status;
-  CFE_SB_MsgId_t MsgId;
-  CFE_MSG_Size_t MsgSize;
-  CFE_MSG_FcnCode_t MsgFc;
+void MM_TaskPipe(const CFE_SB_Buffer_t *BufPtr)
+{
+    CFE_Status_t      Status;
+    CFE_SB_MsgId_t    MsgId;
+    CFE_MSG_Size_t    MsgSize;
+    CFE_MSG_FcnCode_t MsgFc;
 
-  Status = EdsDispatch_EdsComponent_MM_Application_Telecommand(
-      BufPtr, &MM_TC_DISPATCH_TABLE);
+    Status = EdsDispatch_EdsComponent_MM_Application_Telecommand(BufPtr, &MM_TC_DISPATCH_TABLE);
 
-  if (Status != CFE_SUCCESS) {
-    CFE_MSG_GetMsgId(&BufPtr->Msg, &MsgId);
-    CFE_MSG_GetSize(&BufPtr->Msg, &MsgSize);
-    CFE_MSG_GetFcnCode(&BufPtr->Msg, &MsgFc);
-    ++MM_AppData.HkTlm.Payload.ErrCounter;
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_MSG_GetMsgId(&BufPtr->Msg, &MsgId);
+        CFE_MSG_GetSize(&BufPtr->Msg, &MsgSize);
+        CFE_MSG_GetFcnCode(&BufPtr->Msg, &MsgFc);
+        ++MM_AppData.HkTlm.Payload.CommandErrorCounter;
 
-    if (Status == CFE_STATUS_UNKNOWN_MSG_ID) {
-      CFE_EVS_SendEvent(MM_MID_ERR_EID, CFE_EVS_EventType_ERROR,
-                        "MM: invalid command packet,MID = 0x%x",
-                        (unsigned int)CFE_SB_MsgIdToValue(MsgId));
-    } else if (Status == CFE_STATUS_WRONG_MSG_LENGTH) {
-      CFE_EVS_SendEvent(MM_CMD_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                        "MM: Invalid Msg length: ID = 0x%X, CC = %u, Len = %u",
-                        (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                        (unsigned int)MsgFc, (unsigned int)MsgSize);
-    } else {
-      CFE_EVS_SendEvent(MM_CC_ERR_EID, CFE_EVS_EventType_ERROR,
-                        "MM: Invalid ground command code: CC = %d", (int)MsgFc);
+        if (Status == CFE_STATUS_UNKNOWN_MSG_ID)
+        {
+            CFE_EVS_SendEvent(MM_MID_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "MM: invalid command packet,MID = 0x%x",
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId));
+        }
+        else if (Status == CFE_STATUS_WRONG_MSG_LENGTH)
+        {
+            CFE_EVS_SendEvent(MM_CMD_LEN_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "MM: Invalid Msg length: ID = 0x%X, CC = %u, Len = %u",
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                              (unsigned int)MsgFc,
+                              (unsigned int)MsgSize);
+        }
+        else
+        {
+            CFE_EVS_SendEvent(MM_CC_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              "MM: Invalid ground command code: CC = %d",
+                              (int)MsgFc);
+        }
     }
-  }
 }

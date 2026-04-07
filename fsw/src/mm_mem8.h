@@ -56,9 +56,10 @@
  *
  *  \return Execution status
  */
-int32 MM_LoadMem8FromFile(osal_id_t FileHandle, const char *FileName,
+int32 MM_LoadMem8FromFile(osal_id_t                      FileHandle,
+                          const char                    *FileName,
                           const MM_LoadDumpFileHeader_t *FileHeader,
-                          cpuaddr DestAddress);
+                          cpuaddr                        DestAddress);
 
 /**
  * \brief Memory8 dump to file
@@ -79,8 +80,7 @@ int32 MM_LoadMem8FromFile(osal_id_t FileHandle, const char *FileName,
  *
  *  \return Execution status
  */
-int32 MM_DumpMem8ToFile(osal_id_t FileHandle, const char *FileName,
-                        const MM_LoadDumpFileHeader_t *FileHeader);
+int32 MM_DumpMem8ToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader);
 
 /**
  * \brief Fill memory8

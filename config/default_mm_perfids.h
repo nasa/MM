@@ -24,12 +24,10 @@
 #ifndef DEFAULT_MM_PERFIDS_H
 #define DEFAULT_MM_PERFIDS_H
 
-#define MM_APPMAIN_PERF_ID 30 /**< \brief Application main performance ID */
-#define MM_SEGBREAK_PERF_ID                                                    \
-  31 /**< \brief Memory processing segment break performance ID */
-#define MM_EEPROM_POKE_PERF_ID 32 /**< \brief EEPROM poke performance ID */
-#define MM_EEPROM_FILELOAD_PERF_ID                                             \
-  33                              /**< \brief EEPROM file load performance ID */
-#define MM_EEPROM_FILL_PERF_ID 34 /**< \brief EEPROM fill performance ID */
+#define MM_APPMAIN_PERF_ID         30 /**< \brief Application main performance ID */
+#define MM_SEGBREAK_PERF_ID        31 /**< \brief Memory processing segment break performance ID */
+#define MM_EEPROM_POKE_PERF_ID     32 /**< \brief EEPROM poke performance ID */
+#define MM_EEPROM_FILELOAD_PERF_ID 33 /**< \brief EEPROM file load performance ID */
+#define MM_EEPROM_FILL_PERF_ID     34 /**< \brief EEPROM fill performance ID */
 
 #endif /* DEFAULT_MM_PERFIDS_H */

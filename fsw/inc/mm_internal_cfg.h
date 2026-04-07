@@ -30,12 +30,11 @@
 /* ====== */
 
 /** \brief MM command pipe depth */
-#define MM_INTERNAL_CMD_PIPE_DEPTH MM_INTERNAL_CFGVAL(CMD_PIPE_DEPTH)
-#define DEFAULT_MM_INTERNAL_CMD_PIPE_DEPTH                                     \
-  (3 * CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT)
+#define MM_INTERNAL_CMD_PIPE_DEPTH         MM_INTERNAL_CFGVAL(CMD_PIPE_DEPTH)
+#define DEFAULT_MM_INTERNAL_CMD_PIPE_DEPTH (3 * CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT)
 
 /** \brief MM command pipe name */
-#define MM_INTERNAL_CMD_PIPE_NAME MM_INTERNAL_CFGVAL(CMD_PIPE_NAME)
+#define MM_INTERNAL_CMD_PIPE_NAME         MM_INTERNAL_CFGVAL(CMD_PIPE_NAME)
 #define DEFAULT_MM_INTERNAL_CMD_PIPE_NAME "MM_CMD_PIPE"
 
 /**
@@ -45,7 +44,7 @@
  *      Wakes up MM every 1 second for routine maintenance whether a
  *      message was received or not.
  */
-#define MM_INTERNAL_SB_TIMEOUT MM_INTERNAL_CFGVAL(SB_TIMEOUT)
+#define MM_INTERNAL_SB_TIMEOUT         MM_INTERNAL_CFGVAL(SB_TIMEOUT)
 #define DEFAULT_MM_INTERNAL_SB_TIMEOUT 1000
 
 /**
@@ -59,7 +58,7 @@
  *       The file header data type for the value is 32 bits unsigned,
  *       thus the value can be anything from zero to 4,294,967,295.
  */
-#define MM_INTERNAL_CFE_HDR_SUBTYPE MM_INTERNAL_CFGVAL(CFE_HDR_SUBTYPE)
+#define MM_INTERNAL_CFE_HDR_SUBTYPE         MM_INTERNAL_CFGVAL(CFE_HDR_SUBTYPE)
 #define DEFAULT_MM_INTERNAL_CFE_HDR_SUBTYPE 0x4D4D5354
 
 /**
@@ -73,7 +72,7 @@
  *       The string length (including string terminator) cannot exceed
  *       #CFE_FS_HDR_DESC_MAX_LEN.  (limit is not verified)
  */
-#define MM_INTERNAL_CFE_HDR_DESCRIPTION MM_INTERNAL_CFGVAL(CFE_HDR_DESCRIPTION)
+#define MM_INTERNAL_CFE_HDR_DESCRIPTION         MM_INTERNAL_CFGVAL(CFE_HDR_DESCRIPTION)
 #define DEFAULT_MM_INTERNAL_CFE_HDR_DESCRIPTION "Memory Manager dump file"
 
 /**
@@ -91,8 +90,7 @@
  *       requests since it cannot process such a request while a load
  *       or dump is in progress.
  */
-#define MM_INTERNAL_MAX_LOAD_FILE_DATA_RAM                                     \
-  MM_INTERNAL_CFGVAL(MAX_LOAD_FILE_DATA_RAM)
+#define MM_INTERNAL_MAX_LOAD_FILE_DATA_RAM         MM_INTERNAL_CFGVAL(MAX_LOAD_FILE_DATA_RAM)
 #define DEFAULT_MM_INTERNAL_MAX_LOAD_FILE_DATA_RAM (1024 * 1024)
 
 /**
@@ -110,8 +108,7 @@
  *       requests since it cannot process such a request while a load
  *       or dump is in progress.
  */
-#define MM_INTERNAL_MAX_LOAD_FILE_DATA_EEPROM                                  \
-  MM_INTERNAL_CFGVAL(MAX_LOAD_FILE_DATA_EEPROM)
+#define MM_INTERNAL_MAX_LOAD_FILE_DATA_EEPROM         MM_INTERNAL_CFGVAL(MAX_LOAD_FILE_DATA_EEPROM)
 #define DEFAULT_MM_INTERNAL_MAX_LOAD_FILE_DATA_EEPROM (128 * 1024)
 
 /**
@@ -127,7 +124,7 @@
  *       the amount of time available for other tasks to execute and
  *       increase MM CPU utilization during load operations.
  */
-#define MM_INTERNAL_MAX_LOAD_DATA_SEG MM_INTERNAL_CFGVAL(MAX_LOAD_DATA_SEG)
+#define MM_INTERNAL_MAX_LOAD_DATA_SEG         MM_INTERNAL_CFGVAL(MAX_LOAD_DATA_SEG)
 #define DEFAULT_MM_INTERNAL_MAX_LOAD_DATA_SEG 200
 
 /**
@@ -145,8 +142,7 @@
  *       requests since it cannot process such a request while a load
  *       or dump is in progress.
  */
-#define MM_INTERNAL_MAX_DUMP_FILE_DATA_RAM                                     \
-  MM_INTERNAL_CFGVAL(MAX_DUMP_FILE_DATA_RAM)
+#define MM_INTERNAL_MAX_DUMP_FILE_DATA_RAM         MM_INTERNAL_CFGVAL(MAX_DUMP_FILE_DATA_RAM)
 #define DEFAULT_MM_INTERNAL_MAX_DUMP_FILE_DATA_RAM (1024 * 1024)
 
 /**
@@ -164,8 +160,7 @@
  *       requests since it cannot process such a request while a load
  *       or dump is in progress.
  */
-#define MM_INTERNAL_MAX_DUMP_FILE_DATA_EEPROM                                  \
-  MM_INTERNAL_CFGVAL(MAX_DUMP_FILE_DATA_EEPROM)
+#define MM_INTERNAL_MAX_DUMP_FILE_DATA_EEPROM         MM_INTERNAL_CFGVAL(MAX_DUMP_FILE_DATA_EEPROM)
 #define DEFAULT_MM_INTERNAL_MAX_DUMP_FILE_DATA_EEPROM (128 * 1024)
 
 /**
@@ -181,8 +176,7 @@
  *       However, setting this value to a large number will impact
  *       the OSAL since it is responsible for generating the dump file.
  */
-#define MM_INTERNAL_MAX_DUMP_FILE_DATA_SYMTBL                                  \
-  MM_INTERNAL_CFGVAL(MAX_DUMP_FILE_DATA_SYMTBL)
+#define MM_INTERNAL_MAX_DUMP_FILE_DATA_SYMTBL         MM_INTERNAL_CFGVAL(MAX_DUMP_FILE_DATA_SYMTBL)
 #define DEFAULT_MM_INTERNAL_MAX_DUMP_FILE_DATA_SYMTBL (128 * 1024)
 
 /**
@@ -199,7 +193,7 @@
  *       the amount of time available for other tasks to execute and
  *       increase MM CPU utilization during dump operations.
  */
-#define MM_INTERNAL_MAX_DUMP_DATA_SEG MM_INTERNAL_CFGVAL(MAX_DUMP_DATA_SEG)
+#define MM_INTERNAL_MAX_DUMP_DATA_SEG         MM_INTERNAL_CFGVAL(MAX_DUMP_DATA_SEG)
 #define DEFAULT_MM_INTERNAL_MAX_DUMP_DATA_SEG 200
 
 /**
@@ -217,7 +211,7 @@
  *       requests since it cannot process such a request while a fill
  *       operation is in progress.
  */
-#define MM_INTERNAL_MAX_FILL_DATA_RAM MM_INTERNAL_CFGVAL(MAX_FILL_DATA_RAM)
+#define MM_INTERNAL_MAX_FILL_DATA_RAM         MM_INTERNAL_CFGVAL(MAX_FILL_DATA_RAM)
 #define DEFAULT_MM_INTERNAL_MAX_FILL_DATA_RAM (1024 * 1024)
 
 /**
@@ -235,8 +229,7 @@
  *       requests since it cannot process such a request while a fill
  *       operation is in progress.
  */
-#define MM_INTERNAL_MAX_FILL_DATA_EEPROM                                       \
-  MM_INTERNAL_CFGVAL(MAX_FILL_DATA_EEPROM)
+#define MM_INTERNAL_MAX_FILL_DATA_EEPROM         MM_INTERNAL_CFGVAL(MAX_FILL_DATA_EEPROM)
 #define DEFAULT_MM_INTERNAL_MAX_FILL_DATA_EEPROM (128 * 1024)
 
 /**
@@ -253,7 +246,7 @@
  *       the amount of time available for other tasks to execute and
  *       increase MM CPU utilization during memory fill operations.
  */
-#define MM_INTERNAL_MAX_FILL_DATA_SEG MM_INTERNAL_CFGVAL(MAX_FILL_DATA_SEG)
+#define MM_INTERNAL_MAX_FILL_DATA_SEG         MM_INTERNAL_CFGVAL(MAX_FILL_DATA_SEG)
 #define DEFAULT_MM_INTERNAL_MAX_FILL_DATA_SEG 200
 
 /**
@@ -284,8 +277,7 @@
  *       of MM being late responding to housekeeping requests since it
  *       cannot process such a request while a load or dump is in progress.
  */
-#define MM_INTERNAL_MAX_LOAD_FILE_DATA_MEM32                                   \
-  MM_INTERNAL_CFGVAL(MAX_LOAD_FILE_DATA_MEM32)
+#define MM_INTERNAL_MAX_LOAD_FILE_DATA_MEM32         MM_INTERNAL_CFGVAL(MAX_LOAD_FILE_DATA_MEM32)
 #define DEFAULT_MM_INTERNAL_MAX_LOAD_FILE_DATA_MEM32 (1024 * 1024)
 
 /**
@@ -303,8 +295,7 @@
  *       of MM being late responding to housekeeping requests since it
  *       cannot process such a request while a load or dump is in progress.
  */
-#define MM_INTERNAL_MAX_DUMP_FILE_DATA_MEM32                                   \
-  MM_INTERNAL_CFGVAL(MAX_DUMP_FILE_DATA_MEM32)
+#define MM_INTERNAL_MAX_DUMP_FILE_DATA_MEM32         MM_INTERNAL_CFGVAL(MAX_DUMP_FILE_DATA_MEM32)
 #define DEFAULT_MM_INTERNAL_MAX_DUMP_FILE_DATA_MEM32 (1024 * 1024)
 
 /**
@@ -323,7 +314,7 @@
  *       cannot process such a request while a memory fill operation
  *       is in progress.
  */
-#define MM_INTERNAL_MAX_FILL_DATA_MEM32 MM_INTERNAL_CFGVAL(MAX_FILL_DATA_MEM32)
+#define MM_INTERNAL_MAX_FILL_DATA_MEM32         MM_INTERNAL_CFGVAL(MAX_FILL_DATA_MEM32)
 #define DEFAULT_MM_INTERNAL_MAX_FILL_DATA_MEM32 (1024 * 1024)
 
 /**
@@ -354,8 +345,7 @@
  *       of MM being late responding to housekeeping requests since it
  *       cannot process such a request while a load or dump is in progress.
  */
-#define MM_INTERNAL_MAX_LOAD_FILE_DATA_MEM16                                   \
-  MM_INTERNAL_CFGVAL(MAX_LOAD_FILE_DATA_MEM16)
+#define MM_INTERNAL_MAX_LOAD_FILE_DATA_MEM16         MM_INTERNAL_CFGVAL(MAX_LOAD_FILE_DATA_MEM16)
 #define DEFAULT_MM_INTERNAL_MAX_LOAD_FILE_DATA_MEM16 (1024 * 1024)
 
 /**
@@ -371,8 +361,7 @@
  *       of MM being late responding to housekeeping requests since it
  *       cannot process such a request while a load or dump is in progress.
  */
-#define MM_INTERNAL_MAX_DUMP_FILE_DATA_MEM16                                   \
-  MM_INTERNAL_CFGVAL(MAX_DUMP_FILE_DATA_MEM16)
+#define MM_INTERNAL_MAX_DUMP_FILE_DATA_MEM16         MM_INTERNAL_CFGVAL(MAX_DUMP_FILE_DATA_MEM16)
 #define DEFAULT_MM_INTERNAL_MAX_DUMP_FILE_DATA_MEM16 (1024 * 1024)
 
 /**
@@ -391,7 +380,7 @@
  *       cannot process such a request while a memory fill operation
  *       is in progress.
  */
-#define MM_INTERNAL_MAX_FILL_DATA_MEM16 MM_INTERNAL_CFGVAL(MAX_FILL_DATA_MEM16)
+#define MM_INTERNAL_MAX_FILL_DATA_MEM16         MM_INTERNAL_CFGVAL(MAX_FILL_DATA_MEM16)
 #define DEFAULT_MM_INTERNAL_MAX_FILL_DATA_MEM16 (1024 * 1024)
 
 /**
@@ -420,8 +409,7 @@
  *       of MM being late responding to housekeeping requests since it
  *       cannot process such a request while a load or dump is in progress.
  */
-#define MM_INTERNAL_MAX_LOAD_FILE_DATA_MEM8                                    \
-  MM_INTERNAL_CFGVAL(MAX_LOAD_FILE_DATA_MEM8)
+#define MM_INTERNAL_MAX_LOAD_FILE_DATA_MEM8         MM_INTERNAL_CFGVAL(MAX_LOAD_FILE_DATA_MEM8)
 #define DEFAULT_MM_INTERNAL_MAX_LOAD_FILE_DATA_MEM8 (1024 * 1024)
 
 /**
@@ -437,8 +425,7 @@
  *       of MM being late responding to housekeeping requests since it
  *       cannot process such a request while a load or dump is in progress.
  */
-#define MM_INTERNAL_MAX_DUMP_FILE_DATA_MEM8                                    \
-  MM_INTERNAL_CFGVAL(MAX_DUMP_FILE_DATA_MEM8)
+#define MM_INTERNAL_MAX_DUMP_FILE_DATA_MEM8         MM_INTERNAL_CFGVAL(MAX_DUMP_FILE_DATA_MEM8)
 #define DEFAULT_MM_INTERNAL_MAX_DUMP_FILE_DATA_MEM8 (1024 * 1024)
 
 /**
@@ -455,7 +442,7 @@
  *       cannot process such a request while a memory fill operation
  *       is in progress.
  */
-#define MM_INTERNAL_MAX_FILL_DATA_MEM8 MM_INTERNAL_CFGVAL(MAX_FILL_DATA_MEM8)
+#define MM_INTERNAL_MAX_FILL_DATA_MEM8         MM_INTERNAL_CFGVAL(MAX_FILL_DATA_MEM8)
 #define DEFAULT_MM_INTERNAL_MAX_FILL_DATA_MEM8 (1024 * 1024)
 
 /**
@@ -474,7 +461,7 @@
  *       to housekeeping requests since it cannot process such a request
  *       while a memory operation is in progress.
  */
-#define MM_INTERNAL_PROCESSOR_CYCLE MM_INTERNAL_CFGVAL(PROCESSOR_CYCLE)
+#define MM_INTERNAL_PROCESSOR_CYCLE         MM_INTERNAL_CFGVAL(PROCESSOR_CYCLE)
 #define DEFAULT_MM_INTERNAL_PROCESSOR_CYCLE 0
 
 /**
@@ -491,7 +478,7 @@
  *       Must be defined as a numeric value that is greater than
  *       or equal to zero.
  */
-#define MM_INTERNAL_MISSION_REV MM_INTERNAL_CFGVAL(MISSION_REV)
+#define MM_INTERNAL_MISSION_REV         MM_INTERNAL_CFGVAL(MISSION_REV)
 #define DEFAULT_MM_INTERNAL_MISSION_REV 0
 
 /**
@@ -507,10 +494,8 @@
  *    Message tail "from address: 0xFFFFFFFF"  33 characters including NUL on
  * 64-bit system
  */
-#define MM_INTERNAL_MAX_DUMP_INEVENT_BYTES                                     \
-  MM_INTERNAL_CFGVAL(MAX_DUMP_INEVENT_BYTES)
-#define DEFAULT_MM_INTERNAL_MAX_DUMP_INEVENT_BYTES                             \
-  ((CFE_MISSION_EVS_MAX_MESSAGE_LENGTH - (13 + 33)) / 5)
+#define MM_INTERNAL_MAX_DUMP_INEVENT_BYTES         MM_INTERNAL_CFGVAL(MAX_DUMP_INEVENT_BYTES)
+#define DEFAULT_MM_INTERNAL_MAX_DUMP_INEVENT_BYTES ((CFE_MISSION_EVS_MAX_MESSAGE_LENGTH - (13 + 33)) / 5)
 
 /**
  * \brief Dump in an event scratch string size
@@ -519,8 +504,7 @@
  * the dump in event message string. Set it to the size of the
  * largest piece shown above including room for a NUL terminator.
  */
-#define MM_INTERNAL_DUMPINEVENT_TEMP_CHARS                                     \
-  MM_INTERNAL_CFGVAL(DUMPINEVENT_TEMP_CHARS)
+#define MM_INTERNAL_DUMPINEVENT_TEMP_CHARS         MM_INTERNAL_CFGVAL(DUMPINEVENT_TEMP_CHARS)
 #define DEFAULT_MM_INTERNAL_DUMPINEVENT_TEMP_CHARS 36
 
 /**
@@ -534,7 +518,7 @@
  *       This must be one of the CRC types supported by the
  *       #CFE_ES_CalculateCRC function.
  */
-#define MM_INTERNAL_DUMP_FILE_CRC_TYPE MM_INTERNAL_CFGVAL(DUMP_FILE_CRC_TYPE)
+#define MM_INTERNAL_DUMP_FILE_CRC_TYPE         MM_INTERNAL_CFGVAL(DUMP_FILE_CRC_TYPE)
 #define DEFAULT_MM_INTERNAL_DUMP_FILE_CRC_TYPE CFE_MISSION_ES_DEFAULT_CRC
 
 /**
@@ -548,7 +532,7 @@
  *       This must be one of the CRC types supported by the
  *       #CFE_ES_CalculateCRC function.
  */
-#define MM_INTERNAL_LOAD_WID_CRC_TYPE MM_INTERNAL_CFGVAL(LOAD_WID_CRC_TYPE)
+#define MM_INTERNAL_LOAD_WID_CRC_TYPE         MM_INTERNAL_CFGVAL(LOAD_WID_CRC_TYPE)
 #define DEFAULT_MM_INTERNAL_LOAD_WID_CRC_TYPE CFE_MISSION_ES_DEFAULT_CRC
 
 /**
@@ -562,41 +546,36 @@
  *       This must be one of the CRC types supported by the
  *       #CFE_ES_CalculateCRC function.
  */
-#define MM_INTERNAL_LOAD_FILE_CRC_TYPE MM_INTERNAL_CFGVAL(LOAD_FILE_CRC_TYPE)
+#define MM_INTERNAL_LOAD_FILE_CRC_TYPE         MM_INTERNAL_CFGVAL(LOAD_FILE_CRC_TYPE)
 #define DEFAULT_MM_INTERNAL_LOAD_FILE_CRC_TYPE CFE_MISSION_ES_DEFAULT_CRC
 
 /**
  * \brief Misc Initialization Values
  */
 
-#define MM_INTERNAL_CLEAR_SYMNAME MM_INTERNAL_CFGVAL(CLEAR_SYMNAME)
-#define DEFAULT_MM_INTERNAL_CLEAR_SYMNAME                                      \
-  '\0' /**< \brief Used to clear out symbol name strings      */
+#define MM_INTERNAL_CLEAR_SYMNAME         MM_INTERNAL_CFGVAL(CLEAR_SYMNAME)
+#define DEFAULT_MM_INTERNAL_CLEAR_SYMNAME '\0' /**< \brief Used to clear out symbol name strings      */
 
-#define MM_INTERNAL_CLEAR_FNAME MM_INTERNAL_CFGVAL(CLEAR_FNAME)
-#define DEFAULT_MM_INTERNAL_CLEAR_FNAME                                        \
-  '\0' /**< \brief Used to clear out file name strings        */
+#define MM_INTERNAL_CLEAR_FNAME         MM_INTERNAL_CFGVAL(CLEAR_FNAME)
+#define DEFAULT_MM_INTERNAL_CLEAR_FNAME '\0' /**< \brief Used to clear out file name strings        */
 
-#define MM_INTERNAL_CLEAR_ADDR MM_INTERNAL_CFGVAL(CLEAR_ADDR)
-#define DEFAULT_MM_INTERNAL_CLEAR_ADDR                                         \
-  0 /**< \brief Used to clear out memory address variables */
+#define MM_INTERNAL_CLEAR_ADDR         MM_INTERNAL_CFGVAL(CLEAR_ADDR)
+#define DEFAULT_MM_INTERNAL_CLEAR_ADDR 0 /**< \brief Used to clear out memory address variables */
 
-#define MM_INTERNAL_CLEAR_PATTERN MM_INTERNAL_CFGVAL(CLEAR_PATTERN)
-#define DEFAULT_MM_INTERNAL_CLEAR_PATTERN                                      \
-  0 /**< \brief Used to clear out fill and test patterns   */
+#define MM_INTERNAL_CLEAR_PATTERN         MM_INTERNAL_CFGVAL(CLEAR_PATTERN)
+#define DEFAULT_MM_INTERNAL_CLEAR_PATTERN 0 /**< \brief Used to clear out fill and test patterns   */
 
 /**
  * \brief MM Data Sizes for Peeks and Pokes
  */
 
-#define MM_INTERNAL_BYTE_BIT_WIDTH MM_INTERNAL_CFGVAL(BYTE_BIT_WIDTH)
+#define MM_INTERNAL_BYTE_BIT_WIDTH         MM_INTERNAL_CFGVAL(BYTE_BIT_WIDTH)
 #define DEFAULT_MM_INTERNAL_BYTE_BIT_WIDTH 8 /**< \brief Byte bit width */
 
-#define MM_INTERNAL_WORD_BIT_WIDTH MM_INTERNAL_CFGVAL(WORD_BIT_WIDTH)
+#define MM_INTERNAL_WORD_BIT_WIDTH         MM_INTERNAL_CFGVAL(WORD_BIT_WIDTH)
 #define DEFAULT_MM_INTERNAL_WORD_BIT_WIDTH 16 /**< \brief Word bit width */
 
-#define MM_INTERNAL_DWORD_BIT_WIDTH MM_INTERNAL_CFGVAL(DWORD_BIT_WIDTH)
-#define DEFAULT_MM_INTERNAL_DWORD_BIT_WIDTH                                    \
-  32 /**< \brief Double word bit width */
+#define MM_INTERNAL_DWORD_BIT_WIDTH         MM_INTERNAL_CFGVAL(DWORD_BIT_WIDTH)
+#define DEFAULT_MM_INTERNAL_DWORD_BIT_WIDTH 32 /**< \brief Double word bit width */
 
 #endif /* MM_INTERNAL_CFG_H */
