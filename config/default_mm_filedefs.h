@@ -41,13 +41,14 @@
  * and restore capability). This MM header is the secondary header, the
  * standard cFE file header is primary header for all load and dump files.
  */
-typedef struct {
-  MM_SymAddr_t SymAddress;   /**< \brief Symbolic load address or fully resolved
-                                dump address */
-  uint32 NumOfBytes;         /**< \brief Bytes to load or bytes dumped      */
-  uint32 Crc;                /**< \brief CRC value for load or dump data    */
-  MM_MemType_Enum_t MemType; /**< \brief Memory type used                   */
-  uint8 Spare[3];            /**< \brief Structure Padding                  */
+typedef struct
+{
+    MM_SymAddr_t      SymAddress; /**< \brief Symbolic load address or fully resolved
+                                     dump address */
+    uint32            NumOfBytes; /**< \brief Bytes to load or bytes dumped      */
+    uint32            Crc;        /**< \brief CRC value for load or dump data    */
+    MM_MemType_Enum_t MemType;    /**< \brief Memory type used                   */
+    uint8             Spare[3];   /**< \brief Structure Padding                  */
 } MM_LoadDumpFileHeader_t;
 
 #endif

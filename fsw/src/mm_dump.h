@@ -69,8 +69,7 @@ int32 MM_PeekMem(const MM_PeekCmd_t *CmdPtr, cpuaddr SrcAddress);
  *
  *  \return Execution status
  */
-int32 MM_DumpMemToFile(osal_id_t FileHandle, const char *FileName,
-                       const MM_LoadDumpFileHeader_t *FileHeader);
+int32 MM_DumpMemToFile(osal_id_t FileHandle, const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader);
 
 /**
  * \brief Write the cFE primary and MM secondary file headers
@@ -94,8 +93,9 @@ int32 MM_DumpMemToFile(osal_id_t FileHandle, const char *FileName,
  *
  *  \return Execution status
  */
-int32 MM_WriteFileHeaders(const char *FileName, osal_id_t FileHandle,
-                          CFE_FS_Header_t *CFEHeader,
+int32 MM_WriteFileHeaders(const char                    *FileName,
+                          osal_id_t                      FileHandle,
+                          CFE_FS_Header_t               *CFEHeader,
                           const MM_LoadDumpFileHeader_t *MMHeader);
 
 /**
@@ -116,8 +116,6 @@ int32 MM_WriteFileHeaders(const char *FileName, osal_id_t FileHandle,
  *
  *  \return Execution status
  */
-int32 MM_FillDumpInEventBuffer(cpuaddr SrcAddress,
-                               const MM_DumpInEventCmd_t *CmdPtr,
-                               void *DumpBuffer);
+int32 MM_FillDumpInEventBuffer(cpuaddr SrcAddress, const MM_DumpInEventCmd_t *CmdPtr, void *DumpBuffer);
 
 #endif

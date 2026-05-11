@@ -48,8 +48,7 @@
  *       to avoid packet segmentation for the command protocal being
  *       used.
  */
-#define MM_INTERFACE_MAX_UNINTERRUPTIBLE_DATA                                  \
-  MM_INTERFACE_CFGVAL(MAX_UNINTERRUPTIBLE_DATA)
+#define MM_INTERFACE_MAX_UNINTERRUPTIBLE_DATA         MM_INTERFACE_CFGVAL(MAX_UNINTERRUPTIBLE_DATA)
 #define DEFAULT_MM_INTERFACE_MAX_UNINTERRUPTIBLE_DATA 200
 
 #endif /* MM_INTERFACE_CFG_H */

@@ -105,9 +105,10 @@ bool MM_LoadMemWID(const MM_LoadMemWIDCmd_t *CmdPtr, cpuaddr DestAddress);
  *
  *  \return Execution status
  */
-int32 MM_LoadMemFromFile(osal_id_t FileHandle, const char *FileName,
+int32 MM_LoadMemFromFile(osal_id_t                      FileHandle,
+                         const char                    *FileName,
                          const MM_LoadDumpFileHeader_t *FileHeader,
-                         cpuaddr DestAddress);
+                         cpuaddr                        DestAddress);
 
 /**
  * \brief Verify load file size
@@ -127,8 +128,7 @@ int32 MM_LoadMemFromFile(osal_id_t FileHandle, const char *FileName,
  *
  *  \return Execution status
  */
-int32 MM_VerifyLoadFileSize(const char *FileName,
-                            const MM_LoadDumpFileHeader_t *FileHeader);
+int32 MM_VerifyLoadFileSize(const char *FileName, const MM_LoadDumpFileHeader_t *FileHeader);
 
 /**
  * \brief Read the cFE primary and MM secondary file headers
@@ -152,8 +152,9 @@ int32 MM_VerifyLoadFileSize(const char *FileName,
  *
  *  \return Execution status
  */
-int32 MM_ReadFileHeaders(const char *FileName, osal_id_t FileHandle,
-                         CFE_FS_Header_t *CFEHeader,
+int32 MM_ReadFileHeaders(const char              *FileName,
+                         osal_id_t                FileHandle,
+                         CFE_FS_Header_t         *CFEHeader,
                          MM_LoadDumpFileHeader_t *MMHeader);
 
 /**
