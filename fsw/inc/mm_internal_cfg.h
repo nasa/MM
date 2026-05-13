@@ -479,7 +479,7 @@
  *       or equal to zero.
  */
 #define MM_INTERNAL_MISSION_REV         MM_INTERNAL_CFGVAL(MISSION_REV)
-#define DEFAULT_MM_INTERNAL_MISSION_REV 0
+#define DEFAULT_MM_INTERNAL_MISSION_REV 0xFF
 
 /**
  * \brief Maximum dump bytes in an event string
