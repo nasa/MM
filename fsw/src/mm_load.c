@@ -56,6 +56,34 @@ CFE_Status_t MM_PokeMem(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
     size_t       DataSize       = 0; /* only used for giving MEM type/size in events */
     uint32       EventID        = 0;
 
+    /*
+     * Defense-in-depth: re-validate the DataSize field before
+     * dispatching to the platform write primitives.  Today the
+     * validity of this field is also enforced upstream in
+     * MM_VerifyPeekPokeParams() before MM_PokeMem() is called,
+     * but this function is the one that holds the
+     * CFE_PSP_MemWrite{8,16,32}() calls and should not depend on
+     * a cross-translation-unit invariant for memory safety.  Any
+     * future code path that reaches MM_PokeMem() without going
+     * through MM_VerifyPeekPokeParams() (refactor of MM_PokeCmd
+     * dispatch, new ground-command entry that delegates to
+     * MM_PokeMem, etc.) would otherwise drop straight into the
+     * switch with PSP_Status left at its initialised value of
+     * CFE_PSP_ERROR_NOT_IMPLEMENTED and the command counter
+     * unchanged, but no diagnostic event sent --- silently
+     * failing to update HK and silently failing to log.
+     */
+    if (CmdPtr->Payload.DataSize != MM_INTERNAL_BYTE_BIT_WIDTH &&
+        CmdPtr->Payload.DataSize != MM_INTERNAL_WORD_BIT_WIDTH &&
+        CmdPtr->Payload.DataSize != MM_INTERNAL_DWORD_BIT_WIDTH)
+    {
+        CFE_EVS_SendEvent(MM_DATA_SIZE_BITS_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "MM_PokeMem invalid data size: %u",
+                          (unsigned int)CmdPtr->Payload.DataSize);
+        return CFE_PSP_ERROR;
+    }
+
     /* Write input number of bits to destination address */
     switch (CmdPtr->Payload.DataSize)
     {
