@@ -169,6 +169,37 @@ CFE_Status_t MM_PokeEeprom(const MM_PokeCmd_t *CmdPtr, cpuaddr DestAddress)
     uint32       DataValue      = 0;
     size_t       BytesProcessed = 0;
 
+    /*
+     * Defense-in-depth: re-validate the DataSize field before
+     * dispatching to the platform write primitives.  Today the
+     * validity of this field is also enforced upstream in
+     * MM_VerifyPeekPokeParams() before MM_PokeEeprom() is called,
+     * but this function is the one that holds the
+     * CFE_PSP_EepromWrite{8,16,32}() calls and should not depend
+     * on a cross-translation-unit invariant for memory safety.
+     * EEPROM writes are particularly sensitive because they
+     * persist across power cycles --- a silent failure here can
+     * leave the spacecraft in an unintended persistent state
+     * across reboots.  Any future code path that reaches
+     * MM_PokeEeprom() without going through MM_VerifyPeekPokeParams()
+     * (refactor of MM_PokeCmd dispatch, new ground-command entry
+     * that delegates to MM_PokeEeprom, etc.) would otherwise drop
+     * straight into the switch with PSP_Status left at its
+     * initialised value of CFE_PSP_ERROR_NOT_IMPLEMENTED, no
+     * diagnostic event sent, and the perf-log entry/exit pair
+     * unbalanced relative to the actual work performed.
+     */
+    if (CmdPtr->Payload.DataSize != MM_INTERNAL_BYTE_BIT_WIDTH &&
+        CmdPtr->Payload.DataSize != MM_INTERNAL_WORD_BIT_WIDTH &&
+        CmdPtr->Payload.DataSize != MM_INTERNAL_DWORD_BIT_WIDTH)
+    {
+        CFE_EVS_SendEvent(MM_DATA_SIZE_BITS_ERR_EID,
+                          CFE_EVS_EventType_ERROR,
+                          "MM_PokeEeprom invalid data size: %u",
+                          (unsigned int)CmdPtr->Payload.DataSize);
+        return CFE_PSP_ERROR;
+    }
+
     CFE_ES_PerfLogEntry(MM_EEPROM_POKE_PERF_ID);
 
     /* Write input number of bits to destination address */
