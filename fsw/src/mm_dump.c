@@ -265,7 +265,7 @@ int32 MM_FillDumpInEventBuffer(cpuaddr SrcAddress, const MM_DumpInEventCmd_t *Cm
     uint32 i;
 #endif
     /* cppcheck-suppress unusedVariable */
-    int32 PSP_Status;
+    int32 PSP_Status = CFE_PSP_ERROR;
 
     /* Initialize buffer */
     memset(DumpBuffer, 0, MM_INTERNAL_MAX_DUMP_INEVENT_BYTES);
@@ -360,7 +360,6 @@ int32 MM_FillDumpInEventBuffer(cpuaddr SrcAddress, const MM_DumpInEventCmd_t *Cm
             /* This branch will never be executed. CmdPtr->Payload.MemType will always
              * be valid value for this switch statement it is verified via
              * MM_VerifyFileLoadDumpParams */
-            PSP_Status = CFE_PSP_ERROR;
             break;
 
     } /* end CmdPtr->Payload.MemType switch */
