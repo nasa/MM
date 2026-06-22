@@ -47,6 +47,16 @@
 /* Function Definitions */
 /* ==================== */
 
+int32 MM_APP_TEST_CFE_ES_ExitAppHook(void                   *UserObj,
+                                     int32                   StubRetcode,
+                                     uint32                  CallCount,
+                                     const UT_StubContext_t *Context)
+{
+    MM_AppData.HkTlm.Payload.CommandCounter++;
+
+    return 0;
+}
+
 void MM_AppMain_Test_Nominal(void)
 {
     CFE_SB_Buffer_t  Buf;
@@ -117,6 +127,32 @@ void MM_AppMain_Test_SBTimeout(void)
 
     /* Execute the function being tested */
     MM_AppMain();
+
+    /* Verify results */
+    /* Generates 1 event message we don't care about in this test */
+    UtAssert_STUB_COUNT(CFE_EVS_SendEvent, 1);
+}
+
+void MM_AppMain_Test_SBNoMessage(void)
+{
+    size_t         forced_Size  = 1;
+    CFE_SB_MsgId_t forced_MsgID = MM_UT_MID_1;
+
+    /* Set to exit loop after first run */
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RunLoop), 1, true);
+
+    /* Set to generate error message CFE_SB_NO_MESSAGE */
+    UT_SetDefaultReturnValue(UT_KEY(CFE_SB_ReceiveBuffer), CFE_SB_NO_MESSAGE);
+
+    /* Set to prevent segmentation fault */
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &forced_MsgID, sizeof(forced_MsgID), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &forced_Size, sizeof(forced_Size), false);
+
+    /* Used to verify completion of MM_AppMain by incrementing MM_AppData.HkPacket.CmdCounter. */
+    UT_SetHookFunction(UT_KEY(CFE_ES_ExitApp), MM_APP_TEST_CFE_ES_ExitAppHook, NULL);
+
+    /* Execute the function being tested */
+    UtAssert_VOIDCALL(MM_AppMain());
 
     /* Verify results */
     /* Generates 1 event message we don't care about in this test */
@@ -278,6 +314,7 @@ void UtTest_Setup(void)
     ADD_TEST(MM_AppMain_Test_AppInitError);
     ADD_TEST(MM_AppMain_Test_SBError);
     ADD_TEST(MM_AppMain_Test_SBTimeout);
+    ADD_TEST(MM_AppMain_Test_SBNoMessage);
     ADD_TEST(MM_AppInit_Test_Nominal);
     ADD_TEST(MM_AppInit_Test_EVSRegisterError);
     ADD_TEST(MM_AppInit_Test_SBCreatePipeError);
