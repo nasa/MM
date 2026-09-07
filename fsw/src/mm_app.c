@@ -167,6 +167,20 @@ CFE_Status_t MM_AppInit(void)
     CFE_MSG_Init(CFE_MSG_PTR(MM_AppData.HkTlm.TelemetryHeader), CFE_SB_ValueToMsgId(MM_HK_TLM_MID), sizeof(MM_HkTlm_t));
 
     /*
+    ** Initialize the local peek telemetry packet (clear user data area)
+    */
+    CFE_MSG_Init(CFE_MSG_PTR(MM_AppData.PeekPacket.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(MM_PEEK_TLM_MID),
+                 sizeof(MM_PeekPacket_t));
+
+    /*
+    ** Initialize the local symbol lookup  telemetry packet (clear user data area)
+    */
+    CFE_MSG_Init(CFE_MSG_PTR(MM_AppData.SymLookupPacket.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(MM_SYM_LOOKUP_TLM_MID),
+                 sizeof(MM_SymLookupPacket_t));
+
+    /*
     ** Create Software Bus message pipe
     */
     Status = CFE_SB_CreatePipe(&MM_AppData.CmdPipe, MM_INTERNAL_CMD_PIPE_DEPTH, MM_INTERNAL_CMD_PIPE_NAME);

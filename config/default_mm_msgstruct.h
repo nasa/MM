@@ -193,6 +193,24 @@ typedef struct
     CFE_MSG_TelemetryHeader_t TelemetryHeader;
 } MM_SendHkCmd_t;
 
+/**
+ *  \brief Symbol Lookup Packet Structure
+ */
+typedef struct
+{
+    CFE_MSG_TelemetryHeader_t    TelemetryHeader; /**< \brief Telemetry header */
+    MM_SymLookupPacket_Payload_t Payload;         /**< \brief Symbol Lookup Packet Payload */
+} MM_SymLookupPacket_t;
+
+/**
+ *  \brief Peek Packet Structure
+ */
+typedef struct
+{
+    CFE_MSG_TelemetryHeader_t TelemetryHeader; /**< \brief Telemetry header */
+    MM_PeekPacket_Payload_t   Payload;         /**< \brief Peek Packet Payload */
+} MM_PeekPacket_t;
+
 #endif /* DEFAULT_MM_MSGSTRUCT_H */
 
 /**\}*/
