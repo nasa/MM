@@ -55,8 +55,6 @@ enum
     MM_LastAction_RESET           = 13  /**< \brief Reset counters action */
 };
 
-typedef uint8 MM_LastAction_Enum_t;
-
 /**
  *  \brief Memory Types
  */
