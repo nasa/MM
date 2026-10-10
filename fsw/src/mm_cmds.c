@@ -153,6 +153,15 @@ CFE_Status_t MM_LookupSymCmd(const MM_LookupSymCmd_t *Msg)
                               "Symbol Lookup Command: Name = '%s' Addr = %p",
                               SymName,
                               (void *)ResolvedAddr);
+
+            /* Update Symbol Look Up Tlm */
+            strncpy(MM_AppData.SymLookupPacket.Payload.SymName,
+                    SymName,
+                    sizeof(MM_AppData.SymLookupPacket.Payload.SymName));
+
+            MM_AppData.SymLookupPacket.Payload.Address = ResolvedAddr;
+            CFE_SB_TimeStampMsg(CFE_MSG_PTR(MM_AppData.SymLookupPacket.TelemetryHeader));
+            CFE_SB_TransmitMsg(CFE_MSG_PTR(MM_AppData.SymLookupPacket.TelemetryHeader), true);
         }
         else
         {

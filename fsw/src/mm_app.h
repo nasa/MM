@@ -59,7 +59,9 @@
  */
 typedef struct
 {
-    MM_HkTlm_t HkTlm; /**< \brief Housekeeping telemetry packet */
+    MM_HkTlm_t           HkTlm;           /**< \brief Housekeeping telemetry packet */
+    MM_SymLookupPacket_t SymLookupPacket; /**< \brief Symbol lookup telemetry packet */
+    MM_PeekPacket_t      PeekPacket;      /**< \brief Memory peek telemetry packet */
 
     CFE_SB_PipeId_t CmdPipe; /**< \brief Command pipe ID */
 

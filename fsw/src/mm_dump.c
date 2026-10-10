@@ -118,6 +118,15 @@ int32 MM_PeekMem(const MM_PeekCmd_t *CmdPtr, cpuaddr SrcAddress)
                           (void *)SrcAddress,
                           (unsigned int)DataSize,
                           (unsigned int)DataValue);
+
+        /* Update Peek TLM Packet */
+        MM_AppData.PeekPacket.Payload.MemType        = CmdPtr->Payload.MemType;
+        MM_AppData.PeekPacket.Payload.Address        = SrcAddress;
+        MM_AppData.PeekPacket.Payload.BytesProcessed = BytesProcessed;
+        MM_AppData.PeekPacket.Payload.DataValue      = DataValue;
+
+        CFE_SB_TimeStampMsg(CFE_MSG_PTR(MM_AppData.PeekPacket.TelemetryHeader));
+        CFE_SB_TransmitMsg(CFE_MSG_PTR(MM_AppData.PeekPacket.TelemetryHeader), true);
     }
     else
     {
